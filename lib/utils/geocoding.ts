@@ -27,47 +27,59 @@ export async function addressToCoordinates(address: string): Promise<Coordinates
       return
     }
 
-    // services가 없으면 대기
-    if (!window.kakao.maps.services) {
-      // 짧게 대기 후 재시도
-      setTimeout(() => {
-        if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
-          const geocoder = new window.kakao.maps.services.Geocoder()
-          geocoder.addressSearch(address, (result: any, status: any) => {
-            if (status === window.kakao.maps.services.Status.OK) {
-              const coords = {
-                lat: parseFloat(result[0].y),
-                lng: parseFloat(result[0].x),
-              }
-              resolve(coords)
-            } else {
-              if (process.env.NODE_ENV === 'development') {
-                console.error('주소 변환 실패:', address, status)
-              }
-              resolve(null)
+    // services가 없으면 대기 후 재시도
+    const tryGeocode = () => {
+      if (!window.kakao || !window.kakao.maps || !window.kakao.maps.services) {
+        return false
+      }
+
+      try {
+        const geocoder = new window.kakao.maps.services.Geocoder()
+        geocoder.addressSearch(address, (result: any, status: any) => {
+          if (status === window.kakao.maps.services.Status.OK) {
+            const coords = {
+              lat: parseFloat(result[0].y),
+              lng: parseFloat(result[0].x),
             }
-          })
-        } else {
-          resolve(null)
+            resolve(coords)
+          } else {
+            if (process.env.NODE_ENV === 'development') {
+              console.error('주소 변환 실패:', address, status)
+            }
+            resolve(null)
+          }
+        })
+        return true
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Geocoder 생성 오류:', error)
         }
-      }, 500)
+        return false
+      }
+    }
+
+    // 즉시 시도
+    if (tryGeocode()) {
       return
     }
 
-    const geocoder = new window.kakao.maps.services.Geocoder()
-
-    geocoder.addressSearch(address, (result: any, status: any) => {
-      if (status === window.kakao.maps.services.Status.OK) {
-        const coords = {
-          lat: parseFloat(result[0].y),
-          lng: parseFloat(result[0].x),
+    // services가 없으면 최대 3초 대기 후 재시도
+    let attempts = 0
+    const maxAttempts = 15 // 15 * 200ms = 3초
+    const checkInterval = setInterval(() => {
+      attempts++
+      if (tryGeocode()) {
+        clearInterval(checkInterval)
+        return
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(checkInterval)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('주소 검색 서비스 로드 실패:', address)
         }
-        resolve(coords)
-      } else {
-        console.error('주소 변환 실패:', address, status)
         resolve(null)
       }
-    })
+    }, 200)
   })
 }
 
@@ -114,9 +126,29 @@ export function waitForKakaoMaps(): Promise<boolean> {
       return
     }
 
-    // 이미 로드된 경우
-    if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
-      resolve(true)
+    // 이미 로드된 경우 (services는 나중에 필요할 때 체크)
+    if (window.kakao && window.kakao.maps) {
+      if (window.kakao.maps.services) {
+        resolve(true)
+        return
+      }
+      // 지도는 로드되었지만 services가 아직 없는 경우, 짧게 대기
+      let attempts = 0
+      const maxQuickAttempts = 10 // 2초만 대기
+      const quickCheck = setInterval(() => {
+        attempts++
+        if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+          clearInterval(quickCheck)
+          resolve(true)
+          return
+        }
+        if (attempts >= maxQuickAttempts) {
+          clearInterval(quickCheck)
+          // 지도는 로드되었으므로 true 반환 (services는 나중에 사용할 때 체크)
+          resolve(true)
+          return
+        }
+      }, 200)
       return
     }
 
@@ -127,8 +159,9 @@ export function waitForKakaoMaps(): Promise<boolean> {
     const checkInterval = setInterval(() => {
       attempts++
 
-      if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+      if (window.kakao && window.kakao.maps) {
         clearInterval(checkInterval)
+        // services는 나중에 필요할 때 체크
         resolve(true)
         return
       }
@@ -137,7 +170,7 @@ export function waitForKakaoMaps(): Promise<boolean> {
         clearInterval(checkInterval)
         // 개발 환경에서만 에러 로그 출력
         if (process.env.NODE_ENV === 'development') {
-          console.warn('Kakao Maps API 로드 타임아웃 - 지도가 이미 로드되었을 수 있습니다')
+          console.warn('Kakao Maps API 로드 타임아웃')
         }
         resolve(false)
       }

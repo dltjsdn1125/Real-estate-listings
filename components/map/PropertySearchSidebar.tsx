@@ -195,18 +195,25 @@ export default function PropertySearchSidebar({
       // 주소 정규화 (대구광역시 자동 추가)
       const normalizedAddress = normalizeAddress(searchQuery)
       
+      if (process.env.NODE_ENV === 'development') {
+        console.log('주소 검색 시도:', normalizedAddress)
+      }
+      
       // 주소를 좌표로 변환
       const coords = await addressToCoordinates(normalizedAddress)
       if (coords) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('주소 검색 성공:', coords)
+        }
         // 부모 컴포넌트에 검색 결과 전달 (지도 이동만)
         onSearchAddress?.(normalizedAddress, coords)
         // 검색 성공 후 검색어는 유지 (사용자가 확인할 수 있도록)
       } else {
-        alert('주소를 찾을 수 없습니다. 다른 주소로 검색해주세요.\n\n예시:\n- 대구 중구 동성로\n- 대구 수성구 범어동\n- 동성로 2가\n- 범어천로 33')
+        alert('주소를 찾을 수 없습니다. 다른 주소로 검색해주세요.\n\n예시:\n- 대구 중구 동성로\n- 대구 수성구 범어동\n- 동성로 2가\n- 범어천로 33\n- 대구 중구 동성로 2가')
       }
     } catch (error) {
       console.error('주소 검색 오류:', error)
-      alert('주소 검색 중 오류가 발생했습니다.')
+      alert('주소 검색 중 오류가 발생했습니다: ' + (error instanceof Error ? error.message : String(error)))
     } finally {
       setIsSearching(false)
     }
@@ -275,10 +282,18 @@ export default function PropertySearchSidebar({
               disabled={isSearching}
               title="건물명이나 도로명 주소를 입력하면 지도가 해당 위치로 이동합니다"
             />
-            {isSearching && (
+            {isSearching ? (
               <div className="flex items-center justify-center pr-4">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
               </div>
+            ) : (
+              <button
+                type="submit"
+                className="flex items-center justify-center pr-4 text-[#616f89] dark:text-gray-400 hover:text-primary transition-colors"
+                title="검색"
+              >
+                <span className="material-symbols-outlined text-[24px]">search</span>
+              </button>
             )}
           </div>
         </form>
