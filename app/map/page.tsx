@@ -201,16 +201,11 @@ export default function MapPage() {
   }
 
   const handleSearchAddress = (address: string, coords: { lat: number; lng: number }) => {
-    // 검색된 주소로 지도 이동
+    // 검색된 주소로 지도 이동만 수행 (매물 검색 아님)
     setMapCenter({ lat: coords.lat, lng: coords.lng })
     setMapLevel(3) // 상세 레벨로 확대
-    // 해당 위치 주변 매물 검색을 위해 반경 검색 활성화
-    setRadiusSearch({
-      enabled: true,
-      centerLat: coords.lat,
-      centerLng: coords.lng,
-      radiusKm: 2, // 기본 2km 반경
-    })
+    // 반경 검색은 자동 활성화하지 않음 (사용자가 원할 때만 사용)
+    // 지도 이동만 수행
   }
 
   const handleApplyFilters = (filters: any) => {
