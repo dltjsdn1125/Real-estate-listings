@@ -35,16 +35,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko" className="light">
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="apple-touch-icon" href="/favicon.svg" />
-        <meta name="theme-color" content="#ff6b00" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="대구 상가" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="application-name" content="대구 상가" />
-      </head>
       <body className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display antialiased">
         {children}
         <Script id="service-worker-registration" strategy="afterInteractive">
