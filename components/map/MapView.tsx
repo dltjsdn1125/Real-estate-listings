@@ -31,6 +31,7 @@ interface PropertyMarker {
 
 interface MapViewProps {
   onSearchArea?: (bounds?: { sw: { lat: number; lng: number }; ne: { lat: number; lng: number } }) => void
+  onMapClick?: (lat: number, lng: number) => void
   markers?: MapMarker[]
   properties?: PropertyMarker[]
   center?: { lat: number; lng: number }
@@ -38,7 +39,8 @@ interface MapViewProps {
 }
 
 export default function MapView({ 
-  onSearchArea, 
+  onSearchArea,
+  onMapClick,
   markers = [], 
   properties = [],
   center,
@@ -90,6 +92,7 @@ export default function MapView({
         properties={propertyMarkers}
         onMapReady={handleMapReady}
         onMarkerClick={handleMarkerClick}
+        onMapClick={onMapClick}
         center={center}
         level={level} // 고해상도 지도 (3 = 상세, 낮을수록 확대)
       />

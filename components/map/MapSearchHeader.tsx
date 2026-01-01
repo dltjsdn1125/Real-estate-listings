@@ -5,9 +5,10 @@ import { useAuth } from '@/lib/hooks/useAuth'
 
 interface MapSearchHeaderProps {
   onToggleSidebar?: () => void
+  onQuickRegister?: () => void
 }
 
-export default function MapSearchHeader({ onToggleSidebar }: MapSearchHeaderProps) {
+export default function MapSearchHeader({ onToggleSidebar, onQuickRegister }: MapSearchHeaderProps) {
   const { user, isAuthenticated, loading, signOut } = useAuth()
 
   // 개발 환경에서만 디버깅 로그 출력
@@ -53,18 +54,26 @@ export default function MapSearchHeader({ onToggleSidebar }: MapSearchHeaderProp
           </Link>
           {isAuthenticated && (user?.role === 'admin' || user?.role === 'agent') && (
             <>
+              <button
+                onClick={onQuickRegister}
+                className="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors"
+              >
+                간단 등록
+              </button>
               <Link
                 href="/admin/properties/new"
                 className="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors"
               >
-                매물 등록
+                상세 등록
               </Link>
-              <Link
-                href="/admin/users"
-                className="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors"
-              >
-                사용자 관리
-              </Link>
+              {user?.role === 'admin' && (
+                <Link
+                  href="/admin/users"
+                  className="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors"
+                >
+                  사용자 관리
+                </Link>
+              )}
             </>
           )}
         </div>

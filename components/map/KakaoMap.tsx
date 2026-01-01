@@ -23,6 +23,7 @@ interface KakaoMapProps {
   properties?: PropertyMarker[]
   onMapReady?: (map: any) => void
   onMarkerClick?: (propertyId: string) => void
+  onMapClick?: (lat: number, lng: number) => void
   center?: { lat: number; lng: number }
   level?: number // 지도 확대/축소 레벨 (1-14, 높을수록 확대)
 }
@@ -31,6 +32,7 @@ export default function KakaoMap({
   properties = [],
   onMapReady,
   onMarkerClick,
+  onMapClick,
   center,
   level = 3, // 기본 레벨 (대구 전체 보기)
 }: KakaoMapProps) {
@@ -216,6 +218,14 @@ export default function KakaoMap({
     // 지도 타입 설정 (일반 지도 + 지형도 혼합 가능)
     // kakaoMap.setMapTypeId(window.kakao.maps.MapTypeId.ROADMAP) // 기본 도로 지도
     // kakaoMap.setMapTypeId(window.kakao.maps.MapTypeId.HYBRID) // 위성 + 도로명
+
+    // 지도 클릭 이벤트 추가
+    window.kakao.maps.event.addListener(kakaoMap, 'click', (mouseEvent: any) => {
+      const latlng = mouseEvent.latLng
+      const lat = latlng.getLat()
+      const lng = latlng.getLng()
+      onMapClick?.(lat, lng)
+    })
 
     // 지도 준비 완료 콜백
     onMapReady?.(kakaoMap)

@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import MapSearchHeader from '@/components/map/MapSearchHeader'
 import PropertySearchSidebar from '@/components/map/PropertySearchSidebar'
 import MapView from '@/components/map/MapView'
+import QuickPropertyRegisterModal from '@/components/map/QuickPropertyRegisterModal'
 import { getProperties } from '@/lib/supabase/properties'
 import { supabase } from '@/lib/supabase/client'
 import { getDistrictCoordinates } from '@/lib/constants/daeguDistricts'
+import { useAuth } from '@/lib/hooks/useAuth'
 
 interface PropertyForMap {
   id: string
@@ -29,6 +31,7 @@ interface PropertyForMap {
 
 export default function MapPage() {
   const router = useRouter()
+  const { user, isAuthenticated } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [properties, setProperties] = useState<PropertyForMap[]>([])
   const [loading, setLoading] = useState(true)
@@ -41,6 +44,8 @@ export default function MapPage() {
     centerLng?: number
     radiusKm?: number
   }>({ enabled: false })
+  const [quickRegisterOpen, setQuickRegisterOpen] = useState(false)
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | undefined>(undefined)
 
   useEffect(() => {
     loadProperties()
@@ -241,6 +246,27 @@ export default function MapPage() {
     }
   }
 
+  const handleQuickRegister = () => {
+    if (!isAuthenticated || !user || !['admin', 'agent'].includes(user.role)) {
+      alert('매물 등록 권한이 없습니다.')
+      return
+    }
+    setQuickRegisterOpen(true)
+  }
+
+  const handleMapClick = (lat: number, lng: number) => {
+    // 지도 클릭 시 위치 선택 및 등록 모달 열기 (권한이 있는 경우만)
+    if (isAuthenticated && user && ['admin', 'agent'].includes(user.role)) {
+      setSelectedLocation({ lat, lng })
+      setQuickRegisterOpen(true)
+    }
+  }
+
+  const handleRegisterSuccess = () => {
+    // 매물 등록 성공 시 목록 새로고침
+    loadProperties()
+  }
+
   if (loading) {
     return (
       <div className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden h-screen flex items-center justify-center">
@@ -254,7 +280,7 @@ export default function MapPage() {
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden h-screen flex flex-col">
-      <MapSearchHeader onToggleSidebar={handleToggleSidebar} />
+      <MapSearchHeader onToggleSidebar={handleToggleSidebar} onQuickRegister={handleQuickRegister} />
       <div className="flex flex-1 overflow-hidden relative">
         <PropertySearchSidebar
           isOpen={sidebarOpen}
@@ -269,6 +295,7 @@ export default function MapPage() {
         />
         <MapView
           onSearchArea={handleSearchArea}
+          onMapClick={handleMapClick}
           center={mapCenter}
           level={mapLevel}
           properties={properties
@@ -284,6 +311,15 @@ export default function MapPage() {
             }))}
         />
       </div>
+      <QuickPropertyRegisterModal
+        isOpen={quickRegisterOpen}
+        onClose={() => {
+          setQuickRegisterOpen(false)
+          setSelectedLocation(undefined)
+        }}
+        initialLocation={selectedLocation}
+        onSuccess={handleRegisterSuccess}
+      />
     </div>
   )
 }
