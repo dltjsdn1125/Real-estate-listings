@@ -267,29 +267,27 @@ export default function PropertySearchSidebar({
     <div className="flex flex-col h-full">
       {/* Search & Filter Container */}
       <div className="p-4 border-b border-[#f0f2f4] dark:border-gray-800 flex flex-col gap-4">
-        {/* Search Bar */}
+        {/* Address Search Bar */}
         <form onSubmit={handleSearchSubmit} className="relative w-full">
           <div className="flex w-full items-stretch rounded-lg h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
-            <div className="text-[#616f89] dark:text-gray-400 flex items-center justify-center pl-4 rounded-l-lg">
-              <span className="material-symbols-outlined text-[24px]">search</span>
-            </div>
             <input
-              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-3 text-base font-normal leading-normal"
+              className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-4 text-base font-normal leading-normal"
               placeholder="건물명, 도로명 주소 검색 (지도 이동)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchAddressQuery}
+              onChange={(e) => setSearchAddressQuery(e.target.value)}
               onKeyPress={handleSearchKeyPress}
               disabled={isSearching}
               title="건물명이나 도로명 주소를 입력하면 지도가 해당 위치로 이동합니다"
             />
             {isSearching ? (
-              <div className="flex items-center justify-center pr-4">
+              <div className="flex items-center justify-center px-4">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
               </div>
             ) : (
               <button
                 type="submit"
-                className="flex items-center justify-center pr-4 text-[#616f89] dark:text-gray-400 hover:text-primary transition-colors"
+                className="flex items-center justify-center px-4 text-[#616f89] dark:text-gray-400 hover:text-primary transition-colors"
+                disabled={isSearching}
                 title="검색"
               >
                 <span className="material-symbols-outlined text-[24px]">search</span>
