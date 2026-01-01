@@ -231,8 +231,14 @@ export default function KakaoMap({
   useEffect(() => {
     if (map && userLocation && !locationError) {
       updateUserMarker(userLocation)
+      // 사용자가 위치를 요청한 경우 지도 이동
+      if (watchId !== null || userLocation.lat !== 35.8714 || userLocation.lng !== 128.6014) {
+        const moveLatLon = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
+        map.setCenter(moveLatLon)
+        map.setLevel(3) // 확대 레벨 (3 = 상세 지도)
+      }
     }
-  }, [map, userLocation, locationError, updateUserMarker])
+  }, [map, userLocation, locationError, updateUserMarker, watchId])
 
   // 컴포넌트 언마운트 시 watchPosition 정리
   useEffect(() => {
