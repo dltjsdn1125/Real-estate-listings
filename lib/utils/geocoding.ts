@@ -20,8 +20,37 @@ export async function addressToCoordinates(address: string): Promise<Coordinates
   return new Promise((resolve) => {
     // Kakao Maps API가 로드되지 않은 경우
     if (typeof window === 'undefined' || !window.kakao || !window.kakao.maps) {
-      console.error('Kakao Maps API가 로드되지 않았습니다.')
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Kakao Maps API가 로드되지 않았습니다.')
+      }
       resolve(null)
+      return
+    }
+
+    // services가 없으면 대기
+    if (!window.kakao.maps.services) {
+      // 짧게 대기 후 재시도
+      setTimeout(() => {
+        if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
+          const geocoder = new window.kakao.maps.services.Geocoder()
+          geocoder.addressSearch(address, (result: any, status: any) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+              const coords = {
+                lat: parseFloat(result[0].y),
+                lng: parseFloat(result[0].x),
+              }
+              resolve(coords)
+            } else {
+              if (process.env.NODE_ENV === 'development') {
+                console.error('주소 변환 실패:', address, status)
+              }
+              resolve(null)
+            }
+          })
+        } else {
+          resolve(null)
+        }
+      }, 500)
       return
     }
 

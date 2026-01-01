@@ -78,8 +78,8 @@ export default function KakaoMap({
     setUserMarker(marker)
   }, [map])
 
-  // GPS 위치 추적 (모바일에서 지속적으로 추적)
-  useEffect(() => {
+  // GPS 위치 추적 (사용자 제스처 후에만 활성화)
+  const requestLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setLocationError('GPS를 지원하지 않는 브라우저입니다.')
       // 기본 좌표 설정
@@ -94,7 +94,6 @@ export default function KakaoMap({
       maximumAge: isMobile ? 0 : 60000, // 모바일: 캐시 사용 안 함 (항상 최신 위치), 데스크톱: 1분
     }
 
-    // 모바일에서는 watchPosition으로 지속 추적, 데스크톱에서는 getCurrentPosition
     const updateLocation = (position: GeolocationPosition) => {
       const { latitude, longitude, accuracy } = position.coords
       
@@ -130,7 +129,9 @@ export default function KakaoMap({
           break
       }
       
-      console.error('위치 정보 오류:', errorMessage, error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('위치 정보 오류:', errorMessage, error)
+      }
       setLocationError(errorMessage)
       
       // 오류 발생 시 기본 좌표 사용
@@ -144,19 +145,17 @@ export default function KakaoMap({
 
     // 모바일: watchPosition으로 지속 추적
     if (isMobile) {
+      // 기존 watchPosition 정리
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId)
+      }
+      
       const id = navigator.geolocation.watchPosition(
         updateLocation,
         handleError,
         options
       )
       setWatchId(id)
-      
-      // 컴포넌트 언마운트 시 watchPosition 정리
-      return () => {
-        if (id !== null) {
-          navigator.geolocation.clearWatch(id)
-        }
-      }
     } else {
       // 데스크톱: getCurrentPosition으로 한 번만
       navigator.geolocation.getCurrentPosition(
@@ -165,7 +164,15 @@ export default function KakaoMap({
         options
       )
     }
-  }, [map, isMobile, updateUserMarker])
+  }, [map, isMobile, updateUserMarker, watchId])
+
+  // 지도가 준비되면 사용자에게 위치 요청 옵션 제공 (자동 요청 안 함)
+  useEffect(() => {
+    if (map && !userLocation) {
+      // 기본 좌표만 설정 (대구 중심)
+      setUserLocation({ lat: 35.8714, lng: 128.6014 })
+    }
+  }, [map, userLocation])
 
   // 지도 초기화
   useEffect(() => {
