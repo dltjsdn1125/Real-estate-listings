@@ -6,11 +6,8 @@ export const metadata: Metadata = {
   title: 'Daegu Commercial Platform',
   description: '대구 지역 상가 중개업무 효율화를 위한 지도 기반 매물 관리 플랫폼',
   icons: {
-    icon: [
-      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: '/icons/icon-192x192.png',
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
   },
   manifest: '/manifest.json',
   themeColor: '#ff6b00',
