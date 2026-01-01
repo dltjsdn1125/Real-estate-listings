@@ -378,16 +378,14 @@ export default function KakaoMap({
         ) : null}
         <div ref={mapRef} className="w-full h-full" />
         
-        {/* GPS 위치 이동 버튼 */}
-        {userLocation && !locationError && (
-          <button
-            onClick={moveToUserLocation}
-            className="absolute bottom-24 right-4 z-10 size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            title="내 위치로 이동"
-          >
-            <span className="material-symbols-outlined text-2xl">my_location</span>
-          </button>
-        )}
+        {/* GPS 위치 이동 버튼 (항상 표시, 클릭 시 GPS 요청) */}
+        <button
+          onClick={moveToUserLocation}
+          className="absolute bottom-24 right-4 z-10 size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          title={userLocation ? "내 위치로 이동" : "내 위치 찾기"}
+        >
+          <span className="material-symbols-outlined text-2xl">my_location</span>
+        </button>
 
         {/* 위치 오류 메시지 */}
         {locationError && (
