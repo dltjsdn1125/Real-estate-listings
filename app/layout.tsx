@@ -49,16 +49,27 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
-                      console.log('Service Worker registered:', registration);
-                    })
-                    .catch((error) => {
-                      console.error('Service Worker registration failed:', error);
+              if ('serviceWorker' in navigator && typeof window !== 'undefined') {
+                // 개발 환경에서는 Service Worker 비활성화 (선택사항)
+                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                if (!isDev) {
+                  window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js')
+                      .then((registration) => {
+                        console.log('Service Worker registered:', registration);
+                      })
+                      .catch((error) => {
+                        console.error('Service Worker registration failed:', error);
+                      });
+                  });
+                } else {
+                  // 개발 환경에서는 기존 Service Worker 제거
+                  navigator.serviceWorker.getRegistrations().then((registrations) => {
+                    registrations.forEach((registration) => {
+                      registration.unregister();
                     });
-                });
+                  });
+                }
               }
             `,
           }}

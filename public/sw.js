@@ -51,6 +51,11 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // Skip Next.js internal files in development
+  if (event.request.url.includes('/_next/') || event.request.url.includes('/__nextjs')) {
+    return
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -62,25 +67,44 @@ self.addEventListener('fetch', (event) => {
         // Clone the request because it's a stream
         const fetchRequest = event.request.clone()
 
-        return fetch(fetchRequest).then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+        return fetch(fetchRequest)
+          .then((response) => {
+            // Check if valid response
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response
+            }
+
+            // Clone the response because it's a stream
+            const responseToCache = response.clone()
+
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache).catch(() => {
+                // Ignore cache errors
+              })
+            })
+
             return response
-          }
-
-          // Clone the response because it's a stream
-          const responseToCache = response.clone()
-
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache)
           })
-
-          return response
-        }).catch(() => {
-          // Network failed, return offline page if navigation request
+          .catch(() => {
+            // Network failed, return offline page if navigation request
+            if (event.request.mode === 'navigate') {
+              return caches.match('/offline.html').then((offlineResponse) => {
+                return offlineResponse || new Response('Offline', { status: 503 })
+              })
+            }
+            // For non-navigation requests, return a basic error response
+            return new Response('Network error', { status: 503 })
+          })
+      })
+      .catch(() => {
+        // If cache match fails, try network
+        return fetch(event.request).catch(() => {
           if (event.request.mode === 'navigate') {
-            return caches.match('/offline.html')
+            return caches.match('/offline.html').then((offlineResponse) => {
+              return offlineResponse || new Response('Offline', { status: 503 })
+            })
           }
+          return new Response('Network error', { status: 503 })
         })
       })
   )
