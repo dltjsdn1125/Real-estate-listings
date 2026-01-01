@@ -17,11 +17,14 @@ export function useAuth() {
           data: { session },
         } = await supabase.auth.getSession()
 
-        console.log('🔐 useAuth - Session Check:', {
-          hasSession: !!session,
-          userId: session?.user?.id,
-          email: session?.user?.email
-        })
+        // 개발 환경에서만 디버깅 로그 출력
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔐 useAuth - Session Check:', {
+            hasSession: !!session,
+            userId: session?.user?.id,
+            email: session?.user?.email
+          })
+        }
 
         if (session?.user) {
           setAuthUser(session.user)
@@ -32,17 +35,18 @@ export function useAuth() {
             .eq('id', session.user.id)
             .single()
 
-          console.log('👤 useAuth - User Data:', {
-            hasData: !!data,
-            error: error?.message,
-            user: data ? { email: data.email, role: data.role, tier: data.tier } : null
-          })
+          // 개발 환경에서만 디버깅 로그 출력
+          if (process.env.NODE_ENV === 'development') {
+            console.log('👤 useAuth - User Data:', {
+              hasData: !!data,
+              error: error?.message,
+              user: data ? { email: data.email, role: data.role, tier: data.tier } : null
+            })
+          }
 
           if (!error && data) {
             setUser(data)
           }
-        } else {
-          console.log('❌ useAuth - No session found')
         }
       } catch (error) {
         console.error('Auth check error:', error)
@@ -57,11 +61,14 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('🔄 useAuth - Auth State Changed:', {
-        event,
-        hasSession: !!session,
-        userId: session?.user?.id
-      })
+      // 개발 환경에서만 디버깅 로그 출력
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 useAuth - Auth State Changed:', {
+          event,
+          hasSession: !!session,
+          userId: session?.user?.id
+        })
+      }
 
       if (session?.user) {
         setAuthUser(session.user)
@@ -72,10 +79,13 @@ export function useAuth() {
           .eq('id', session.user.id)
           .single()
 
-        console.log('👤 useAuth - State Change User Data:', {
-          hasData: !!data,
-          user: data ? { email: data.email, role: data.role, tier: data.tier } : null
-        })
+        // 개발 환경에서만 디버깅 로그 출력
+        if (process.env.NODE_ENV === 'development') {
+          console.log('👤 useAuth - State Change User Data:', {
+            hasData: !!data,
+            user: data ? { email: data.email, role: data.role, tier: data.tier } : null
+          })
+        }
 
         if (data) {
           setUser(data)

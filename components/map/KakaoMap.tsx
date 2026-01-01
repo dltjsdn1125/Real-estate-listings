@@ -98,8 +98,8 @@ export default function KakaoMap({
     const updateLocation = (position: GeolocationPosition) => {
       const { latitude, longitude, accuracy } = position.coords
       
-      // 정확도가 너무 낮으면 (100m 이상) 경고만 하고 위치는 업데이트
-      if (accuracy > 100) {
+      // 정확도가 너무 낮으면 (100m 이상) 개발 환경에서만 경고
+      if (accuracy > 100 && process.env.NODE_ENV === 'development') {
         console.warn(`GPS 정확도가 낮습니다: ${Math.round(accuracy)}m`)
       }
       

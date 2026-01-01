@@ -10,12 +10,14 @@ interface MapSearchHeaderProps {
 export default function MapSearchHeader({ onToggleSidebar }: MapSearchHeaderProps) {
   const { user, isAuthenticated, loading, signOut } = useAuth()
 
-  // 디버깅용
-  console.log('🔍 MapSearchHeader - Auth State:', {
-    isAuthenticated,
-    loading,
-    user: user ? { email: user.email, role: user.role, tier: user.tier } : null
-  })
+  // 개발 환경에서만 디버깅 로그 출력
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 MapSearchHeader - Auth State:', {
+      isAuthenticated,
+      loading,
+      user: user ? { email: user.email, role: user.role, tier: user.tier } : null
+    })
+  }
 
   const handleLogout = async () => {
     await signOut()

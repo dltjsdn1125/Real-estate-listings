@@ -106,7 +106,10 @@ export function waitForKakaoMaps(): Promise<boolean> {
 
       if (attempts >= maxAttempts) {
         clearInterval(checkInterval)
-        console.error('Kakao Maps API 로드 타임아웃')
+        // 개발 환경에서만 에러 로그 출력
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Kakao Maps API 로드 타임아웃 - 지도가 이미 로드되었을 수 있습니다')
+        }
         resolve(false)
       }
     }, 200)
