@@ -30,7 +30,7 @@ interface PropertyMarker {
 }
 
 interface MapViewProps {
-  onSearchArea?: () => void
+  onSearchArea?: (bounds?: { sw: { lat: number; lng: number }; ne: { lat: number; lng: number } }) => void
   markers?: MapMarker[]
   properties?: PropertyMarker[]
   center?: { lat: number; lng: number }
@@ -66,6 +66,23 @@ export default function MapView({
     setMapInstance(map)
   }
 
+  const handleSearchAreaClick = () => {
+    if (!mapInstance) {
+      onSearchArea?.()
+      return
+    }
+
+    // 현재 지도 영역의 경계 좌표 가져오기
+    const bounds = mapInstance.getBounds()
+    const sw = bounds.getSouthWest() // 남서쪽 좌표
+    const ne = bounds.getNorthEast() // 북동쪽 좌표
+
+    onSearchArea?.({
+      sw: { lat: sw.getLat(), lng: sw.getLng() },
+      ne: { lat: ne.getLat(), lng: ne.getLng() },
+    })
+  }
+
   return (
     <main className="flex-1 relative bg-gray-200 dark:bg-gray-800 h-full w-full overflow-hidden">
       {/* Kakao Map */}
@@ -80,11 +97,11 @@ export default function MapView({
       {/* Floating Search Here Button */}
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
         <button
-          onClick={onSearchArea}
+          onClick={handleSearchAreaClick}
           className="flex items-center gap-2 bg-white dark:bg-[#101622] text-primary px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-shadow font-bold text-sm border border-primary/20"
         >
           <span className="material-symbols-outlined text-[18px]">refresh</span>
-          Search this area
+          이 지역 찾기
         </button>
       </div>
     </main>

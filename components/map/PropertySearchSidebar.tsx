@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import PropertyCard from './PropertyCard'
+import { addressToCoordinates, waitForKakaoMaps, normalizeAddress } from '@/lib/utils/geocoding'
 
 interface Property {
   id: string
@@ -44,6 +45,9 @@ interface PropertySearchSidebarProps {
   onPropertyClick?: (id: string) => void
   onDistrictChange?: (district: string) => void
   onRadiusSearchChange?: (radiusSearch: FilterState['radiusSearch']) => void
+  onSearchAddress?: (address: string, coords: { lat: number; lng: number }) => void
+  onApplyFilters?: (filters: FilterState) => void
+  onResetFilters?: () => void
 }
 
 export default function PropertySearchSidebar({
@@ -53,8 +57,12 @@ export default function PropertySearchSidebar({
   onPropertyClick,
   onDistrictChange,
   onRadiusSearchChange,
+  onSearchAddress,
+  onApplyFilters,
+  onResetFilters,
 }: PropertySearchSidebarProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const [showDistrictFilter, setShowDistrictFilter] = useState(false)
   const [showTypeFilter, setShowTypeFilter] = useState(false)
   const [showPriceFilter, setShowPriceFilter] = useState(false)
@@ -175,12 +183,53 @@ export default function PropertySearchSidebar({
     })
   }, [properties, searchQuery, filters])
 
+  // 주소 검색 핸들러
+  const handleSearchSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+    if (!searchQuery.trim()) return
+
+    setIsSearching(true)
+    try {
+      // 카카오 지도 API 대기
+      const isReady = await waitForKakaoMaps()
+      if (!isReady) {
+        alert('지도 API를 불러오는 중입니다. 잠시 후 다시 시도해주세요.')
+        setIsSearching(false)
+        return
+      }
+
+      // 주소 정규화 (대구광역시 자동 추가)
+      const normalizedAddress = normalizeAddress(searchQuery)
+      
+      // 주소를 좌표로 변환
+      const coords = await addressToCoordinates(normalizedAddress)
+      if (coords) {
+        // 부모 컴포넌트에 검색 결과 전달
+        onSearchAddress?.(normalizedAddress, coords)
+      } else {
+        alert('주소를 찾을 수 없습니다. 다른 주소로 검색해주세요.\n\n예시: 대구 중구 동성로, 대구 수성구 범어동, 동성로 2가')
+      }
+    } catch (error) {
+      console.error('주소 검색 오류:', error)
+      alert('주소 검색 중 오류가 발생했습니다.')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  // Enter 키로 검색
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit()
+    }
+  }
+
   // 필터 초기화
   const handleReset = () => {
     setSearchQuery('')
     setRadiusEnabled(false)
     setRadiusKm('1')
-    setFilters({
+    const resetFilters: FilterState = {
       propertyType: 'all',
       minDeposit: '',
       maxDeposit: '',
@@ -193,14 +242,18 @@ export default function PropertySearchSidebar({
       radiusSearch: {
         enabled: false,
       },
-    })
+    }
+    setFilters(resetFilters)
     onRadiusSearchChange?.({
       enabled: false,
     })
+    onResetFilters?.()
   }
 
-  // 필터 적용 (필요시 부모 컴포넌트에 전달)
+  // 필터 적용
   const handleApply = () => {
+    // 현재 필터 상태를 부모 컴포넌트에 전달
+    onApplyFilters?.(filters)
     // 모바일에서는 사이드바 닫기
     if (window.innerWidth < 1024) {
       onClose()
@@ -213,19 +266,26 @@ export default function PropertySearchSidebar({
       {/* Search & Filter Container */}
       <div className="p-4 border-b border-[#f0f2f4] dark:border-gray-800 flex flex-col gap-4">
         {/* Search Bar */}
-        <div className="relative w-full">
+        <form onSubmit={handleSearchSubmit} className="relative w-full">
           <div className="flex w-full items-stretch rounded-lg h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
             <div className="text-[#616f89] dark:text-gray-400 flex items-center justify-center pl-4 rounded-l-lg">
               <span className="material-symbols-outlined text-[24px]">search</span>
             </div>
             <input
               className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-3 text-base font-normal leading-normal"
-              placeholder="매물명, 지역 검색"
+              placeholder="건물명, 도로명 주소 검색 (예: 대구 중구 동성로, 대구 수성구 범어동)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
+              disabled={isSearching}
             />
+            {isSearching && (
+              <div className="flex items-center justify-center pr-4">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+              </div>
+            )}
           </div>
-        </div>
+        </form>
 
         {/* Chips / Filters */}
         <div className="flex gap-2 flex-wrap">

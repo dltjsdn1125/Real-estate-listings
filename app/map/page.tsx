@@ -173,8 +173,57 @@ export default function MapPage() {
     router.push(`/properties/${id}`)
   }
 
-  const handleSearchArea = () => {
-    // 현재 지도 영역 검색 로직 (추후 구현)
+  const handleSearchArea = (bounds?: { sw: { lat: number; lng: number }; ne: { lat: number; lng: number } }) => {
+    // 현재 지도 영역 검색 로직
+    if (bounds) {
+      // 경계 좌표를 사용하여 해당 영역 내 매물 검색
+      // 중심점 계산
+      const centerLat = (bounds.sw.lat + bounds.ne.lat) / 2
+      const centerLng = (bounds.sw.lng + bounds.ne.lng) / 2
+      
+      // 대략적인 반경 계산 (km)
+      // 하버사인 공식 사용 또는 간단한 거리 계산
+      const latDiff = bounds.ne.lat - bounds.sw.lat
+      const lngDiff = bounds.ne.lng - bounds.sw.lng
+      const radiusKm = Math.max(latDiff * 111, lngDiff * 111 * Math.cos(centerLat * Math.PI / 180)) // 대략적인 반경
+      
+      // 반경 검색 활성화
+      setRadiusSearch({
+        enabled: true,
+        centerLat,
+        centerLng,
+        radiusKm: Math.max(radiusKm, 1), // 최소 1km
+      })
+    } else {
+      // 경계 정보가 없으면 전체 매물 다시 로드
+      loadProperties()
+    }
+  }
+
+  const handleSearchAddress = (address: string, coords: { lat: number; lng: number }) => {
+    // 검색된 주소로 지도 이동
+    setMapCenter({ lat: coords.lat, lng: coords.lng })
+    setMapLevel(3) // 상세 레벨로 확대
+    // 해당 위치 주변 매물 검색을 위해 반경 검색 활성화
+    setRadiusSearch({
+      enabled: true,
+      centerLat: coords.lat,
+      centerLng: coords.lng,
+      radiusKm: 2, // 기본 2km 반경
+    })
+  }
+
+  const handleApplyFilters = (filters: any) => {
+    // 필터 적용 시 매물 재검색
+    // 현재는 전체 매물을 로드하고 클라이언트 측에서 필터링하므로
+    // PropertySearchSidebar에서 이미 필터링이 이루어짐
+    // 필요시 서버 측 필터링을 위해 loadProperties 호출
+    loadProperties()
+  }
+
+  const handleResetFilters = () => {
+    // 필터 초기화 시 전체 매물 다시 로드
+    setRadiusSearch({ enabled: false })
     loadProperties()
   }
 
@@ -219,6 +268,9 @@ export default function MapPage() {
           onPropertyClick={handlePropertyClick}
           onDistrictChange={handleDistrictChange}
           onRadiusSearchChange={handleRadiusSearchChange}
+          onSearchAddress={handleSearchAddress}
+          onApplyFilters={handleApplyFilters}
+          onResetFilters={handleResetFilters}
         />
         <MapView
           onSearchArea={handleSearchArea}
