@@ -63,9 +63,9 @@ export async function addressToCoordinates(address: string): Promise<Coordinates
       return
     }
 
-    // services가 없으면 최대 3초 대기 후 재시도
+    // services가 없으면 최대 5초 대기 후 재시도
     let attempts = 0
-    const maxAttempts = 15 // 15 * 200ms = 3초
+    const maxAttempts = 25 // 25 * 200ms = 5초
     const checkInterval = setInterval(() => {
       attempts++
       if (tryGeocode()) {
@@ -75,7 +75,12 @@ export async function addressToCoordinates(address: string): Promise<Coordinates
       if (attempts >= maxAttempts) {
         clearInterval(checkInterval)
         if (process.env.NODE_ENV === 'development') {
-          console.error('주소 검색 서비스 로드 실패:', address)
+          console.error('주소 검색 서비스 로드 실패:', {
+            address,
+            hasKakao: !!window.kakao,
+            hasMaps: !!(window.kakao && window.kakao.maps),
+            hasServices: !!(window.kakao && window.kakao.maps && window.kakao.maps.services),
+          })
         }
         resolve(null)
       }
@@ -126,15 +131,15 @@ export function waitForKakaoMaps(): Promise<boolean> {
       return
     }
 
-    // 이미 로드된 경우 (services는 나중에 필요할 때 체크)
+    // 이미 로드된 경우
     if (window.kakao && window.kakao.maps) {
       if (window.kakao.maps.services) {
         resolve(true)
         return
       }
-      // 지도는 로드되었지만 services가 아직 없는 경우, 짧게 대기
+      // 지도는 로드되었지만 services가 아직 없는 경우, 최대 5초 대기
       let attempts = 0
-      const maxQuickAttempts = 10 // 2초만 대기
+      const maxQuickAttempts = 25 // 5초 대기
       const quickCheck = setInterval(() => {
         attempts++
         if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
@@ -144,6 +149,9 @@ export function waitForKakaoMaps(): Promise<boolean> {
         }
         if (attempts >= maxQuickAttempts) {
           clearInterval(quickCheck)
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Kakao Maps services 로드 타임아웃 - 지도는 로드되었지만 services가 없습니다')
+          }
           // 지도는 로드되었으므로 true 반환 (services는 나중에 사용할 때 체크)
           resolve(true)
           return

@@ -343,12 +343,19 @@ export default function KakaoMap({
     <>
       {KAKAO_MAP_API_KEY && (
         <Script
-          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_API_KEY}&libraries=clusterer&autoload=false`}
+          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_API_KEY}&libraries=clusterer,services&autoload=false`}
           strategy="afterInteractive"
           onLoad={() => {
             if (window.kakao && window.kakao.maps) {
               window.kakao.maps.load(() => {
                 setMapLoaded(true)
+                // services가 로드되었는지 확인
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('Kakao Maps 로드 완료:', {
+                    hasMaps: !!window.kakao.maps,
+                    hasServices: !!window.kakao.maps.services,
+                  })
+                }
               })
             }
           }}
