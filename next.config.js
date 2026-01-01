@@ -19,7 +19,29 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
+  // PWA 및 TWA 설정
+  async headers() {
+    return [
+      {
+        source: '/.well-known/assetlinks.json',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json',
+          },
+        ],
+      },
+      {
+        source: '/manifest.json',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/manifest+json',
+          },
+        ],
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig
-
