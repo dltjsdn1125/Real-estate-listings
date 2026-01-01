@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+
+<html class="light" lang="ko"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daegu Realty Admin - User Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- Side Navigation -->
+<aside class="hidden w-64 flex-col border-r border-[#e5e7eb] bg-white dark:bg-[#1e293b] dark:border-[#334155] lg:flex shrink-0">
+<div class="flex h-16 items-center px-6 border-b border-[#e5e7eb] dark:border-[#334155]">
+<div class="size-6 text-primary mr-2">
+<svg class="w-full h-full text-primary" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4h18v18H4V4zm22 0h18v18H26V4zM4 26h18v18H4V26zm22 0h18v18H26V26z" fill="currentColor"></path>
+</svg>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-[#111318] dark:text-white">Daegu Admin</h1>
+</div>
+<div class="flex flex-col gap-1 p-4 overflow-y-auto flex-1">
+<div class="mb-2 px-3">
+<p class="text-xs font-semibold uppercase text-[#616f89] dark:text-slate-400">Main Menu</p>
+</div>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-[#616f89] hover:bg-[#f0f2f4] hover:text-[#111318] dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="text-sm font-medium">대시보드</span>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-[#616f89] hover:bg-[#f0f2f4] hover:text-[#111318] dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">real_estate_agent</span>
+<span class="text-sm font-medium">매물 관리</span>
+</a>
+<a class="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary dark:bg-primary/20 dark:text-primary-300 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px] fill-1">group</span>
+<span class="text-sm font-medium">사용자 관리</span>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-[#616f89] hover:bg-[#f0f2f4] hover:text-[#111318] dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span class="text-sm font-medium">결제 및 멤버십</span>
+</a>
+<div class="mt-4 mb-2 px-3">
+<p class="text-xs font-semibold uppercase text-[#616f89] dark:text-slate-400">Settings</p>
+</div>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-[#616f89] hover:bg-[#f0f2f4] hover:text-[#111318] dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span class="text-sm font-medium">권한 설정</span>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-[#616f89] hover:bg-[#f0f2f4] hover:text-[#111318] dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">환경 설정</span>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-[#616f89] hover:bg-[#f0f2f4] hover:text-[#111318] dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="text-sm font-medium">로그 관리</span>
+</a>
+</div>
+<div class="p-4 border-t border-[#e5e7eb] dark:border-[#334155]">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center" data-alt="Admin User Profile Picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA21OczKxKFBkouxNF2Xn2cGHPKCytkKN6fR5pp0aQjRz_g1qF3EsCEjBh_gI4_SbWsWjZcVRMcrKxxvcxkUmSz7qdT23m_9DfafdZrIxqu_O8k2sRsxG-ceFGS9BJcTc03z9YNM1RjByEc5fzm6-Ggz7WO0IzoPWpmPwBrYpuE6Nj4WTRNTYpUKwA9xbMENyokw2JZ7fFeIw2-7sovfmYyOMGt1eDj3w495eFRDeChEi-ttSQbA-2ZBt22v0DzgKzdRalV8vjUvWg");'></div>
+<div class="flex flex-col overflow-hidden">
+<p class="truncate text-sm font-bold text-[#111318] dark:text-white">김관리 (Admin)</p>
+<p class="truncate text-xs text-[#616f89] dark:text-slate-400">admin@daegurealty.com</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex h-full flex-1 flex-col overflow-hidden bg-background-light dark:bg-background-dark relative">
+<!-- Top Header -->
+<header class="flex h-16 w-full items-center justify-between border-b border-[#f0f2f4] bg-white dark:bg-[#1e293b] dark:border-[#334155] px-6 shrink-0 z-20">
+<div class="flex items-center gap-4 lg:hidden">
+<button class="text-[#111318] dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-lg font-bold text-[#111318] dark:text-white">Daegu Realty</h2>
+</div>
+<!-- Breadcrumbs (Desktop) -->
+<div class="hidden lg:flex items-center gap-2">
+<a class="text-[#616f89] text-sm font-medium hover:text-primary transition-colors dark:text-slate-400" href="#">Home</a>
+<span class="text-[#616f89] text-sm font-medium dark:text-slate-500">/</span>
+<a class="text-[#616f89] text-sm font-medium hover:text-primary transition-colors dark:text-slate-400" href="#">Admin</a>
+<span class="text-[#616f89] text-sm font-medium dark:text-slate-500">/</span>
+<span class="text-[#111318] text-sm font-medium dark:text-white">User Management</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative flex size-10 items-center justify-center rounded-full bg-[#f0f2f4] text-[#111318] hover:bg-[#e1e4e8] transition-colors dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-2 right-2 size-2 rounded-full bg-red-500 border border-white dark:border-slate-700"></span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-full bg-[#f0f2f4] text-[#111318] hover:bg-[#e1e4e8] transition-colors dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 scroll-smooth">
+<div class="mx-auto max-w-[1200px] flex flex-col gap-8">
+<!-- Page Heading & Actions -->
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl font-black tracking-tight text-[#111318] dark:text-white">사용자 관리</h1>
+<p class="text-base text-[#616f89] dark:text-slate-400">사용자 계정 상태 모니터링 및 등급/권한 승인 관리</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center gap-2 rounded-lg border border-[#dbdfe6] bg-white px-4 py-2.5 text-sm font-bold text-[#111318] hover:bg-gray-50 transition-colors dark:bg-[#1e293b] dark:border-[#334155] dark:text-white dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span>내보내기</span>
+</button>
+<button class="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+<span>신규 사용자 등록</span>
+</button>
+</div>
+</div>
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<div class="flex flex-col gap-1 rounded-xl border border-[#dbdfe6] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border-[#334155]">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-[#616f89] dark:text-slate-400">전체 사용자</p>
+<span class="material-symbols-outlined text-primary text-[24px]">group</span>
+</div>
+<p class="text-2xl font-bold text-[#111318] dark:text-white">1,240</p>
+<p class="text-sm font-medium text-[#07883b] flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+                                +12% <span class="text-[#616f89] font-normal dark:text-slate-500">지난달 대비</span>
+</p>
+</div>
+<div class="flex flex-col gap-1 rounded-xl border border-[#dbdfe6] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border-[#334155]">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-[#616f89] dark:text-slate-400">승인 대기 (중개사)</p>
+<span class="material-symbols-outlined text-orange-500 text-[24px]">pending_actions</span>
+</div>
+<p class="text-2xl font-bold text-[#111318] dark:text-white">15</p>
+<p class="text-sm font-medium text-[#07883b] flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+                                +5 <span class="text-[#616f89] font-normal dark:text-slate-500">신규 요청</span>
+</p>
+</div>
+<div class="flex flex-col gap-1 rounded-xl border border-[#dbdfe6] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border-[#334155]">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-[#616f89] dark:text-slate-400">프리미엄 회원</p>
+<span class="material-symbols-outlined text-purple-500 text-[24px]">workspace_premium</span>
+</div>
+<p class="text-2xl font-bold text-[#111318] dark:text-white">320</p>
+<p class="text-sm font-medium text-[#616f89] flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+                                0% <span class="text-[#616f89] font-normal dark:text-slate-500">변동 없음</span>
+</p>
+</div>
+<div class="flex flex-col gap-1 rounded-xl border border-[#dbdfe6] bg-white p-5 shadow-sm dark:bg-[#1e293b] dark:border-[#334155]">
+<div class="flex items-center justify-between">
+<p class="text-sm font-medium text-[#616f89] dark:text-slate-400">관리자 계정</p>
+<span class="material-symbols-outlined text-slate-500 text-[24px]">admin_panel_settings</span>
+</div>
+<p class="text-2xl font-bold text-[#111318] dark:text-white">8</p>
+<p class="text-sm font-medium text-[#616f89] dark:text-slate-500">시스템 관리자 포함</p>
+</div>
+</div>
+<!-- Main Content Card -->
+<div class="flex flex-col rounded-xl border border-[#dbdfe6] bg-white shadow-sm dark:bg-[#1e293b] dark:border-[#334155] overflow-hidden">
+<!-- Tabs -->
+<div class="flex border-b border-[#f0f2f4] px-6 dark:border-[#334155]">
+<button class="border-b-2 border-primary px-4 py-4 text-sm font-bold text-primary">
+                                전체 사용자
+                            </button>
+<button class="border-b-2 border-transparent px-4 py-4 text-sm font-medium text-[#616f89] hover:text-[#111318] dark:text-slate-400 dark:hover:text-white transition-colors">
+                                권한 승인 대기 <span class="ml-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] text-red-700 dark:bg-red-900 dark:text-red-200">15</span>
+</button>
+<button class="border-b-2 border-transparent px-4 py-4 text-sm font-medium text-[#616f89] hover:text-[#111318] dark:text-slate-400 dark:hover:text-white transition-colors">
+                                등급 설정
+                            </button>
+</div>
+<!-- Filters Toolbar -->
+<div class="flex flex-col gap-4 border-b border-[#f0f2f4] p-4 lg:flex-row lg:items-center lg:justify-between dark:border-[#334155]">
+<div class="relative flex-1 max-w-md">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#616f89] dark:text-slate-400">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</span>
+<input class="h-10 w-full rounded-lg border-none bg-[#f0f2f4] pl-10 pr-4 text-sm font-medium text-[#111318] placeholder-[#616f89] focus:outline-none focus:ring-2 focus:ring-primary dark:bg-slate-700 dark:text-white dark:placeholder-slate-400" placeholder="이름, 이메일, 전화번호 검색" type="text"/>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-[#616f89] dark:text-slate-400">필터:</span>
+<select class="h-9 rounded-lg border border-[#dbdfe6] bg-white px-3 py-1 text-sm font-medium text-[#111318] focus:border-primary focus:ring-1 focus:ring-primary dark:bg-[#1e293b] dark:border-[#334155] dark:text-white">
+<option>모든 등급</option>
+<option>일반 회원</option>
+<option>공인중개사</option>
+<option>프리미엄</option>
+</select>
+<select class="h-9 rounded-lg border border-[#dbdfe6] bg-white px-3 py-1 text-sm font-medium text-[#111318] focus:border-primary focus:ring-1 focus:ring-primary dark:bg-[#1e293b] dark:border-[#334155] dark:text-white">
+<option>모든 상태</option>
+<option>활성 (Active)</option>
+<option>정지 (Suspended)</option>
+<option>대기 (Pending)</option>
+</select>
+</div>
+<button class="flex h-9 items-center justify-center gap-1 rounded-lg border border-[#dbdfe6] bg-white px-3 text-sm font-bold text-[#111318] hover:bg-gray-50 dark:bg-[#1e293b] dark:border-[#334155] dark:text-white dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                                    상세 필터
+                                </button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full min-w-[1000px] table-auto text-left">
+<thead class="bg-gray-50 dark:bg-slate-800">
+<tr>
+<th class="py-3 px-6 text-xs font-semibold uppercase tracking-wider text-[#616f89] dark:text-slate-400 w-[50px]">
+<input class="h-4 w-4 rounded border-[#dbdfe6] text-primary focus:ring-primary dark:border-[#334155] dark:bg-slate-700" type="checkbox"/>
+</th>
+<th class="py-3 px-6 text-xs font-semibold uppercase tracking-wider text-[#616f89] dark:text-slate-400">사용자 정보</th>
+<th class="py-3 px-6 text-xs font-semibold uppercase tracking-wider text-[#616f89] dark:text-slate-400">전화번호</th>
+<th class="py-3 px-6 text-xs font-semibold uppercase tracking-wider text-[#616f89] dark:text-slate-400">등급 (Tier)</th>
+<th class="py-3 px-6 text-xs font-semibold uppercase tracking-wider text-[#616f89] dark:text-slate-400">권한 (Role)</th>
+<th class="py-3 px-6 text-xs font-semibold uppercase tracking-wider text-[#616f89] dark:text-slate-400">상태</th>
+<th class="py-3 px-6 text-xs font-semibold uppercase tracking-wider text-[#616f89] dark:text-slate-400 text-right">관리</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#f0f2f4] dark:divide-[#334155]">
+<!-- Row 1 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="py-4 px-6">
+<input class="h-4 w-4 rounded border-[#dbdfe6] text-primary focus:ring-primary dark:border-[#334155] dark:bg-slate-700" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-200" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC7M_0RA5ufztYR8bNHKGkG3fvuBOXJ8h1wX3p8eZzy-hJHdElm7ntAwk5wY-6QtSjCNyb8rnWosKFj7cGvCZA3qesm0A5lToxCiKzdU4YMdPkO19_oXkT5V4Y_E5RlBKY2msH7CDUJ6KHyRKtlEfN71MGhxrAbccDWg-gYkJ67FgN_Btl_4H2wmvhMKYQiyJPywu0bL01gt8iBg1AioHxdsUDmqE99qBw3KIk1NCBQNKd0Ksad2nCOJ30PUQJ7QXdeic2I410XKkU");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-bold text-[#111318] dark:text-white">홍길동</p>
+<p class="text-xs text-[#616f89] dark:text-slate-400">hong@example.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-[#111318] dark:text-slate-200">010-1234-5678</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-1 text-xs font-bold text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">
+<span class="material-symbols-outlined text-[14px]">star</span>
+                                                Gold
+                                            </span>
+</td>
+<td class="py-4 px-6 text-sm text-[#616f89] dark:text-slate-400">User</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-2.5 py-1 text-xs font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
+<span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
+                                                활성 (Active)
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex size-8 items-center justify-center rounded-lg text-[#616f89] hover:bg-gray-100 hover:text-primary transition-colors dark:text-slate-400 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="flex size-8 items-center justify-center rounded-lg text-[#616f89] hover:bg-gray-100 hover:text-red-500 transition-colors dark:text-slate-400 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="py-4 px-6">
+<input class="h-4 w-4 rounded border-[#dbdfe6] text-primary focus:ring-primary dark:border-[#334155] dark:bg-slate-700" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-200" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBOuTCPyFA9ehfWpYWD-tZXcQpKWi9dbQ51e0WpeMYSahjlaKG3TFQKB1AYfD7rKXWQb-RKidqDPTeRuRTBCKDNaGJ3iqIA8JbeMMi6OeYwJdBjKaPRVSz0zqCccyAyk-Pv1fAfzYR-VQo9c5V3NxYaQiTq2d1yz1ilwd3omM4gMhRmmSMOuno0knfYItADTqPxpW_auj5_6UG0ILEBmjdfRJ-JKB70H28vrOW23OoZ-ZI9i7p_2Gt9_yJ2-W6RuutlEpz_szKu1Xg");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-bold text-[#111318] dark:text-white">김철수</p>
+<p class="text-xs text-[#616f89] dark:text-slate-400">kim.cs@agency.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-[#111318] dark:text-slate-200">010-9876-5432</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-600 dark:bg-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                                                Agent
+                                            </span>
+</td>
+<td class="py-4 px-6 text-sm text-[#616f89] dark:text-slate-400">Agent</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-orange-100 px-2.5 py-1 text-xs font-bold text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">
+<span class="size-1.5 rounded-full bg-orange-600 dark:bg-orange-400"></span>
+                                                승인 대기
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex h-8 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-bold text-white hover:bg-blue-700 transition-colors">
+                                                    승인
+                                                </button>
+<button class="flex size-8 items-center justify-center rounded-lg text-[#616f89] hover:bg-gray-100 hover:text-primary transition-colors dark:text-slate-400 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="py-4 px-6">
+<input class="h-4 w-4 rounded border-[#dbdfe6] text-primary focus:ring-primary dark:border-[#334155] dark:bg-slate-700" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20">
+<span class="material-symbols-outlined">person</span>
+</div>
+<div class="flex flex-col">
+<p class="text-sm font-bold text-[#111318] dark:text-white">이영희</p>
+<p class="text-xs text-[#616f89] dark:text-slate-400">lee.yh@admin.net</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-[#111318] dark:text-slate-200">010-5555-4444</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-bold text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+<span class="material-symbols-outlined text-[14px]">shield_person</span>
+                                                Super Admin
+                                            </span>
+</td>
+<td class="py-4 px-6 text-sm text-[#616f89] dark:text-slate-400">Admin</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-2.5 py-1 text-xs font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
+<span class="size-1.5 rounded-full bg-green-600 dark:bg-green-400"></span>
+                                                활성 (Active)
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex size-8 items-center justify-center rounded-lg text-[#616f89] hover:bg-gray-100 hover:text-primary transition-colors dark:text-slate-400 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+<button class="flex size-8 items-center justify-center rounded-lg text-[#616f89] hover:bg-gray-100 hover:text-red-500 transition-colors dark:text-slate-400 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">block</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+<td class="py-4 px-6">
+<input class="h-4 w-4 rounded border-[#dbdfe6] text-primary focus:ring-primary dark:border-[#334155] dark:bg-slate-700" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-cover bg-center bg-gray-200" data-alt="User Avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAF0Zg5GCJZXZnH9iNQxLWboPWoMxJhgHSyZS_d1pYthUSEmBJ1-lO-Rfz529wChCM639ISur5sbzAFAKnjVjUg4q4hPXtritZ_gs4PcX0PhuF9aXUshdbMBvM9knNHpoiiGZDo4XFbSXbXmHw6iZjzmiimofmVQgzFrzgf75SnXdTT_nhpc_CYTZkJWYxEbakcsCMNIf2YWR1H17T0Kj2T6YuM-aJcaIM1q7Tz50BnyhRcZjG5126GpMsG365zWW65ATg-1CzCdUQ");'></div>
+<div class="flex flex-col">
+<p class="text-sm font-bold text-[#111318] dark:text-white">박민수</p>
+<p class="text-xs text-[#616f89] dark:text-slate-400">park.ms@test.com</p>
+</div>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-[#111318] dark:text-slate-200">010-1111-2222</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                                                Silver
+                                            </span>
+</td>
+<td class="py-4 px-6 text-sm text-[#616f89] dark:text-slate-400">User</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-bold text-red-700 dark:bg-red-900/30 dark:text-red-400">
+<span class="size-1.5 rounded-full bg-red-600 dark:bg-red-400"></span>
+                                                정지 (Suspended)
+                                            </span>
+</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex size-8 items-center justify-center rounded-lg text-[#616f89] hover:bg-gray-100 hover:text-primary transition-colors dark:text-slate-400 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button class="flex size-8 items-center justify-center rounded-lg text-[#616f89] hover:bg-gray-100 hover:text-primary transition-colors dark:text-slate-400 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between border-t border-[#f0f2f4] bg-white px-6 py-4 dark:bg-[#1e293b] dark:border-[#334155]">
+<p class="text-sm text-[#616f89] dark:text-slate-400">
+                                Showing <span class="font-bold text-[#111318] dark:text-white">1</span> to <span class="font-bold text-[#111318] dark:text-white">10</span> of <span class="font-bold text-[#111318] dark:text-white">1,240</span> users
+                            </p>
+<div class="flex items-center gap-2">
+<button class="flex size-8 items-center justify-center rounded-lg border border-[#dbdfe6] bg-white text-[#616f89] hover:bg-gray-50 disabled:opacity-50 dark:bg-[#1e293b] dark:border-[#334155] dark:text-slate-400" disabled="">
+<span class="material-symbols-outlined text-[20px]">chevron_left</span>
+</button>
+<button class="flex size-8 items-center justify-center rounded-lg bg-primary text-white text-sm font-bold">
+                                    1
+                                </button>
+<button class="flex size-8 items-center justify-center rounded-lg border border-[#dbdfe6] bg-white text-[#111318] hover:bg-gray-50 text-sm font-bold dark:bg-[#1e293b] dark:border-[#334155] dark:text-slate-300 dark:hover:bg-slate-700">
+                                    2
+                                </button>
+<button class="flex size-8 items-center justify-center rounded-lg border border-[#dbdfe6] bg-white text-[#111318] hover:bg-gray-50 text-sm font-bold dark:bg-[#1e293b] dark:border-[#334155] dark:text-slate-300 dark:hover:bg-slate-700">
+                                    3
+                                </button>
+<span class="text-[#616f89] px-1 dark:text-slate-500">...</span>
+<button class="flex size-8 items-center justify-center rounded-lg border border-[#dbdfe6] bg-white text-[#111318] hover:bg-gray-50 text-sm font-bold dark:bg-[#1e293b] dark:border-[#334155] dark:text-slate-300 dark:hover:bg-slate-700">
+                                    12
+                                </button>
+<button class="flex size-8 items-center justify-center rounded-lg border border-[#dbdfe6] bg-white text-[#616f89] hover:bg-gray-50 dark:bg-[#1e293b] dark:border-[#334155] dark:text-slate-400">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

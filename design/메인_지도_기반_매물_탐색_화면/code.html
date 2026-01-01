@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daegu Realty - Map Search</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b6cee",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#101622] px-6 lg:px-10 py-3 z-30">
+<div class="flex items-center gap-4 text-[#111318] dark:text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">real_estate_agent</span>
+</div>
+<h2 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Daegu Realty</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-primary text-sm font-bold leading-normal" href="#">Map Search</a>
+<a class="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Register Property</a>
+<a class="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Membership</a>
+</div>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary hover:bg-blue-700 text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors">
+<span class="truncate">Login</span>
+</button>
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-[#111318] dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Split Layout -->
+<div class="flex flex-1 overflow-hidden relative">
+<!-- Left Sidebar: Search & List -->
+<aside class="w-full md:w-[450px] flex flex-col border-r border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#101622] shadow-xl z-20">
+<!-- Search & Filter Container -->
+<div class="p-4 border-b border-[#f0f2f4] dark:border-gray-800 flex flex-col gap-4">
+<!-- Search Bar -->
+<div class="relative w-full">
+<div class="flex w-full items-stretch rounded-lg h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+<div class="text-[#616f89] dark:text-gray-400 flex items-center justify-center pl-4 rounded-l-lg">
+<span class="material-symbols-outlined text-[24px]">search</span>
+</div>
+<input class="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-3 text-base font-normal leading-normal" placeholder="Search (e.g., Dongseong-ro Cafe)" value=""/>
+</div>
+</div>
+<!-- Chips / Filters -->
+<div class="flex gap-2 flex-wrap">
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors pl-3 pr-2 border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+<p class="text-[#111318] dark:text-gray-200 text-xs font-medium leading-normal">District</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors pl-3 pr-2 border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+<p class="text-[#111318] dark:text-gray-200 text-xs font-medium leading-normal">Type</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors pl-3 pr-2 border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+<p class="text-[#111318] dark:text-gray-200 text-xs font-medium leading-normal">Price</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+<button class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors pl-3 pr-2 border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+<p class="text-[#111318] dark:text-gray-200 text-xs font-medium leading-normal">Area</p>
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+</button>
+</div>
+<!-- Action Buttons -->
+<div class="flex gap-3 pt-2">
+<button class="flex flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-transparent border border-[#dce0e5] dark:border-gray-600 text-[#111318] dark:text-gray-300 text-sm font-bold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+<span class="truncate">Reset</span>
+</button>
+<button class="flex flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-[#111318] dark:bg-white text-white dark:text-[#111318] text-sm font-bold hover:opacity-90 transition-opacity">
+<span class="truncate">Apply Filters</span>
+</button>
+</div>
+</div>
+<!-- Property List -->
+<div class="flex-1 overflow-y-auto p-4 bg-background-light dark:bg-[#0b0f17]">
+<h3 class="text-[#111318] dark:text-white tracking-tight text-lg font-bold leading-tight pb-4">Showing 124 properties</h3>
+<div class="flex flex-col gap-4">
+<!-- Card 1: Standard -->
+<div class="group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-transparent hover:border-primary/30 transition-all cursor-pointer">
+<div class="relative w-full aspect-[16/9] rounded-lg overflow-hidden bg-gray-200">
+<img class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Modern retail space interior with large windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHjcD2euBTsdRp53OplA5TjRQz0e8TDalIvyGxHky9NQ14NtX-H1ixtTG-roN0IdnUCJEncgZgEjiv2xLksAQxGoAFTX1klfV3X-kixoHj1EBuCXo-zyd-uBwyQSgYdf6lLt8RGdogKu0Qk09HwxnXYJx3G8QK6J0LyQsBoTn5W_xXCK2J7CuScaO2WmUtNGpebGe3vr4WWrRdx5iVNoIfnJqTdUtNLQ34uHSH7xC5lh0-iUNvlBu8f0kPZFMyoPRkEDytoz8K6tk"/>
+<div class="absolute top-2 left-2 bg-[#111318]/80 text-white text-[10px] font-bold px-2 py-1 rounded">NEW</div>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 text-primary font-bold text-xs px-2 py-1 rounded shadow-sm">Retail</div>
+</div>
+<div>
+<div class="flex justify-between items-start">
+<h4 class="text-[#111318] dark:text-white text-base font-bold leading-tight">Dongseong-ro Corner Shop</h4>
+<span class="material-symbols-outlined text-gray-400 hover:text-red-500 cursor-pointer text-[20px]">favorite</span>
+</div>
+<p class="text-[#616f89] dark:text-gray-400 text-sm mt-1">Jung-gu, Daegu • 1st Floor</p>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="text-primary font-bold text-lg">50M</span>
+<span class="text-[#616f89] dark:text-gray-400 text-xs font-medium">Deposit</span>
+<span class="text-[#616f89] dark:text-gray-400 text-xs px-1">/</span>
+<span class="text-primary font-bold text-lg">3.5M</span>
+<span class="text-[#616f89] dark:text-gray-400 text-xs font-medium">Rent</span>
+</div>
+<div class="flex gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-1 text-[#616f89] dark:text-gray-500 text-xs">
+<span class="material-symbols-outlined text-[16px]">crop_square</span>
+<span>82m² (25py)</span>
+</div>
+<div class="flex items-center gap-1 text-[#616f89] dark:text-gray-500 text-xs">
+<span class="material-symbols-outlined text-[16px]">directions_car</span>
+<span>Parking OK</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2: Premium/Locked -->
+<div class="relative group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-yellow-400/30 overflow-hidden">
+<div class="absolute top-0 right-0 bg-yellow-400 text-[#111318] text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">PREMIUM</div>
+<div class="relative w-full aspect-[16/9] rounded-lg overflow-hidden bg-gray-200">
+<img class="h-full w-full object-cover blur-[2px]" data-alt="Office space with glass walls and city view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB7OdBUW6V5SWcTj7j3Vm2V_lCPXpi9rTTQT7xgqAszSSSP-xiATOUuuQf-Lvl6eJPBGY3LSJXTWAt9VnSHsdMy_6qCQHCPPmCuO0j-IvoZmQ43a70lKXU7RCHT4MSSwgU5EAoqLuRoetLfDOGECIlzTnT6tWJkOu2M2zE8HyaJ-enObOfDMgilNChP_WRbzrxqPY4bPrDBv2sMWQ6YTLGjvjUri3m3T8DfpxLL8ZMsci98Ov-MCzGE6hRzTjOcFehv4Ur1vclRRU"/>
+<div class="absolute inset-0 bg-black/10 flex items-center justify-center">
+<div class="bg-white/90 dark:bg-black/80 rounded-full p-2">
+<span class="material-symbols-outlined text-gray-500 text-[24px]">lock</span>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-[#111318] dark:text-white text-base font-bold leading-tight">Suseong-gu Prime Office</h4>
+<p class="text-[#616f89] dark:text-gray-400 text-sm mt-1">Suseong-gu, Daegu • High Floor</p>
+<!-- Blurred Content -->
+<div class="mt-2 select-none filter blur-sm opacity-60">
+<div class="flex items-baseline gap-1">
+<span class="text-primary font-bold text-lg">100M</span>
+<span class="text-xs font-medium">Deposit</span>
+<span class="text-xs px-1">/</span>
+<span class="text-primary font-bold text-lg">5.0M</span>
+</div>
+</div>
+<!-- CTA Overlay -->
+<div class="absolute bottom-3 left-3 right-3 top-[60%] flex items-center justify-center">
+<button class="shadow-lg bg-[#111318] dark:bg-primary text-white text-sm font-bold py-2 px-4 rounded-lg hover:scale-105 transition-transform">
+                                    View Membership Plans
+                                </button>
+</div>
+</div>
+</div>
+<!-- Card 3: Standard -->
+<div class="group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-transparent hover:border-primary/30 transition-all cursor-pointer">
+<div class="relative w-full aspect-[16/9] rounded-lg overflow-hidden bg-gray-200">
+<img class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Small cozy cafe interior with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNC9RIV9-s1Ih1sH4BewHjqXuotzkcsxs5YImaB3zv2ve9u72-yrOQmvfyIF7E9dyX5f9xAOuHsL-WISrOyr6x0mc_haiSigsmpAfnKmFavi5W6BZEz2i9ZwoSaP0dBrWGeWSplf4-d0gcb-sx6CKF9DxwlviC-XcweLDysz0YU_KKKBVVFsio_0f_n0KpNbLKHpSmxyP8497Sc8zF92bvh7xkQCvbo2-WblD5AX7DGbzaSgRu_Cnnj-A6RR0HsYkcTD3TAu1VQqc"/>
+<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-black/80 text-primary font-bold text-xs px-2 py-1 rounded shadow-sm">Cafe</div>
+</div>
+<div>
+<div class="flex justify-between items-start">
+<h4 class="text-[#111318] dark:text-white text-base font-bold leading-tight">Kyungpook Univ. Studio</h4>
+<span class="material-symbols-outlined text-gray-400 hover:text-red-500 cursor-pointer text-[20px]">favorite</span>
+</div>
+<p class="text-[#616f89] dark:text-gray-400 text-sm mt-1">Buk-gu, Daegu • 2nd Floor</p>
+<div class="mt-2 flex items-baseline gap-1">
+<span class="text-primary font-bold text-lg">20M</span>
+<span class="text-[#616f89] dark:text-gray-400 text-xs font-medium">Deposit</span>
+<span class="text-[#616f89] dark:text-gray-400 text-xs px-1">/</span>
+<span class="text-primary font-bold text-lg">1.2M</span>
+<span class="text-[#616f89] dark:text-gray-400 text-xs font-medium">Rent</span>
+</div>
+<div class="flex gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-1 text-[#616f89] dark:text-gray-500 text-xs">
+<span class="material-symbols-outlined text-[16px]">crop_square</span>
+<span>40m² (12py)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right: Map Area -->
+<main class="flex-1 relative bg-gray-200 dark:bg-gray-800 h-full w-full overflow-hidden">
+<!-- Map Background Representation -->
+<div class="absolute inset-0 z-0 bg-cover bg-center opacity-80" data-alt="Abstract map background representing Daegu city layout" data-location="Daegu" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD3yfSJnKCci64emMNYvzOLYVcxs4m7VKepLeNllFUaT1M5U4qLlAN2p1pHoJxkze-NohmBkBEp7HGSt5KaGwFVO_DBmi3TZJf2_xVOJ84lI83aXofXundBXlIhEXVniZZ2rJ_HLpvd_WM87IgNj_84crRnTo6P57wg45sN9OJ3rrjUMdGjj-jlPyCqQ81oEL5yiit5AXFDkLD6WrilCHn3hL1FLTXmDwxmOVQyvXxa_6A-mfD4uosnHCUx_0ePA_kwLHYQvLZEIB0');">
+<div class="absolute inset-0 bg-blue-50/10 dark:bg-blue-900/10 backdrop-grayscale-[20%]"></div>
+</div>
+<!-- Floating Search Here Button -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+<button class="flex items-center gap-2 bg-white dark:bg-[#101622] text-primary px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-shadow font-bold text-sm border border-primary/20">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+                    Search this area
+                </button>
+</div>
+<!-- Map Controls -->
+<div class="absolute right-4 bottom-8 flex flex-col gap-2 z-10">
+<button class="size-10 bg-white dark:bg-[#101622] rounded-lg shadow-md flex items-center justify-center text-[#111318] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+<div class="flex flex-col bg-white dark:bg-[#101622] rounded-lg shadow-md overflow-hidden">
+<button class="size-10 flex items-center justify-center text-[#111318] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="size-10 flex items-center justify-center text-[#111318] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-800">
+<span class="material-symbols-outlined">remove</span>
+</button>
+</div>
+</div>
+<!-- Markers (Simulated) -->
+<!-- Marker 1 (Cluster) -->
+<div class="absolute top-1/3 left-1/3 transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-10">
+<div class="size-10 bg-primary/90 text-white rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white dark:border-gray-900 group-hover:scale-110 transition-transform">
+                    24
+                </div>
+</div>
+<!-- Marker 2 (Active Pin) -->
+<div class="absolute top-[45%] left-[55%] transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group z-20">
+<div class="bg-primary text-white px-3 py-1.5 rounded-lg shadow-lg font-bold text-sm border border-white dark:border-gray-900 arrow-bottom relative hover:bg-blue-700 transition-colors">
+                    50M / 3.5M
+                    <div class="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rotate-45 border-r border-b border-white dark:border-gray-900"></div>
+</div>
+<!-- Tooltip/Hover Card -->
+<div class="hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 bg-white dark:bg-[#151c2b] rounded-lg shadow-xl p-2 z-30">
+<img class="w-full h-24 object-cover rounded mb-2" data-alt="Thumbnail of property" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1y5yszZBcxtTMayMj7bkOF--RSlKjSmxlzRUdghN7CpeejrLRgdo2tCK7U8sphAi1nIzxXCyQqqKEOoIgZ7QbLbDhW4kW3K3MSULoPTiyNl9_d1jVfOGtB0erUq20RDzMjOZ2qJBkeNc3akeha6ouJ1WfS2jIfLV8PZ0wntN5lJP_NnvgRrVPY7OnNMBGO4LgCv3t9gited4KcNZ17GN_Pq-aWYNAJk3HvlOO44KSkQJyDHt7fvo7LxoInEdSVvVR53Hho3rpBQI"/>
+<p class="text-xs font-bold dark:text-white truncate">Dongseong-ro Corner Shop</p>
+<p class="text-[10px] text-gray-500">Retail • 82m²</p>
+</div>
+</div>
+<!-- Marker 3 (Inactive Pin) -->
+<div class="absolute top-[60%] left-[40%] transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10">
+<div class="bg-white dark:bg-[#101622] text-[#111318] dark:text-white px-2 py-1 rounded-md shadow-md font-bold text-xs border border-gray-200 dark:border-gray-700 hover:scale-110 transition-transform">
+                    20M / 1.2M
+                </div>
+</div>
+<!-- Marker 4 (Premium Pin) -->
+<div class="absolute top-[25%] left-[65%] transform -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10">
+<div class="bg-[#111318] dark:bg-white text-white dark:text-[#111318] px-2 py-1 rounded-md shadow-md font-bold text-xs border border-yellow-400 flex items-center gap-1 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[12px] text-yellow-400">star</span>
+                    Premium
+                </div>
+</div>
+</main>
+</div>
+</body></html>
