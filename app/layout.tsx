@@ -6,8 +6,18 @@ export const metadata: Metadata = {
   title: 'Daegu Commercial Platform',
   description: '대구 지역 상가 중개업무 효율화를 위한 지도 기반 매물 관리 플랫폼',
   icons: {
-    icon: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: [
+      {
+        url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ff6b00" rx="10"/><text x="50" y="70" font-size="60" text-anchor="middle" fill="white">🏢</text></svg>',
+        type: 'image/svg+xml',
+      },
+    ],
+    apple: [
+      {
+        url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ff6b00" rx="10"/><text x="50" y="70" font-size="60" text-anchor="middle" fill="white">🏢</text></svg>',
+        type: 'image/svg+xml',
+      },
+    ],
   },
   manifest: '/manifest.json',
   themeColor: '#ff6b00',
