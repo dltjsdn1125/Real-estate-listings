@@ -316,17 +316,22 @@ export default function KakaoMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, clusterer, properties, onMarkerClick, center])
 
-  // GPS 위치로 지도 이동
-  const moveToUserLocation = () => {
-    if (!map || !userLocation) {
-      alert('위치 정보를 사용할 수 없습니다.')
-      return
+  // GPS 위치로 지도 이동 (사용자 제스처로 GPS 요청)
+  const moveToUserLocation = useCallback(() => {
+    // 사용자 제스처로 GPS 요청
+    requestLocation()
+    
+    // 위치가 있으면 지도 이동 (약간의 지연 후)
+    if (map && userLocation) {
+      setTimeout(() => {
+        if (userLocation && map) {
+          const moveLatLon = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
+          map.setCenter(moveLatLon)
+          map.setLevel(3) // 확대 레벨 (3 = 상세 지도)
+        }
+      }, 500)
     }
-
-    const moveLatLon = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
-    map.setCenter(moveLatLon)
-    map.setLevel(3) // 확대 레벨 (3 = 상세 지도)
-  }
+  }, [map, userLocation, requestLocation])
 
   return (
     <>
