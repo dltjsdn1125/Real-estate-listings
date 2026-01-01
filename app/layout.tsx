@@ -49,26 +49,20 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              // 개발 환경에서는 Service Worker 완전 비활성화
               if ('serviceWorker' in navigator && typeof window !== 'undefined') {
-                // 개발 환경에서는 Service Worker 비활성화 (선택사항)
                 const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                if (!isDev) {
-                  window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                      .then((registration) => {
-                        console.log('Service Worker registered:', registration);
-                      })
-                      .catch((error) => {
-                        console.error('Service Worker registration failed:', error);
-                      });
-                  });
-                } else {
-                  // 개발 환경에서는 기존 Service Worker 제거
+                if (isDev) {
+                  // 개발 환경: 모든 Service Worker 제거
                   navigator.serviceWorker.getRegistrations().then((registrations) => {
                     registrations.forEach((registration) => {
-                      registration.unregister();
+                      registration.unregister().catch(() => {});
                     });
                   });
+                  // Service Worker 등록 방지
+                  navigator.serviceWorker.register = function() {
+                    return Promise.reject(new Error('Service Worker disabled in development'));
+                  };
                 }
               }
             `,

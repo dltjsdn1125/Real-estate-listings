@@ -19,6 +19,18 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
+  // Webpack 설정 개선
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // 개발 환경에서 webpack chunk 로딩 안정화
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: 'named',
+        chunkIds: 'named',
+      }
+    }
+    return config
+  },
   // PWA 및 TWA 설정
   async headers() {
     return [
