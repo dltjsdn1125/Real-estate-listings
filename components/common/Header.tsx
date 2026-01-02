@@ -102,9 +102,7 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
 
           {/* Auth Buttons */}
           <div className="flex items-center gap-2">
-            {loading ? (
-              <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
-            ) : isAuthenticated && user ? (
+            {isAuthenticated && user ? (
               <>
                 {/* User Info */}
                 <div className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800'}`}>
