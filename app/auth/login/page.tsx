@@ -35,24 +35,25 @@ export default function LoginPage() {
 
         console.log('User data check:', { userData, userError, userId: data.user.id })
 
+        setLoading(false)
+
         if (userError) {
           console.error('Failed to fetch user data:', userError)
           // 사용자 데이터 조회 실패 시에도 일단 map으로 이동 (RLS 문제일 수 있음)
-          router.push('/map')
+          window.location.href = '/map'
         } else if (userData?.approval_status === 'approved') {
           // 승인된 사용자 - 지도로 이동
-          router.push('/map')
+          window.location.href = '/map'
         } else {
           // 미승인 사용자 - 대기 페이지로 이동
-          router.push('/auth/pending')
+          window.location.href = '/auth/pending'
         }
-        router.refresh()
+        return
       }
     } catch (err: any) {
       setError(err.message || '로그인에 실패했습니다.')
-    } finally {
-      setLoading(false)
     }
+    setLoading(false)
   }
 
   return (
