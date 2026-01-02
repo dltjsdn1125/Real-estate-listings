@@ -46,6 +46,7 @@ export default function MapPage() {
   }>({ enabled: false })
   const [quickRegisterOpen, setQuickRegisterOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | undefined>(undefined)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     loadProperties()
@@ -68,6 +69,8 @@ export default function MapPage() {
   const loadProperties = async () => {
     try {
       setLoading(true)
+      setError(null)
+      
       const filters: any = {
         status: 'available',
         limit: 50,
@@ -80,12 +83,24 @@ export default function MapPage() {
         filters.radiusKm = radiusSearch.radiusKm
       }
       
-      const { data, error } = await getProperties(filters)
+      // 타임아웃 설정 (30초)
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('매물을 불러오는 데 시간이 너무 오래 걸립니다. 네트워크 연결을 확인해주세요.')), 30000)
+      })
+      
+      const result = await Promise.race([
+        getProperties(filters),
+        timeoutPromise
+      ])
+      
+      const { data, error: fetchError } = result
 
-      if (error) throw error
+      if (fetchError) {
+        throw new Error(fetchError.message || '매물을 불러오는 중 오류가 발생했습니다.')
+      }
 
       if (data) {
-        const formattedProperties: PropertyForMap[] = data.map((property) => {
+        const formattedProperties: PropertyForMap[] = data.map((property: any) => {
           const mainImage = property.property_images?.find((img: any) => img.is_main)
           const firstImage = property.property_images?.[0]
           const imageUrl = mainImage?.image_url || firstImage?.image_url || ''
@@ -158,9 +173,14 @@ export default function MapPage() {
         })
 
         setProperties(formattedProperties)
+      } else {
+        setProperties([])
       }
-    } catch (error) {
-      console.error('Error loading properties:', error)
+    } catch (err: any) {
+      console.error('Error loading properties:', err)
+      const errorMessage = err?.message || '매물을 불러오는 중 오류가 발생했습니다. 페이지를 새로고침해주세요.'
+      setError(errorMessage)
+      setProperties([])
     } finally {
       setLoading(false)
     }
@@ -274,6 +294,27 @@ export default function MapPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">매물을 불러오는 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden h-screen flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-8">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold mb-2">오류가 발생했습니다</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
+          <button
+            onClick={() => {
+              setError(null)
+              loadProperties()
+            }}
+            className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium"
+          >
+            다시 시도
+          </button>
         </div>
       </div>
     )

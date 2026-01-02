@@ -21,16 +21,19 @@ export async function getProperties(filters?: {
       creator:users!properties_created_by_fkey(full_name, email)
     `)
     .eq('is_public', true)
-    .eq('status', 'available')
+
+  // status 필터는 한 번만 적용 (filters에 있으면 그것을 사용, 없으면 기본값 'available')
+  if (filters?.status) {
+    query = query.eq('status', filters.status)
+  } else {
+    query = query.eq('status', 'available')
+  }
 
   if (filters?.district) {
     query = query.eq('district', filters.district)
   }
   if (filters?.propertyType) {
     query = query.eq('property_type', filters.propertyType)
-  }
-  if (filters?.status) {
-    query = query.eq('status', filters.status)
   }
 
   // 반경 검색 (PostGIS 또는 하버사인 공식 사용)
