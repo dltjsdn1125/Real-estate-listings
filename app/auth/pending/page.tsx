@@ -16,6 +16,7 @@ export default function PendingPage() {
       } = await supabase.auth.getUser()
 
       if (!user) {
+        // 로그인하지 않은 사용자는 로그인 페이지로
         router.push('/auth/login')
         return
       }
@@ -29,9 +30,11 @@ export default function PendingPage() {
         .eq('id', user.id)
         .single()
 
+      // 승인된 사용자는 맵 페이지로 리다이렉트
       if (data?.approval_status === 'approved') {
         router.push('/map')
       }
+      // pending 또는 rejected 상태는 이 페이지에 머물러야 함
     }
 
     checkAuth()

@@ -33,8 +33,8 @@ export function hasPermission(
   user: User | null,
   permission: keyof typeof PERMISSIONS
 ): boolean {
+  // 비회원은 guest 권한만 확인
   if (!user) {
-    // 비회원은 guest 권한
     return PERMISSIONS[permission].includes('guest')
   }
 

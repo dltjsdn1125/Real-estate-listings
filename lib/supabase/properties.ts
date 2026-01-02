@@ -11,29 +11,27 @@ export async function getProperties(filters?: {
   centerLat?: number
   centerLng?: number
   radiusKm?: number
+  keyword?: string
 }) {
-  let query = supabase
-    .from('properties')
-    .select(`
-      *,
-      property_images(*),
-      property_tags(*),
-      creator:users!properties_created_by_fkey(full_name, email)
-    `)
-    .eq('is_public', true)
-
+  // 키워드 검색이 있으면 2단계 검색 (성능 최적화), 없으면 일반 검색
+  // select를 먼저 호출하여 쿼리 빌더를 올바르게 초기화
+  let baseQuery = supabase.from('properties').select('id')
+  
+  // 기본 필터 적용
+  baseQuery = baseQuery.eq('is_public', true)
+  
   // status 필터는 한 번만 적용 (filters에 있으면 그것을 사용, 없으면 기본값 'available')
   if (filters?.status) {
-    query = query.eq('status', filters.status)
+    baseQuery = baseQuery.eq('status', filters.status)
   } else {
-    query = query.eq('status', 'available')
+    baseQuery = baseQuery.eq('status', 'available')
   }
 
-  if (filters?.district) {
-    query = query.eq('district', filters.district)
+  if (filters?.district && filters.district !== 'all') {
+    baseQuery = baseQuery.eq('district', filters.district)
   }
-  if (filters?.propertyType) {
-    query = query.eq('property_type', filters.propertyType)
+  if (filters?.propertyType && filters.propertyType !== 'all') {
+    baseQuery = baseQuery.eq('property_type', filters.propertyType)
   }
 
   // 반경 검색 (PostGIS 또는 하버사인 공식 사용)
@@ -44,7 +42,7 @@ export async function getProperties(filters?: {
     const latRange = filters.radiusKm / 111.0 // 대략적인 위도 1도 = 111km
     const lngRange = filters.radiusKm / (111.0 * Math.cos((filters.centerLat * Math.PI) / 180))
     
-    query = query
+    baseQuery = baseQuery
       .gte('latitude', filters.centerLat - latRange)
       .lte('latitude', filters.centerLat + latRange)
       .gte('longitude', filters.centerLng - lngRange)
@@ -53,14 +51,116 @@ export async function getProperties(filters?: {
       .not('longitude', 'is', null)
   }
 
-  if (filters?.limit) {
-    query = query.limit(filters.limit)
-  }
-  if (filters?.offset) {
-    query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1)
+  // 키워드 검색이 있으면 OR 쿼리로 추가
+  if (filters?.keyword && filters.keyword.trim()) {
+    const keyword = filters.keyword.trim()
+    // 특수문자 이스케이프 필요 (%, _ 등)
+    const escapedKeyword = keyword.replace(/%/g, '\\%').replace(/_/g, '\\_')
+    const orQuery = `title.ilike.%${escapedKeyword}%,description.ilike.%${escapedKeyword}%,address.ilike.%${escapedKeyword}%,detail_address.ilike.%${escapedKeyword}%,district.ilike.%${escapedKeyword}%,dong.ilike.%${escapedKeyword}%`
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 Supabase OR 쿼리 (필터 적용 후):', {
+        originalKeyword: keyword,
+        escapedKeyword: escapedKeyword,
+        orQuery: orQuery
+      })
+    }
+    
+    baseQuery = baseQuery.or(orQuery)
   }
 
-  const result = await query.order('created_at', { ascending: false })
+  if (filters?.limit) {
+    baseQuery = baseQuery.limit(filters.limit)
+  }
+  if (filters?.offset) {
+    baseQuery = baseQuery.range(filters.offset, filters.offset + (filters.limit || 10) - 1)
+  }
+
+  // 먼저 ID만 가져오기 (빠른 검색)
+  const baseResult = await baseQuery.order('created_at', { ascending: false })
+  
+  if (baseResult.error) {
+    return baseResult
+  }
+  
+  // 결과가 없으면 빈 배열 반환
+  if (!baseResult.data || baseResult.data.length === 0) {
+    if (process.env.NODE_ENV === 'development' && filters?.keyword) {
+      console.log('🔍 Supabase 쿼리 결과: 검색 결과 없음')
+    }
+    return { ...baseResult, data: [] }
+  }
+  
+  // ID 목록 추출
+  const propertyIds = baseResult.data.map((p: any) => p.id)
+  
+  // 이제 상세 정보를 join으로 가져오기 (ID 목록으로만 필터링, 이미 필터링된 결과)
+  // ID 목록이 비어있으면 빈 배열 반환
+  if (propertyIds.length === 0) {
+    return { ...baseResult, data: [] }
+  }
+  
+  // Supabase의 .in()은 최대 100개까지만 지원하므로, 더 많으면 배치로 처리
+  let allData: any[] = []
+  const batchSize = 100
+  
+  for (let i = 0; i < propertyIds.length; i += batchSize) {
+    const batchIds = propertyIds.slice(i, i + batchSize)
+    
+    const query = supabase
+      .from('properties')
+      .select(`
+        *,
+        property_images(*),
+        property_tags(*),
+        creator:users!properties_created_by_fkey(full_name, email)
+      `)
+      .in('id', batchIds)
+      .eq('is_public', true)
+    
+    const batchResult = await query.order('created_at', { ascending: false })
+    
+    if (batchResult.error) {
+      return batchResult
+    }
+    
+    if (batchResult.data) {
+      allData = allData.concat(batchResult.data)
+    }
+  }
+
+  // 디버깅: 최종 쿼리 확인
+  if (process.env.NODE_ENV === 'development' && filters?.keyword) {
+    console.log('🔍 상세 정보 쿼리 실행:', {
+      keyword: filters.keyword,
+      propertyIdsCount: propertyIds.length,
+      batches: Math.ceil(propertyIds.length / batchSize)
+    })
+  }
+  
+  // 결과를 created_at 기준으로 정렬 (최신순)
+  allData.sort((a, b) => {
+    const dateA = new Date(a.created_at).getTime()
+    const dateB = new Date(b.created_at).getTime()
+    return dateB - dateA
+  })
+  
+  // limit 적용 (이미 baseQuery에서 적용했지만, 배치 처리로 인해 더 많을 수 있음)
+  if (filters?.limit && allData.length > filters.limit) {
+    allData = allData.slice(0, filters.limit)
+  }
+  
+  const result = { data: allData, error: null }
+  
+  // 디버깅: 쿼리 결과 확인
+  if (process.env.NODE_ENV === 'development' && filters?.keyword) {
+    console.log('🔍 Supabase 쿼리 결과:', {
+      keyword: filters.keyword,
+      dataCount: result.data?.length || 0,
+      error: null,
+      hasError: false
+    })
+  }
   
   // 반경 검색인 경우 클라이언트에서 정확한 거리 계산 및 필터링
   if (filters?.centerLat && filters?.centerLng && filters?.radiusKm && result.data) {
@@ -172,4 +272,5 @@ export async function deletePropertyTags(propertyId: string, tags: string[]) {
 
   if (error) throw error
 }
+
 

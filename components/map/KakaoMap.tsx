@@ -24,8 +24,10 @@ interface KakaoMapProps {
   onMapReady?: (map: any) => void
   onMarkerClick?: (propertyId: string) => void
   onMapClick?: (lat: number, lng: number) => void
+  onBoundsChange?: (bounds: { sw: { lat: number; lng: number }; ne: { lat: number; lng: number } }) => void
   center?: { lat: number; lng: number }
   level?: number // 지도 확대/축소 레벨 (1-14, 높을수록 확대)
+  pinItMode?: boolean // Pin it 모드 활성화 여부
 }
 
 export default function KakaoMap({
@@ -33,8 +35,10 @@ export default function KakaoMap({
   onMapReady,
   onMarkerClick,
   onMapClick,
+  onBoundsChange,
   center,
   level = 3, // 기본 레벨 (대구 전체 보기)
+  pinItMode = false,
 }: KakaoMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<any>(null)
@@ -45,7 +49,26 @@ export default function KakaoMap({
   const [locationError, setLocationError] = useState<string | null>(null)
   const [userMarker, setUserMarker] = useState<any>(null)
   const [watchId, setWatchId] = useState<number | null>(null)
-  
+  const [pinItMarker, setPinItMarker] = useState<any>(null) // Pin it 모드 마커
+
+  // pinItMode를 ref로 저장하여 이벤트 핸들러에서 최신 값 참조
+  const pinItModeRef = useRef(pinItMode)
+  useEffect(() => {
+    pinItModeRef.current = pinItMode
+  }, [pinItMode])
+
+  // onMapClick을 ref로 저장하여 이벤트 핸들러에서 최신 콜백 참조
+  const onMapClickRef = useRef(onMapClick)
+  useEffect(() => {
+    onMapClickRef.current = onMapClick
+  }, [onMapClick])
+
+  // onBoundsChange를 ref로 저장하여 이벤트 핸들러에서 최신 콜백 참조
+  const onBoundsChangeRef = useRef(onBoundsChange)
+  useEffect(() => {
+    onBoundsChangeRef.current = onBoundsChange
+  }, [onBoundsChange])
+
   // 모바일 감지 (SSR 안전)
   const isMobile = typeof window !== 'undefined' && 
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -178,61 +201,118 @@ export default function KakaoMap({
 
   // 지도 초기화
   useEffect(() => {
-    if (!mapLoaded || !mapRef.current || !window.kakao || map) return // 이미 지도가 생성되었으면 리턴
-
-    // 중심 좌표 결정 (우선순위: props center > GPS 위치 > 대구 중심)
-    const defaultCenter = center || userLocation || { lat: 35.8714, lng: 128.6014 }
-
-    // 고해상도 지도 옵션
-    const mapOption = {
-      center: new window.kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
-      level: level, // 지도 확대/축소 레벨 (3-14, 낮을수록 확대)
+    // 지도가 이미 생성되었거나 필요한 조건이 충족되지 않으면 리턴
+    if (map || !mapLoaded || !window.kakao || !window.kakao.maps) {
+      return
     }
 
-    // 지도 생성
-    const kakaoMap = new window.kakao.maps.Map(mapRef.current, mapOption)
-    setMap(kakaoMap)
+    // mapRef가 준비될 때까지 대기
+    const checkAndInit = () => {
+      if (!mapRef.current || map) return
 
-    // 마커 클러스터러 생성
-    const markerClusterer = new window.kakao.maps.MarkerClusterer({
-      map: kakaoMap,
-      averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치로 클러스터 마커 위치 설정
-      minLevel: 5, // 클러스터 할 최소 지도 레벨 (5 이상일 때 클러스터링)
-      disableClickZoom: false, // 클러스터 마커 클릭 시 지도 확대 활성화
-      styles: [
-        {
-          // 클러스터 마커 스타일
-          width: '50px',
-          height: '50px',
-          background: 'rgba(255, 107, 0, 0.8)',
-          borderRadius: '25px',
-          color: '#fff',
-          textAlign: 'center',
-          fontWeight: 'bold',
-          lineHeight: '50px',
-        },
-      ],
-    })
-    setClusterer(markerClusterer)
+      try {
+        // 중심 좌표 결정 (우선순위: props center > GPS 위치 > 대구 중심)
+        const defaultCenter = center || userLocation || { lat: 35.8714, lng: 128.6014 }
 
-    // 지도 타입 설정 (일반 지도 + 지형도 혼합 가능)
-    // kakaoMap.setMapTypeId(window.kakao.maps.MapTypeId.ROADMAP) // 기본 도로 지도
-    // kakaoMap.setMapTypeId(window.kakao.maps.MapTypeId.HYBRID) // 위성 + 도로명
+        // 고해상도 지도 옵션
+        const mapOption = {
+          center: new window.kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
+          level: level, // 지도 확대/축소 레벨 (3-14, 낮을수록 확대)
+        }
 
-    // 지도 클릭 이벤트 추가
-    window.kakao.maps.event.addListener(kakaoMap, 'click', (mouseEvent: any) => {
-      const latlng = mouseEvent.latLng
-      const lat = latlng.getLat()
-      const lng = latlng.getLng()
-      onMapClick?.(lat, lng)
-    })
+        // 지도 생성
+        const kakaoMap = new window.kakao.maps.Map(mapRef.current, mapOption)
+        setMap(kakaoMap)
 
-    // 지도 준비 완료 콜백
-    onMapReady?.(kakaoMap)
+        // 마커 클러스터러 생성
+        const markerClusterer = new window.kakao.maps.MarkerClusterer({
+          map: kakaoMap,
+          averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치로 클러스터 마커 위치 설정
+          minLevel: 5, // 클러스터 할 최소 지도 레벨 (5 이상일 때 클러스터링)
+          disableClickZoom: false, // 클러스터 마커 클릭 시 지도 확대 활성화
+          styles: [
+            {
+              // 클러스터 마커 스타일
+              width: '50px',
+              height: '50px',
+              background: 'rgba(255, 107, 0, 0.8)',
+              borderRadius: '25px',
+              color: '#fff',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              lineHeight: '50px',
+            },
+          ],
+        })
+        setClusterer(markerClusterer)
 
-    // 사용자 위치 마커 추가
-    if (userLocation && !locationError && map) {
-      updateUserMarker(userLocation)
+        // 지도 클릭 이벤트 추가
+        window.kakao.maps.event.addListener(kakaoMap, 'click', (mouseEvent: any) => {
+          const latlng = mouseEvent.latLng
+          const lat = latlng.getLat()
+          const lng = latlng.getLng()
+
+          // Pin it 모드일 때 빨간색 마커 표시 (ref로 최신 값 참조)
+          if (pinItModeRef.current && kakaoMap) {
+            // 기존 Pin it 마커 제거
+            setPinItMarker((prevMarker: any) => {
+              if (prevMarker) {
+                prevMarker.setMap(null)
+              }
+              return null
+            })
+
+            // 새로운 빨간색 마커 생성
+            const marker = new window.kakao.maps.Marker({
+              position: latlng,
+              map: kakaoMap,
+              image: new window.kakao.maps.MarkerImage(
+                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+                new window.kakao.maps.Size(64, 69),
+                { offset: new window.kakao.maps.Point(32, 69) }
+              ),
+              zIndex: 2000, // 다른 마커보다 위에 표시
+            })
+            setPinItMarker(marker)
+          }
+
+          // ref로 최신 콜백 호출
+          onMapClickRef.current?.(lat, lng)
+        })
+
+        // 지도 준비 완료 콜백
+        onMapReady?.(kakaoMap)
+
+        // 지도 영역 변경 시 bounds 전달 (idle 이벤트: 지도 이동/줌 완료 후 발생)
+        window.kakao.maps.event.addListener(kakaoMap, 'idle', () => {
+          if (onBoundsChangeRef.current) {
+            const bounds = kakaoMap.getBounds()
+            const sw = bounds.getSouthWest()
+            const ne = bounds.getNorthEast()
+            onBoundsChangeRef.current({
+              sw: { lat: sw.getLat(), lng: sw.getLng() },
+              ne: { lat: ne.getLat(), lng: ne.getLng() },
+            })
+          }
+        })
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ Kakao Map 초기화 완료')
+        }
+      } catch (error) {
+        console.error('❌ 지도 초기화 오류:', error)
+        setMapLoaded(false)
+      }
+    }
+
+    // DOM이 준비될 때까지 대기
+    if (mapRef.current) {
+      checkAndInit()
+    } else {
+      const timer = setTimeout(() => {
+        checkAndInit()
+      }, 200)
+      return () => clearTimeout(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapLoaded])
@@ -332,6 +412,14 @@ export default function KakaoMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, clusterer, properties, onMarkerClick, center])
 
+  // Pin it 모드 변경 시 마커 제거
+  useEffect(() => {
+    if (!pinItMode && pinItMarker) {
+      pinItMarker.setMap(null)
+      setPinItMarker(null)
+    }
+  }, [pinItMode, pinItMarker])
+
   // GPS 위치로 지도 이동 (사용자 제스처로 GPS 요청)
   const moveToUserLocation = useCallback(() => {
     // 사용자 제스처로 GPS 요청
@@ -358,15 +446,21 @@ export default function KakaoMap({
           onLoad={() => {
             if (window.kakao && window.kakao.maps) {
               window.kakao.maps.load(() => {
-                setMapLoaded(true)
                 // services가 로드되었는지 확인
                 if (process.env.NODE_ENV === 'development') {
                   console.log('Kakao Maps 로드 완료:', {
                     hasMaps: !!window.kakao.maps,
                     hasServices: !!window.kakao.maps.services,
+                    hasClusterer: !!window.kakao.maps.MarkerClusterer,
                   })
                 }
+                // 약간의 지연 후 mapLoaded 설정 (DOM이 준비될 때까지)
+                setTimeout(() => {
+                  setMapLoaded(true)
+                }, 100)
               })
+            } else {
+              console.error('Kakao Maps API가 제대로 로드되지 않았습니다.')
             }
           }}
           onError={(e) => {
@@ -404,7 +498,11 @@ export default function KakaoMap({
             </div>
           </div>
         ) : null}
-        <div ref={mapRef} className="w-full h-full" />
+        <div 
+          ref={mapRef} 
+          className="w-full h-full absolute inset-0" 
+          style={{ minHeight: '400px' }}
+        />
         
         {/* GPS 위치 이동 버튼 (항상 표시, 클릭 시 GPS 요청) */}
         <button
@@ -422,17 +520,17 @@ export default function KakaoMap({
           </div>
         )}
 
-        {/* 지도 컨트롤 */}
+        {/* 지도 컨트롤 (Kakao Maps: level이 낮을수록 확대, 높을수록 축소) */}
         <div className="absolute right-4 bottom-8 flex flex-col gap-2 z-10">
           <button
-            onClick={() => map?.setLevel((map.getLevel() || 3) + 1)}
+            onClick={() => map?.setLevel(Math.max(1, (map.getLevel() || 3) - 1))}
             className="size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             title="확대"
           >
             <span className="material-symbols-outlined">add</span>
           </button>
           <button
-            onClick={() => map?.setLevel((map.getLevel() || 3) - 1)}
+            onClick={() => map?.setLevel(Math.min(14, (map.getLevel() || 3) + 1))}
             className="size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             title="축소"
           >

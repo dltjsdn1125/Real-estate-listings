@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { User } from '@/lib/supabase/types'
 
@@ -8,36 +8,53 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [authUser, setAuthUser] = useState<any>(null)
+  const initialCheckDone = useRef(false)
 
   useEffect(() => {
+    // 이미 초기 체크가 완료되었으면 스킵
+    if (initialCheckDone.current) return
+
+    // 초기 체크 시작 표시
+    initialCheckDone.current = true
+
     // 초기 세션 확인
     const checkAuth = async () => {
       try {
+        // getUser()는 서버에서 토큰을 검증하므로 더 안정적
         const {
-          data: { session },
-        } = await supabase.auth.getSession()
+          data: { user: authUserData },
+          error: authError,
+        } = await supabase.auth.getUser()
 
-        // 개발 환경에서만 디버깅 로그 출력
+        // 개발 환경에서만 디버깅 로그 출력 (초기 체크 시에만)
         if (process.env.NODE_ENV === 'development') {
-          console.log('🔐 useAuth - Session Check:', {
-            hasSession: !!session,
-            userId: session?.user?.id,
-            email: session?.user?.email
+          console.log('🔐 useAuth - Initial User Check:', {
+            hasUser: !!authUserData,
+            userId: authUserData?.id,
+            email: authUserData?.email,
+            error: authError?.message
           })
         }
 
-        if (session?.user) {
-          setAuthUser(session.user)
+        // 인증 오류가 있으면 사용자 없음으로 처리
+        if (authError) {
+          console.error('Auth check error:', authError)
+          setLoading(false)
+          return
+        }
+
+        if (authUserData) {
+          setAuthUser(authUserData)
           // users 테이블에서 사용자 정보 가져오기
           const { data, error } = await supabase
             .from('users')
             .select('*')
-            .eq('id', session.user.id)
+            .eq('id', authUserData.id)
             .single()
 
-          // 개발 환경에서만 디버깅 로그 출력
+          // 개발 환경에서만 디버깅 로그 출력 (초기 체크 시에만)
           if (process.env.NODE_ENV === 'development') {
-            console.log('👤 useAuth - User Data:', {
+            console.log('👤 useAuth - Initial User Data:', {
               hasData: !!data,
               error: error?.message,
               user: data ? { email: data.email, role: data.role, tier: data.tier } : null
@@ -61,13 +78,22 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // 개발 환경에서만 디버깅 로그 출력
-      if (process.env.NODE_ENV === 'development') {
+      // 초기 체크가 완료되기 전에는 무시 (중복 처리 방지)
+      if (!initialCheckDone.current) return
+
+      // 개발 환경에서만 디버깅 로그 출력 (중요한 이벤트만)
+      if (process.env.NODE_ENV === 'development' && (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED')) {
         console.log('🔄 useAuth - Auth State Changed:', {
           event,
           hasSession: !!session,
           userId: session?.user?.id
         })
+      }
+
+      if (event === 'SIGNED_OUT') {
+        setAuthUser(null)
+        setUser(null)
+        return
       }
 
       if (session?.user) {
@@ -79,8 +105,8 @@ export function useAuth() {
           .eq('id', session.user.id)
           .single()
 
-        // 개발 환경에서만 디버깅 로그 출력
-        if (process.env.NODE_ENV === 'development') {
+        // 개발 환경에서만 디버깅 로그 출력 (중요한 이벤트만)
+        if (process.env.NODE_ENV === 'development' && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
           console.log('👤 useAuth - State Change User Data:', {
             hasData: !!data,
             user: data ? { email: data.email, role: data.role, tier: data.tier } : null
@@ -90,11 +116,7 @@ export function useAuth() {
         if (data) {
           setUser(data)
         }
-      } else {
-        setAuthUser(null)
-        setUser(null)
       }
-      setLoading(false)
     })
 
     return () => {

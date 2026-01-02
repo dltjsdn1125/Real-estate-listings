@@ -16,6 +16,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'dapi.kakao.com',
+        pathname: '/v2/maps/**',
+      },
     ],
     unoptimized: false,
   },

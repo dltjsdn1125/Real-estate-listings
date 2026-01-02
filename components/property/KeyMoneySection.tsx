@@ -13,6 +13,7 @@ export default function KeyMoneySection({ keyMoney }: KeyMoneySectionProps) {
   const { user, isAuthenticated, loading } = useAuth()
   const canViewKeyMoney = hasPermission(user, 'VIEW_KEY_MONEY')
 
+  // 로딩 중이거나 인증 상태가 불확실할 때는 로딩 UI 표시
   if (loading) {
     return (
       <div className="flex flex-col gap-4 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/10 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6 animate-pulse">
@@ -21,6 +22,10 @@ export default function KeyMoneySection({ keyMoney }: KeyMoneySectionProps) {
       </div>
     )
   }
+
+  // 로딩이 완료된 후에만 권한 체크 및 UI 표시
+  // isAuthenticated가 true인데 canViewKeyMoney가 false인 경우 = 등급 부족
+  // isAuthenticated가 false인 경우 = 로그인 필요
 
   return (
     <div className="flex flex-col gap-4 bg-gradient-to-br from-yellow-50 to-amber-50 dark:from-yellow-900/10 dark:to-amber-900/10 border border-yellow-200 dark:border-yellow-800/30 rounded-xl p-6">
@@ -53,7 +58,10 @@ export default function KeyMoneySection({ keyMoney }: KeyMoneySectionProps) {
               </div>
 
               {/* Unlock Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-yellow-50/80 dark:bg-yellow-900/20 backdrop-blur-sm rounded-lg">
+              <div 
+                className="absolute inset-0 flex items-center justify-center bg-yellow-50/80 dark:bg-yellow-900/20 backdrop-blur-sm rounded-lg"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {isAuthenticated ? (
                   <div className="text-center px-4">
                     <span className="material-symbols-outlined text-yellow-600 dark:text-yellow-500 text-5xl mb-2">
@@ -64,6 +72,7 @@ export default function KeyMoneySection({ keyMoney }: KeyMoneySectionProps) {
                     </p>
                     <Link
                       href="/pricing"
+                      onClick={(e) => e.stopPropagation()}
                       className="inline-block mt-2 text-primary hover:underline text-sm font-medium"
                     >
                       등급 업그레이드
@@ -72,6 +81,7 @@ export default function KeyMoneySection({ keyMoney }: KeyMoneySectionProps) {
                 ) : (
                   <Link
                     href="/auth/login"
+                    onClick={(e) => e.stopPropagation()}
                     className="flex items-center gap-2 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-500 dark:hover:bg-yellow-600 text-white font-bold rounded-lg transition-colors shadow-lg"
                   >
                     <span className="material-symbols-outlined">lock_open</span>

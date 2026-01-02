@@ -31,7 +31,7 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
-  // 권한 체크
+  // 권한 체크 - window.location.href 사용으로 전체 페이지 리로드
   useEffect(() => {
     console.log('🔐 UsersPage - Auth Check:', {
       authLoading,
@@ -44,17 +44,17 @@ export default function UsersPage() {
     if (!authLoading) {
       if (!isAuthenticated) {
         console.log('❌ Not authenticated, redirecting to login')
-        router.push('/auth/login')
+        window.location.href = '/auth/login'
         return
       }
       if (user && !['admin', 'agent'].includes(user.role)) {
         console.log('❌ Not admin/agent, redirecting to home. Role:', user.role)
-        router.push('/')
+        window.location.href = '/'
         return
       }
       console.log('✅ Access granted')
     }
-  }, [authLoading, isAuthenticated, user, router])
+  }, [authLoading, isAuthenticated, user])
 
   const loadUsers = useCallback(async () => {
     try {

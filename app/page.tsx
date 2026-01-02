@@ -5,9 +5,19 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/common/Header'
+import { useAuth } from '@/lib/hooks/useAuth'
 
 export default function Home() {
   const router = useRouter()
+  const { isAuthenticated, loading: authLoading } = useAuth()
+
+  const handleMapClick = () => {
+    if (!isAuthenticated) {
+      router.push('/auth/login')
+    } else {
+      router.push('/map')
+    }
+  }
 
   // 자동 리다이렉트를 원하지 않을 경우 아래 주석 처리
   // useEffect(() => {
@@ -49,20 +59,33 @@ export default function Home() {
               대구 지역 상가 중개업무 효율화를 위한 지도 기반 매물 관리 플랫폼
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/map"
-                className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-base font-bold rounded-xl border border-primary hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
-              >
-                <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">map</span>
-                지도로 매물 탐색하기
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/40 backdrop-blur-md text-white text-base font-bold rounded-xl border border-white/60 hover:bg-white/60 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
-              >
-                <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">person_add</span>
-                회원가입
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  href="/map"
+                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-base font-bold rounded-xl border border-primary hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                >
+                  <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">map</span>
+                  지도로 매물 탐색하기
+                </Link>
+              ) : (
+                <button
+                  onClick={handleMapClick}
+                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-base font-bold rounded-xl border border-primary hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={authLoading}
+                >
+                  <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">map</span>
+                  {authLoading ? '로딩 중...' : '지도로 매물 탐색하기 (로그인 필요)'}
+                </button>
+              )}
+              {!isAuthenticated && (
+                <Link
+                  href="/auth/signup"
+                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/40 backdrop-blur-md text-white text-base font-bold rounded-xl border border-white/60 hover:bg-white/60 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                >
+                  <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">person_add</span>
+                  회원가입
+                </Link>
+              )}
             </div>
           </div>
 

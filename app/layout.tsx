@@ -1,5 +1,13 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#ff6b00',
+}
 
 export const metadata: Metadata = {
   title: 'Daegu Commercial Platform',
@@ -19,17 +27,10 @@ export const metadata: Metadata = {
     ],
   },
   manifest: '/manifest.json',
-  themeColor: '#ff6b00',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: '대구 상가',
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
   },
   other: {
     'mobile-web-app-capable': 'yes',

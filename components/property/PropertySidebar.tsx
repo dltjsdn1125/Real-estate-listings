@@ -48,7 +48,7 @@ export default function PropertySidebar({
   const currentStatus = statusConfig[status]
 
   return (
-    <div className="lg:sticky lg:top-24 flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       {/* Pricing Card */}
       <div className="bg-white dark:bg-gray-900 rounded-xl border border-[#dbdfe6] dark:border-gray-800 shadow-sm p-6 flex flex-col gap-6">
         <div className="flex items-center justify-between">

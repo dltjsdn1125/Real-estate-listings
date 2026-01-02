@@ -175,7 +175,7 @@ export default function PropertySearchSidebar({
 
       return true
     })
-  }, [properties, searchQuery, filters])
+  }, [properties, filters])
 
   // 주소/키워드 검색 핸들러 (지도 이동만 수행, 매물 검색 아님)
   const handleSearchSubmit = async (e?: React.FormEvent) => {

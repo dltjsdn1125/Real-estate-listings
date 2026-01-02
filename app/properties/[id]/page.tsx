@@ -6,12 +6,14 @@ import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import Breadcrumbs from '@/components/common/Breadcrumbs'
 import PropertyImageGallery from '@/components/property/PropertyImageGallery'
+import PropertyImageUpload from '@/components/property/PropertyImageUpload'
 import PropertySummary from '@/components/property/PropertySummary'
 import KeyMoneySection from '@/components/property/KeyMoneySection'
 import PropertyLocationMap from '@/components/property/PropertyLocationMap'
 import PropertySidebar from '@/components/property/PropertySidebar'
 import { getPropertyById } from '@/lib/supabase/properties'
 import { supabase } from '@/lib/supabase/client'
+import { addressToCoordinates } from '@/lib/utils/geocoding'
 
 interface PageProps {
   params: { id: string }
@@ -59,7 +61,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
       const images = data.property_images && data.property_images.length > 0
         ? data.property_images.map((img: any) => ({
             url: img.image_url || '',
-            alt: img.caption || data.title,
+            alt: img.image_alt || data.title,
           })).filter((img: any) => img.url) // 빈 이미지 제거
         : []
 
@@ -128,6 +130,81 @@ export default function PropertyDetailPage({ params }: PageProps) {
           ? `${formatAmount(data.sale_price)} (매매)`
           : `${formatAmount(data.deposit)} (보증금)`
 
+      // 좌표 검증: 주소와 제목을 결합하여 정확한 좌표 찾기
+      let verifiedLat = data.latitude ? Number(data.latitude) : null
+      let verifiedLng = data.longitude ? Number(data.longitude) : null
+      
+      // 주소와 제목이 있는 경우, 상호명을 포함한 키워드 검색으로 정확한 좌표 찾기
+      // 클라이언트 사이드에서만 실행 (Kakao Maps API는 브라우저에서만 사용 가능)
+      if (typeof window !== 'undefined' && data.address && data.title) {
+        try {
+          // Kakao Maps API가 로드될 때까지 대기
+          const { waitForKakaoMaps, findCoordinatesByAddressAndTitle } = await import('@/lib/utils/geocoding')
+          const kakaoReady = await waitForKakaoMaps()
+          
+          if (kakaoReady) {
+            const titleBasedCoords = await findCoordinatesByAddressAndTitle(data.address, data.title)
+            
+            if (titleBasedCoords) {
+              if (verifiedLat && verifiedLng) {
+                const latDiff = Math.abs(titleBasedCoords.lat - verifiedLat)
+                const lngDiff = Math.abs(titleBasedCoords.lng - verifiedLng)
+                
+                // 좌표 차이가 0.005도(약 500m) 이상이면 상호명 기반 좌표 사용
+                if (latDiff > 0.005 || lngDiff > 0.005) {
+                  if (process.env.NODE_ENV === 'development') {
+                    console.warn('⚠️ 좌표 불일치 감지 - 상호명 기반 좌표 사용:', {
+                      제목: data.title,
+                      주소: data.address,
+                      DB좌표: { lat: verifiedLat, lng: verifiedLng },
+                      상호명기반좌표: titleBasedCoords,
+                      차이: { lat: latDiff, lng: lngDiff }
+                    })
+                  }
+                  // 상호명 기반 좌표를 우선 사용 (더 정확함)
+                  verifiedLat = titleBasedCoords.lat
+                  verifiedLng = titleBasedCoords.lng
+                } else {
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('✅ 좌표 일치 확인:', {
+                      제목: data.title,
+                      주소: data.address,
+                      좌표: { lat: verifiedLat, lng: verifiedLng }
+                    })
+                  }
+                }
+              } else {
+                // DB에 좌표가 없으면 상호명 기반 좌표 사용
+                verifiedLat = titleBasedCoords.lat
+                verifiedLng = titleBasedCoords.lng
+              }
+            } else if (data.address && verifiedLat && verifiedLng) {
+              // 상호명 검색 실패 시 기존 주소 검색으로 폴백
+              const { addressToCoordinates } = await import('@/lib/utils/geocoding')
+              const addressCoords = await addressToCoordinates(data.address)
+              if (addressCoords) {
+                const latDiff = Math.abs(addressCoords.lat - verifiedLat)
+                const lngDiff = Math.abs(addressCoords.lng - verifiedLng)
+                if (latDiff > 0.005 || lngDiff > 0.005) {
+                  if (process.env.NODE_ENV === 'development') {
+                    console.warn('⚠️ 좌표 불일치 감지:', {
+                      주소: data.address,
+                      DB좌표: { lat: verifiedLat, lng: verifiedLng },
+                      주소변환좌표: addressCoords,
+                      차이: { lat: latDiff, lng: lngDiff }
+                    })
+                  }
+                  verifiedLat = addressCoords.lat
+                  verifiedLng = addressCoords.lng
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error('좌표 검증 실패:', error)
+        }
+      }
+
       const formattedProperty = {
         id: data.id,
         title: data.title,
@@ -141,8 +218,8 @@ export default function PropertyDetailPage({ params }: PageProps) {
         agent: agentData,
         breadcrumbs,
         status: data.status,
-        lat: data.latitude ? Number(data.latitude) : null,
-        lng: data.longitude ? Number(data.longitude) : null,
+        lat: verifiedLat,
+        lng: verifiedLng,
         address: data.address,
       }
 
@@ -216,7 +293,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
       <Header showSearch={true} />
       <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-6">
         <Breadcrumbs items={property.breadcrumbs} />
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Details (8 cols) */}
           <div className="lg:col-span-8 flex flex-col gap-8">
             {/* Header Section */}
@@ -235,8 +312,29 @@ export default function PropertyDetailPage({ params }: PageProps) {
                 ))}
               </div>
             </div>
+            {/* Image Upload (if authenticated) */}
+            {isAuthenticated && (
+              <PropertyImageUpload
+                propertyId={id}
+                onUploadComplete={() => {
+                  // 이미지 업로드 완료 후 매물 정보 다시 로드
+                  loadProperty()
+                }}
+              />
+            )}
             {/* Image Gallery */}
-            <PropertyImageGallery images={property.images} />
+            {process.env.NODE_ENV === 'development' && property.lat && property.lng && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                디버그: 제목={property.title}, 주소={property.address}, 좌표=({property.lat?.toFixed(6)}, {property.lng?.toFixed(6)})
+              </div>
+            )}
+            <PropertyImageGallery 
+              images={property.images} 
+              latitude={property.lat}
+              longitude={property.lng}
+              address={property.address}
+              title={property.title}
+            />
             {/* Info Cards Section */}
             <PropertySummary {...property.summary} />
             {/* Restricted Content Block (Key Money) */}
@@ -258,7 +356,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
             />
           </div>
           {/* Right Column: Sticky Sidebar (4 cols) */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-4 lg:sticky lg:top-6 lg:self-start">
             <PropertySidebar
               status={property.status}
               deposit={property.deposit}

@@ -14,23 +14,58 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setLoading(true)
     setError(null)
 
     try {
+      console.log('로그인 시도:', email)
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (authError) throw authError
+      if (authError) {
+        console.error('로그인 오류:', authError)
+        throw authError
+      }
 
       if (data.user) {
-        // 로그인 성공 - 바로 map으로 이동 (승인 상태는 map 페이지에서 처리)
-        window.location.replace('/map')
+        console.log('로그인 성공, 사용자 정보 확인 중:', data.user.id)
+        
+        // 잠시 대기 (세션이 완전히 설정될 때까지)
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        
+        // 승인 상태 확인
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('approval_status, role')
+          .eq('id', data.user.id)
+          .single()
+
+        if (userError) {
+          console.error('사용자 정보 조회 오류:', userError)
+          throw new Error('사용자 정보를 불러올 수 없습니다.')
+        }
+
+        console.log('사용자 정보:', { approval_status: userData?.approval_status, role: userData?.role })
+
+        // 승인되지 않은 사용자는 pending 페이지로 리다이렉트
+        if (userData?.approval_status !== 'approved') {
+          console.log('승인되지 않은 사용자, 로그아웃 처리')
+          await supabase.auth.signOut()
+          setError('관리자 승인이 완료되지 않았습니다. 승인 후 이용 가능합니다.')
+          setLoading(false)
+          return
+        }
+
+        // 승인된 사용자만 map으로 이동 (전체 페이지 리로드로 쿠키 확실히 전달)
+        console.log('승인된 사용자, 맵 페이지로 이동')
+        window.location.href = '/map'
         return
       }
     } catch (err: any) {
+      console.error('로그인 처리 오류:', err)
       setError(err.message || '로그인에 실패했습니다.')
       setLoading(false)
     }
@@ -76,7 +111,11 @@ export default function LoginPage() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form 
+            onSubmit={handleLogin} 
+            onClick={(e) => e.stopPropagation()}
+            className="space-y-4"
+          >
             <div>
               <label
                 htmlFor="email"
@@ -88,7 +127,11 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  e.stopPropagation()
+                  setEmail(e.target.value)
+                }}
+                onClick={(e) => e.stopPropagation()}
                 required
                 className="w-full px-4 py-3 bg-[#f0f2f4] dark:bg-[#1c2333] border border-[#dce0e5] dark:border-[#374151] rounded-lg text-[#111318] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="your@email.com"
@@ -106,7 +149,12 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  e.stopPropagation()
+                  setPassword(e.target.value)
+                }}
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
                 required
                 className="w-full px-4 py-3 bg-[#f0f2f4] dark:bg-[#1c2333] border border-[#dce0e5] dark:border-[#374151] rounded-lg text-[#111318] dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="••••••••"

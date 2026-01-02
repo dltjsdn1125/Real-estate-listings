@@ -10,7 +10,10 @@ interface QuickPropertyRegisterModalProps {
   isOpen: boolean
   onClose: () => void
   initialLocation?: { lat: number; lng: number }
+  initialTitle?: string
+  initialAddress?: string
   onSuccess?: () => void
+  onAddToFavorites?: (propertyId: string) => Promise<void>
 }
 
 const DAEGU_DISTRICTS = ['중구', '수성구', '달서구', '북구', '동구', '서구', '남구', '달성군']
@@ -19,24 +22,32 @@ export default function QuickPropertyRegisterModal({
   isOpen,
   onClose,
   initialLocation,
+  initialTitle,
+  initialAddress,
   onSuccess,
+  onAddToFavorites,
 }: QuickPropertyRegisterModalProps) {
   const { user, isAuthenticated } = useAuth()
   const [loading, setLoading] = useState(false)
   const [addressLoading, setAddressLoading] = useState(false)
   const [formData, setFormData] = useState({
-    title: '',
+    title: initialTitle || '',
     property_type: '' as PropertyType | '',
     transaction_type: 'rent_monthly' as TransactionType,
     district: '',
     dong: '',
-    address: '',
+    address: initialAddress || '',
     latitude: initialLocation?.lat || null as number | null,
     longitude: initialLocation?.lng || null as number | null,
     deposit: '',
     monthly_rent: '',
+    key_money: '',
     exclusive_area: '',
   })
+  const [addToFavorites, setAddToFavorites] = useState(false)
+  
+  // 사용자 등급 확인 (bronze 이상이면 권리금 입력 가능)
+  const canInputKeyMoney = user && user.tier && ['bronze', 'silver', 'gold', 'platinum', 'premium', 'agent', 'admin'].includes(user.tier)
 
   // 초기 위치가 변경되면 주소 자동 조회
   useEffect(() => {
@@ -45,10 +56,15 @@ export default function QuickPropertyRegisterModal({
         ...prev,
         latitude: initialLocation.lat,
         longitude: initialLocation.lng,
+        title: initialTitle || prev.title,
+        address: initialAddress || prev.address,
       }))
-      loadAddressFromCoordinates(initialLocation.lat, initialLocation.lng)
+      // 주소가 없으면 좌표에서 가져오기
+      if (!initialAddress) {
+        loadAddressFromCoordinates(initialLocation.lat, initialLocation.lng)
+      }
     }
-  }, [initialLocation, isOpen])
+  }, [initialLocation, isOpen, initialTitle, initialAddress])
 
   const loadAddressFromCoordinates = async (lat: number, lng: number) => {
     setAddressLoading(true)
@@ -142,7 +158,7 @@ export default function QuickPropertyRegisterModal({
         monthly_rent: formData.monthly_rent ? parseFloat(formData.monthly_rent) * 10000 : null,
         yearly_rent: null,
         sale_price: null,
-        key_money: null,
+        key_money: formData.key_money ? parseFloat(formData.key_money) * 10000 : null, // 만원 → 원
         maintenance_fee: null,
         vat_excluded: false,
         exclusive_area: formData.exclusive_area ? parseFloat(formData.exclusive_area) : null,
@@ -161,8 +177,18 @@ export default function QuickPropertyRegisterModal({
         status: 'available' as const,
       }
 
-      await createProperty(propertyData)
-      alert('매물이 등록되었습니다.')
+      const createdProperty = await createProperty(propertyData)
+      
+      // 즐겨찾기에 추가
+      if (addToFavorites && createdProperty?.id && onAddToFavorites) {
+        try {
+          await onAddToFavorites(createdProperty.id)
+        } catch (error) {
+          console.error('즐겨찾기 추가 실패:', error)
+        }
+      }
+      
+      alert('매물이 등록되었습니다.' + (addToFavorites ? ' 즐겨찾기에 추가되었습니다.' : ''))
       onSuccess?.()
       onClose()
       
@@ -178,8 +204,10 @@ export default function QuickPropertyRegisterModal({
         longitude: null,
         deposit: '',
         monthly_rent: '',
+        key_money: '',
         exclusive_area: '',
       })
+      setAddToFavorites(false)
     } catch (error: any) {
       console.error('매물 등록 실패:', error)
       alert('매물 등록에 실패했습니다: ' + (error.message || '알 수 없는 오류'))
@@ -328,6 +356,23 @@ export default function QuickPropertyRegisterModal({
             </div>
           )}
 
+          {/* 권리금 (일반 회원 이상) */}
+          {canInputKeyMoney && (
+            <div>
+              <label className="block text-sm font-semibold text-[#111318] dark:text-gray-300 mb-2">
+                권리금 (만원)
+              </label>
+              <input
+                type="number"
+                name="key_money"
+                value={formData.key_money}
+                onChange={handleInputChange}
+                className="w-full rounded-lg border border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-white px-4 py-2 focus:border-primary focus:ring-primary"
+                placeholder="예: 1000"
+              />
+            </div>
+          )}
+
           {/* 면적 */}
           <div>
             <label className="block text-sm font-semibold text-[#111318] dark:text-gray-300 mb-2">
@@ -342,6 +387,20 @@ export default function QuickPropertyRegisterModal({
               className="w-full rounded-lg border border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-white px-4 py-2 focus:border-primary focus:ring-primary"
               placeholder="예: 10.5"
             />
+          </div>
+
+          {/* 즐겨찾기 추가 옵션 */}
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="addToFavorites"
+              checked={addToFavorites}
+              onChange={(e) => setAddToFavorites(e.target.checked)}
+              className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+            />
+            <label htmlFor="addToFavorites" className="text-sm text-[#111318] dark:text-gray-300">
+              등록 후 즐겨찾기에 추가
+            </label>
           </div>
 
           {/* Actions */}

@@ -83,6 +83,9 @@ export default function SignupPage() {
           }
         }
 
+        // 회원가입 후 자동 로그인 방지: 로그아웃 처리
+        await supabase.auth.signOut()
+
         // 회원가입 성공
         alert('회원가입이 완료되었습니다. 관리자 승인 후 이용 가능합니다.')
         router.push('/auth/pending')

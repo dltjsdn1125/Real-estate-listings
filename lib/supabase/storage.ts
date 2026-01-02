@@ -6,10 +6,14 @@ const BUCKET_NAME = 'property-images'
 export async function uploadPropertyImage(
   file: File,
   propertyId: string,
+  userId?: string,
   fileName?: string
 ): Promise<string> {
   const fileExt = file.name.split('.').pop()
-  const filePath = `${propertyId}/${fileName || `${Date.now()}.${fileExt}`}`
+  // 사용자 ID가 있으면 경로에 포함 (정책에서 사용자별 접근 제어를 위해)
+  const filePath = userId
+    ? `${userId}/${propertyId}/${fileName || `${Date.now()}.${fileExt}`}`
+    : `${propertyId}/${fileName || `${Date.now()}.${fileExt}`}`
 
   const { data, error } = await supabase.storage
     .from(BUCKET_NAME)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { supabase } from '@/lib/supabase/client'
@@ -36,21 +36,7 @@ export default function AuditLogsPage() {
   const [totalCount, setTotalCount] = useState(0)
   const itemsPerPage = 50
 
-  useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/auth/login')
-        return
-      }
-      if (user.role !== 'admin') {
-        router.push('/')
-        return
-      }
-      loadLogs()
-    }
-  }, [user, authLoading, filters, page])
-
-  const loadLogs = async () => {
+  const loadLogs = useCallback(async () => {
     try {
       setLoading(true)
       let query = supabase
@@ -86,7 +72,21 @@ export default function AuditLogsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [filters, page])
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        router.push('/auth/login')
+        return
+      }
+      if (user.role !== 'admin') {
+        router.push('/')
+        return
+      }
+      loadLogs()
+    }
+  }, [user, authLoading, loadLogs, router])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)

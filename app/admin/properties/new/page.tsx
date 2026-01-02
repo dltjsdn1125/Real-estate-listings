@@ -20,19 +20,19 @@ export default function NewPropertyPage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth()
   const [loading, setLoading] = useState(false)
   
-  // 권한 체크
+  // 권한 체크 - window.location.href 사용으로 전체 페이지 리로드
   useEffect(() => {
     if (!authLoading) {
       if (!isAuthenticated) {
-        router.push('/auth/login')
+        window.location.href = '/auth/login'
         return
       }
       if (user && !['admin', 'agent'].includes(user.role)) {
-        router.push('/')
+        window.location.href = '/'
         return
       }
     }
-  }, [authLoading, isAuthenticated, user, router])
+  }, [authLoading, isAuthenticated, user])
   const [kakaoLoaded, setKakaoLoaded] = useState(false)
   const [geocoding, setGeocoding] = useState(false)
   const [formData, setFormData] = useState({

@@ -12,6 +12,125 @@ export interface Coordinates {
 }
 
 /**
+ * 제목에서 상호명 추출 (예: "이곡동 홈플러스 상가 1층 42평" -> "홈플러스")
+ * @param title 매물 제목
+ * @returns 상호명 또는 null
+ */
+export function extractBusinessName(title: string): string | null {
+  if (!title) return null
+
+  // 1. 직접 키워드 매칭 (우선순위 높음)
+  // "이곡동 홈플러스 상가 1층 42평"에서 "홈플러스" 직접 찾기
+  const directKeywords = [
+    '홈플러스', '이마트', '롯데마트', '백화점', '대형마트', 
+    '편의점', '스타벅스', '맥도날드', '버거킹', 'KFC',
+    '올리브영', 'GS25', 'CU', '세븐일레븐', '이니스프리',
+    '롯데백화점', '신세계백화점', '현대백화점', '갤러리아백화점'
+  ]
+  
+  for (const keyword of directKeywords) {
+    if (title.includes(keyword)) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 직접 키워드 매칭:', { 원본제목: title, 키워드: keyword })
+      }
+      return keyword
+    }
+  }
+
+  // 2. 패턴 기반 추출
+  // "동명 상호명 상가/매물" 형식에서 상호명 추출
+  const patterns = [
+    // "이곡동 홈플러스 상가 1층 42평" -> "홈플러스"
+    /([가-힣]+동)\s+([가-힣A-Za-z0-9\s]+?)\s+(상가|매물|건물|사무실|카페|음식점|식당|마트|백화점|편의점|약국|병원|은행|학교|학원)/,
+    // "이곡동 홈플러스 상가 1층" -> "홈플러스"
+    /([가-힣]+동)\s+([가-힣A-Za-z0-9\s]+?)\s+(\d+층)/,
+    // "홈플러스 상가" -> "홈플러스"
+    /([가-힣A-Za-z0-9\s]+?)\s+(상가|매물|건물|사무실|카페|음식점|식당|마트|백화점|편의점|약국|병원|은행|학교|학원)/,
+  ]
+
+  for (const pattern of patterns) {
+    const match = title.match(pattern)
+    if (match && match[2]) {
+      // 상호명 추출 (공백 제거)
+      let businessName = match[2].trim()
+      
+      // 숫자와 일반적인 단어 제거 (예: "1층", "42평" 등)
+      businessName = businessName.replace(/\d+/g, '').trim()
+      businessName = businessName.replace(/\s+/g, ' ').trim()
+      
+      // 너무 짧거나 일반적인 단어는 제외
+      const excludedWords = ['상가', '매물', '건물', '사무실', '층', '평']
+      if (businessName.length >= 2 && !excludedWords.some(word => businessName.includes(word))) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 패턴 기반 상호명 추출:', { 원본제목: title, 추출된상호명: businessName })
+        }
+        return businessName
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * 주소와 제목을 결합하여 정확한 좌표 찾기
+ * @param address 주소 문자열
+ * @param title 매물 제목 (선택적)
+ * @returns Promise<Coordinates | null>
+ */
+export async function findCoordinatesByAddressAndTitle(
+  address: string,
+  title?: string
+): Promise<Coordinates | null> {
+  // 1. 제목에서 상호명 추출
+  let keyword: string | null = null
+  if (title) {
+    keyword = extractBusinessName(title)
+  }
+
+  // 2. 상호명이 있으면 주소 + 상호명으로 키워드 검색
+  if (keyword) {
+    // 주소에서 동 이름 추출
+    const dongMatch = address.match(/([가-힣]+동)/)
+    const dong = dongMatch ? dongMatch[1] : ''
+    
+    // 우선순위 1: "대구 동명 상호명" 형식으로 검색 (가장 정확)
+    const searchKeyword1 = dong ? `대구 ${dong} ${keyword}` : `대구 ${keyword}`
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 상호명 기반 키워드 검색 (우선순위 1):', { keyword, searchKeyword: searchKeyword1, address })
+    }
+    
+    const keywordResult1 = await tryKeywordSearch(searchKeyword1)
+    if (keywordResult1) {
+      return keywordResult1
+    }
+
+    // 우선순위 2: 주소 전체 + 상호명으로 검색 (도로명 주소가 포함된 경우)
+    if (address.includes('로') || address.includes('길') || address.includes('대로')) {
+      const searchKeyword2 = `${address} ${keyword}`
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 상호명 기반 키워드 검색 (우선순위 2 - 도로명 주소):', { searchKeyword: searchKeyword2 })
+      }
+      const keywordResult2 = await tryKeywordSearch(searchKeyword2)
+      if (keywordResult2) {
+        return keywordResult2
+      }
+    }
+  }
+
+  // 3. 키워드 검색 실패 시 주소 검색 시도 (도로명 주소 우선)
+  const addressResult = await tryAddressSearch(address)
+  if (addressResult) {
+    return addressResult
+  }
+
+  // 4. 주소 검색 실패 시 주소를 키워드로 검색
+  const addressKeywordResult = await tryKeywordSearch(address)
+  return addressKeywordResult
+}
+
+/**
  * 주소를 좌표로 변환 (주소 검색 실패 시 키워드 검색으로 폴백)
  * @param address 주소 문자열
  * @returns Promise<Coordinates | null>
@@ -244,6 +363,99 @@ export function waitForKakaoMaps(): Promise<boolean> {
         resolve(false)
       }
     }, 200)
+  })
+}
+
+/**
+ * 좌표에서 건물명/장소명 가져오기 (Places API 사용)
+ * @param lat 위도
+ * @param lng 경도
+ * @returns Promise<{ buildingName: string | null; address: string | null }>
+ */
+export async function getBuildingInfoFromCoordinates(
+  lat: number,
+  lng: number
+): Promise<{ buildingName: string | null; address: string | null }> {
+  return new Promise(async (resolve) => {
+    if (typeof window === 'undefined' || !window.kakao || !window.kakao.maps) {
+      resolve({ buildingName: null, address: null })
+      return
+    }
+
+    // Kakao Maps API 대기
+    const ready = await waitForKakaoMaps()
+    if (!ready) {
+      resolve({ buildingName: null, address: null })
+      return
+    }
+
+      try {
+        const places = new window.kakao.maps.services.Places()
+        const geocoder = new window.kakao.maps.services.Geocoder()
+        const coord = new window.kakao.maps.LatLng(lat, lng)
+        
+        let buildingName: string | null = null
+        let address: string | null = null
+        let resolved = false
+
+        // 1. 역지오코딩으로 주소 가져오기
+        geocoder.coord2Address(coord.getLng(), coord.getLat(), (geoResult: any, geoStatus: any) => {
+          // 주소 추출
+          if (geoStatus === window.kakao.maps.services.Status.OK && geoResult.length > 0) {
+            // 도로명 주소 우선, 없으면 지번 주소
+            address = geoResult[0].road_address?.address_name || geoResult[0].address?.address_name || null
+            
+            // 건물명 추출 (도로명 주소의 건물명 우선)
+            if (geoResult[0].road_address?.building_name) {
+              buildingName = geoResult[0].road_address.building_name
+            }
+          }
+
+          // 2. 건물명이 없으면 Places API로 주변 장소 검색
+          if (!buildingName && !resolved) {
+            // 좌표 주변 장소 검색을 위해 주소를 키워드로 사용
+            const searchKeyword = address ? address.split(' ').slice(-2).join(' ') : ''
+            
+            if (searchKeyword) {
+              places.keywordSearch(searchKeyword, (placeResult: any, placeStatus: any) => {
+                if (placeStatus === window.kakao.maps.services.Status.OK && placeResult.length > 0) {
+                  // 가장 가까운 장소 선택
+                  const nearestPlace = placeResult[0]
+                  if (nearestPlace.place_name && !buildingName) {
+                    buildingName = nearestPlace.place_name
+                  }
+                }
+                
+                if (!resolved) {
+                  resolved = true
+                  resolve({ 
+                    buildingName: buildingName || null, 
+                    address: address || null 
+                  })
+                }
+              }, {
+                location: coord,
+                radius: 100, // 100m 반경
+              })
+            } else {
+              // 주소가 없으면 바로 반환
+              if (!resolved) {
+                resolved = true
+                resolve({ buildingName, address })
+              }
+            }
+          } else {
+            // 건물명이 이미 있으면 바로 반환
+            if (!resolved) {
+              resolved = true
+              resolve({ buildingName, address })
+            }
+          }
+        })
+      } catch (error) {
+        console.error('건물 정보 조회 실패:', error)
+        resolve({ buildingName: null, address: null })
+      }
   })
 }
 
