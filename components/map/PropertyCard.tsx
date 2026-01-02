@@ -8,7 +8,7 @@ interface PropertyCardProps {
   id: string
   title: string
   location: string
-  address?: string
+  address?: string | null
   deposit: string
   rent: string
   area: string
