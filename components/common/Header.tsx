@@ -130,7 +130,7 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
               showLogin && (
                 <Link
                   href="/auth/login"
-                  className={`flex h-10 px-4 items-center justify-center rounded-lg text-sm font-bold transition-colors ${glassmorphism ? 'backdrop-blur-md bg-white/30 border border-white/40 text-white hover:bg-white/40' : 'bg-primary text-white hover:bg-blue-600'}`}
+                  className={`flex h-10 px-6 items-center justify-center rounded-lg text-sm font-bold transition-colors shadow-lg ${glassmorphism ? 'bg-primary border border-primary text-white hover:bg-blue-600' : 'bg-primary text-white hover:bg-blue-600'}`}
                 >
                   로그인
                 </Link>
