@@ -100,14 +100,10 @@ async function tryKeywordSearch(keyword: string): Promise<Coordinates | null> {
       try {
         const places = new window.kakao.maps.services.Places()
 
-        // 대구 지역 중심으로 검색 (대구 시청 좌표)
-        const options = {
-          location: new window.kakao.maps.LatLng(35.8714, 128.6014),
-          radius: 30000, // 30km 반경
-          sort: window.kakao.maps.services.SortBy.DISTANCE,
-        }
+        // 대구 지역 우선 검색을 위해 키워드에 "대구" 추가
+        const searchKeyword = keyword.includes('대구') ? keyword : `대구 ${keyword}`
 
-        places.keywordSearch(keyword, (result: any, status: any) => {
+        places.keywordSearch(searchKeyword, (result: any, status: any) => {
           if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
             const coords = {
               lat: parseFloat(result[0].y),
@@ -119,11 +115,11 @@ async function tryKeywordSearch(keyword: string): Promise<Coordinates | null> {
             resolve(coords)
           } else {
             if (process.env.NODE_ENV === 'development') {
-              console.error('키워드 검색 실패:', keyword, status)
+              console.error('키워드 검색 실패:', searchKeyword, status)
             }
             resolve(null)
           }
-        }, options)
+        })
         return true
       } catch (error) {
         if (process.env.NODE_ENV === 'development') {
