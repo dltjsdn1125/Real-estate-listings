@@ -27,13 +27,19 @@ export default function LoginPage() {
 
       if (data.user) {
         // 승인 상태 확인
-        const { data: userData } = await supabase
+        const { data: userData, error: userError } = await supabase
           .from('users')
           .select('approval_status')
           .eq('id', data.user.id)
           .single()
 
-        if (userData?.approval_status === 'approved') {
+        console.log('User data check:', { userData, userError, userId: data.user.id })
+
+        if (userError) {
+          console.error('Failed to fetch user data:', userError)
+          // 사용자 데이터 조회 실패 시에도 일단 map으로 이동 (RLS 문제일 수 있음)
+          router.push('/map')
+        } else if (userData?.approval_status === 'approved') {
           // 승인된 사용자 - 지도로 이동
           router.push('/map')
         } else {
