@@ -233,12 +233,13 @@ export default function MapPage() {
     setMapLevel(districtInfo.level)
   }
 
-  const handleRadiusSearchChange = (search: {
+  const handleRadiusSearchChange = (search?: {
     enabled: boolean
     centerLat?: number
     centerLng?: number
     radiusKm?: number
   }) => {
+    if (!search) return
     setRadiusSearch(search)
     if (search.enabled && search.centerLat && search.centerLng) {
       setMapCenter({ lat: search.centerLat, lng: search.centerLng })

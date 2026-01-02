@@ -171,8 +171,8 @@ export default function UsersPage() {
             {/* Logout Button */}
             <button
               onClick={async () => {
-                const { signOut } = await import('@/lib/hooks/useAuth')
-                await signOut()
+                const { supabase } = await import('@/lib/supabase/client')
+                await supabase.auth.signOut()
                 window.location.href = '/'
               }}
               className="flex h-10 px-4 items-center justify-center gap-2 rounded-lg text-sm font-bold transition-colors bg-[#f0f2f4] dark:bg-slate-700 text-[#111318] dark:text-white hover:bg-gray-200 dark:hover:bg-slate-600"

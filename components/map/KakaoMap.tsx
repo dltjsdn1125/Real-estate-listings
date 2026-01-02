@@ -57,7 +57,7 @@ export default function KakaoMap({
     if (!map || !window.kakao) return
 
     // 기존 마커 제거
-    setUserMarker((prevMarker) => {
+    setUserMarker((prevMarker: any) => {
       if (prevMarker) {
         prevMarker.setMap(null)
       }
