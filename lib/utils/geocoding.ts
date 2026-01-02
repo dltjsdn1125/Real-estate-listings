@@ -12,22 +12,32 @@ export interface Coordinates {
 }
 
 /**
- * 주소를 좌표로 변환
+ * 주소를 좌표로 변환 (주소 검색 실패 시 키워드 검색으로 폴백)
  * @param address 주소 문자열
  * @returns Promise<Coordinates | null>
  */
 export async function addressToCoordinates(address: string): Promise<Coordinates | null> {
+  // 먼저 주소 검색 시도
+  const addressResult = await tryAddressSearch(address)
+  if (addressResult) {
+    return addressResult
+  }
+
+  // 주소 검색 실패 시 키워드 검색 시도
+  const keywordResult = await tryKeywordSearch(address)
+  return keywordResult
+}
+
+/**
+ * 주소 검색 (Geocoder.addressSearch)
+ */
+async function tryAddressSearch(address: string): Promise<Coordinates | null> {
   return new Promise((resolve) => {
-    // Kakao Maps API가 로드되지 않은 경우
     if (typeof window === 'undefined' || !window.kakao || !window.kakao.maps) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Kakao Maps API가 로드되지 않았습니다.')
-      }
       resolve(null)
       return
     }
 
-    // services가 없으면 대기 후 재시도
     const tryGeocode = () => {
       if (!window.kakao || !window.kakao.maps || !window.kakao.maps.services) {
         return false
@@ -43,29 +53,21 @@ export async function addressToCoordinates(address: string): Promise<Coordinates
             }
             resolve(coords)
           } else {
-            if (process.env.NODE_ENV === 'development') {
-              console.error('주소 변환 실패:', address, status)
-            }
             resolve(null)
           }
         })
         return true
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Geocoder 생성 오류:', error)
-        }
+      } catch {
         return false
       }
     }
 
-    // 즉시 시도
     if (tryGeocode()) {
       return
     }
 
-    // services가 없으면 최대 5초 대기 후 재시도
     let attempts = 0
-    const maxAttempts = 25 // 25 * 200ms = 5초
+    const maxAttempts = 25
     const checkInterval = setInterval(() => {
       attempts++
       if (tryGeocode()) {
@@ -74,14 +76,77 @@ export async function addressToCoordinates(address: string): Promise<Coordinates
       }
       if (attempts >= maxAttempts) {
         clearInterval(checkInterval)
-        if (process.env.NODE_ENV === 'development') {
-          console.error('주소 검색 서비스 로드 실패:', {
-            address,
-            hasKakao: !!window.kakao,
-            hasMaps: !!(window.kakao && window.kakao.maps),
-            hasServices: !!(window.kakao && window.kakao.maps && window.kakao.maps.services),
-          })
+        resolve(null)
+      }
+    }, 200)
+  })
+}
+
+/**
+ * 키워드 검색 (Places.keywordSearch) - 상호명, 건물명, 역명 등
+ */
+async function tryKeywordSearch(keyword: string): Promise<Coordinates | null> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined' || !window.kakao || !window.kakao.maps) {
+      resolve(null)
+      return
+    }
+
+    const trySearch = () => {
+      if (!window.kakao || !window.kakao.maps || !window.kakao.maps.services) {
+        return false
+      }
+
+      try {
+        const places = new window.kakao.maps.services.Places()
+
+        // 대구 지역 중심으로 검색 (대구 시청 좌표)
+        const options = {
+          location: new window.kakao.maps.LatLng(35.8714, 128.6014),
+          radius: 30000, // 30km 반경
+          sort: window.kakao.maps.services.SortBy.DISTANCE,
         }
+
+        places.keywordSearch(keyword, (result: any, status: any) => {
+          if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
+            const coords = {
+              lat: parseFloat(result[0].y),
+              lng: parseFloat(result[0].x),
+            }
+            if (process.env.NODE_ENV === 'development') {
+              console.log('키워드 검색 성공:', keyword, result[0].place_name)
+            }
+            resolve(coords)
+          } else {
+            if (process.env.NODE_ENV === 'development') {
+              console.error('키워드 검색 실패:', keyword, status)
+            }
+            resolve(null)
+          }
+        }, options)
+        return true
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Places 검색 오류:', error)
+        }
+        return false
+      }
+    }
+
+    if (trySearch()) {
+      return
+    }
+
+    let attempts = 0
+    const maxAttempts = 25
+    const checkInterval = setInterval(() => {
+      attempts++
+      if (trySearch()) {
+        clearInterval(checkInterval)
+        return
+      }
+      if (attempts >= maxAttempts) {
+        clearInterval(checkInterval)
         resolve(null)
       }
     }, 200)

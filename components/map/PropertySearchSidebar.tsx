@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import PropertyCard from './PropertyCard'
-import { addressToCoordinates, waitForKakaoMaps, normalizeAddress } from '@/lib/utils/geocoding'
+import { addressToCoordinates, waitForKakaoMaps } from '@/lib/utils/geocoding'
 
 interface Property {
   id: string
@@ -177,7 +177,7 @@ export default function PropertySearchSidebar({
     })
   }, [properties, searchQuery, filters])
 
-  // 주소 검색 핸들러 (지도 이동만 수행, 매물 검색 아님)
+  // 주소/키워드 검색 핸들러 (지도 이동만 수행, 매물 검색 아님)
   const handleSearchSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
     if (!searchQuery.trim()) return
@@ -192,28 +192,26 @@ export default function PropertySearchSidebar({
         return
       }
 
-      // 주소 정규화 (대구광역시 자동 추가)
-      const normalizedAddress = normalizeAddress(searchQuery)
-      
+      const query = searchQuery.trim()
+
       if (process.env.NODE_ENV === 'development') {
-        console.log('주소 검색 시도:', normalizedAddress)
+        console.log('검색 시도:', query)
       }
-      
-      // 주소를 좌표로 변환
-      const coords = await addressToCoordinates(normalizedAddress)
+
+      // 주소 또는 키워드로 좌표 변환 (주소 검색 실패 시 키워드 검색으로 폴백)
+      const coords = await addressToCoordinates(query)
       if (coords) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('주소 검색 성공:', coords)
+          console.log('검색 성공:', coords)
         }
         // 부모 컴포넌트에 검색 결과 전달 (지도 이동만)
-        onSearchAddress?.(normalizedAddress, coords)
-        // 검색 성공 후 검색어는 유지 (사용자가 확인할 수 있도록)
+        onSearchAddress?.(query, coords)
       } else {
-        alert('주소를 찾을 수 없습니다. 다른 주소로 검색해주세요.\n\n예시:\n- 대구 중구 동성로\n- 대구 수성구 범어동\n- 동성로 2가\n- 범어천로 33\n- 대구 중구 동성로 2가')
+        alert('검색 결과가 없습니다.\n\n검색 예시:\n- 반월당역, 동성로, 수성못\n- 대구 중구 동성로\n- 범어천로 33')
       }
     } catch (error) {
-      console.error('주소 검색 오류:', error)
-      alert('주소 검색 중 오류가 발생했습니다: ' + (error instanceof Error ? error.message : String(error)))
+      console.error('검색 오류:', error)
+      alert('검색 중 오류가 발생했습니다: ' + (error instanceof Error ? error.message : String(error)))
     } finally {
       setIsSearching(false)
     }
@@ -272,12 +270,12 @@ export default function PropertySearchSidebar({
           <div className="flex w-full items-stretch rounded-lg h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
             <input
               className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-4 text-base font-normal leading-normal"
-              placeholder="건물명, 도로명 주소 검색 (지도 이동)"
-              value={searchAddressQuery}
-              onChange={(e) => setSearchAddressQuery(e.target.value)}
+              placeholder="장소, 건물명, 주소 검색"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleSearchKeyPress}
               disabled={isSearching}
-              title="건물명이나 도로명 주소를 입력하면 지도가 해당 위치로 이동합니다"
+              title="장소명, 건물명, 주소를 입력하면 지도가 해당 위치로 이동합니다"
             />
             {isSearching ? (
               <div className="flex items-center justify-center px-4">
