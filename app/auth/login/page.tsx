@@ -26,8 +26,20 @@ export default function LoginPage() {
       if (authError) throw authError
 
       if (data.user) {
-        // 로그인 성공
-        router.push('/map')
+        // 승인 상태 확인
+        const { data: userData } = await supabase
+          .from('users')
+          .select('approval_status')
+          .eq('id', data.user.id)
+          .single()
+
+        if (userData?.approval_status === 'approved') {
+          // 승인된 사용자 - 지도로 이동
+          router.push('/map')
+        } else {
+          // 미승인 사용자 - 대기 페이지로 이동
+          router.push('/auth/pending')
+        }
         router.refresh()
       }
     } catch (err: any) {
