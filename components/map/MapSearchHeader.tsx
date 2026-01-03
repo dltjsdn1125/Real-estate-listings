@@ -71,15 +71,15 @@ export default function MapSearchHeader({
 
   return (
     <>
-      <header className="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#101622] px-4 lg:px-10 py-3 z-30">
-        <div className="flex items-center gap-2 text-[#111318] dark:text-white">
+      <header className="flex shrink-0 items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#101622] px-2 sm:px-4 lg:px-10 py-1.5 sm:py-3 z-30">
+        <div className="flex items-center gap-1 sm:gap-2 text-[#111318] dark:text-white">
           {/* 필터 사이드바 토글 버튼 */}
           <button
             onClick={onToggleSidebar}
-            className="flex items-center justify-center size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111318] dark:text-white transition-colors"
+            className="flex items-center justify-center size-8 sm:size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111318] dark:text-white transition-colors"
             title="필터"
           >
-            <span className="material-symbols-outlined">filter_list</span>
+            <span className="material-symbols-outlined text-[20px] sm:text-[24px]">filter_list</span>
           </button>
           <button
             onClick={(e) => {
@@ -88,12 +88,12 @@ export default function MapSearchHeader({
               console.log('로고 클릭')
               window.location.href = '/'
             }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1 sm:gap-2"
           >
-            <div className="size-8 flex items-center justify-center text-primary">
+            <div className="hidden sm:flex size-8 items-center justify-center text-primary">
               <span className="material-symbols-outlined text-3xl">real_estate_agent</span>
             </div>
-            <h2 className="text-[#111318] dark:text-white text-base lg:text-lg font-bold leading-tight tracking-[-0.015em] hidden sm:block">
+            <h2 className="text-[#111318] dark:text-white text-sm sm:text-base lg:text-lg font-bold leading-tight tracking-[-0.015em]">
               Daegu Realty
             </h2>
           </button>
@@ -186,7 +186,7 @@ export default function MapSearchHeader({
               </button>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {isAuthenticated && user ? (
               <>
                 {/* User Info - Desktop Only */}
@@ -212,7 +212,7 @@ export default function MapSearchHeader({
             ) : (
               <Link
                 href="/auth/login"
-                className="flex h-10 px-4 items-center justify-center rounded-lg text-sm font-bold transition-colors bg-primary text-white hover:bg-blue-600"
+                className="flex h-8 sm:h-10 px-3 sm:px-4 items-center justify-center rounded-lg text-xs sm:text-sm font-bold transition-colors bg-primary text-white hover:bg-blue-600"
               >
                 로그인
               </Link>
@@ -220,9 +220,9 @@ export default function MapSearchHeader({
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden flex items-center justify-center size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111318] dark:text-white transition-colors"
+              className="md:hidden flex items-center justify-center size-8 sm:size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-[#111318] dark:text-white transition-colors"
             >
-              <span className="material-symbols-outlined">
+              <span className="material-symbols-outlined text-[20px] sm:text-[24px]">
                 {mobileMenuOpen ? 'close' : 'more_vert'}
               </span>
             </button>
@@ -237,7 +237,7 @@ export default function MapSearchHeader({
             className="fixed inset-0 bg-black/50 z-40 md:hidden"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="absolute top-[60px] right-2 w-56 bg-white dark:bg-[#1c2333] rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 md:hidden overflow-hidden">
+          <div className="absolute top-[44px] sm:top-[60px] right-2 w-48 sm:w-56 bg-white dark:bg-[#1c2333] rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50 md:hidden overflow-hidden">
             {/* User Info */}
             {isAuthenticated && user && (
               <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">

@@ -604,18 +604,18 @@ export default function MapPage() {
 
           {/* Pin it 모드 안내 메시지 */}
           {pinItMessage && (
-            <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-primary text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-pulse">
-              <span className="material-symbols-outlined text-[24px]">push_pin</span>
-              <p className="text-sm font-medium">{pinItMessage}</p>
+            <div className="absolute top-14 sm:top-20 left-2 right-2 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-auto z-30 bg-primary text-white px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg shadow-xl flex items-center gap-2 sm:gap-3 animate-pulse">
+              <span className="material-symbols-outlined text-[18px] sm:text-[24px] shrink-0">push_pin</span>
+              <p className="text-xs sm:text-sm font-medium whitespace-nowrap truncate">{pinItMessage}</p>
               <button
                 onClick={() => {
                   setPinItMode(false)
                   setPinItMessage(null)
                 }}
-                className="ml-2 hover:bg-white/20 rounded-full p-1 transition-colors"
+                className="shrink-0 hover:bg-white/20 rounded-full p-0.5 sm:p-1 transition-colors"
                 title="취소"
               >
-                <span className="material-symbols-outlined text-[18px]">close</span>
+                <span className="material-symbols-outlined text-[16px] sm:text-[18px]">close</span>
               </button>
             </div>
           )}

@@ -398,39 +398,39 @@ export default function UnifiedSidebar({
         {/* Content */}
         <div className="flex-1 overflow-y-auto h-[calc(100vh-180px)]">
           {activeTab === 'search' && (
-            <div className="p-4 space-y-4">
+            <div className="p-2 sm:p-4 space-y-2 sm:space-y-4">
               {/* 검색바 */}
               <form onSubmit={handleSearchSubmit} className="relative w-full">
-                <div className="flex w-full items-stretch rounded-lg h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+                <div className="flex w-full items-stretch rounded-lg h-9 sm:h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                   <input
-                    className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-4 text-base font-normal leading-normal"
+                    className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-2 sm:px-4 text-xs sm:text-base font-normal leading-normal"
                     placeholder="장소, 건물명, 주소 검색"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     disabled={isSearching}
                   />
                   {isSearching ? (
-                    <div className="flex items-center justify-center px-4">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+                    <div className="flex items-center justify-center px-2 sm:px-4">
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-primary"></div>
                     </div>
                   ) : (
                     <button
                       type="submit"
-                      className="flex items-center justify-center px-4 text-[#616f89] dark:text-gray-400 hover:text-primary transition-colors"
+                      className="flex items-center justify-center px-2 sm:px-4 text-[#616f89] dark:text-gray-400 hover:text-primary transition-colors"
                     >
-                      <span className="material-symbols-outlined text-[24px]">search</span>
+                      <span className="material-symbols-outlined text-[18px] sm:text-[24px]">search</span>
                     </button>
                   )}
                 </div>
               </form>
 
               {/* 필터 */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-[#111318] dark:text-white">필터</h3>
-                
+              <div className="space-y-2 sm:space-y-3">
+                <h3 className="text-xs sm:text-sm font-medium text-[#111318] dark:text-white">필터</h3>
+
                 {/* 지역 필터 */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  <label className="block text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                     지역
                   </label>
                   <div className="relative">
@@ -439,12 +439,12 @@ export default function UnifiedSidebar({
                         e.stopPropagation()
                         setShowDistrictFilter(!showDistrictFilter)
                       }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm"
+                      className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs sm:text-sm"
                     >
-                      <span className="text-[#111318] dark:text-white">
-                        {filters.district === 'all' ? '전체 지역' : filters.district}
+                      <span className="text-[#111318] dark:text-white truncate">
+                        {filters.district === 'all' ? '전체' : filters.district}
                       </span>
-                      <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                      <span className="material-symbols-outlined text-[14px] sm:text-[18px]">expand_more</span>
                     </button>
                     {showDistrictFilter && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 z-50">
@@ -469,7 +469,7 @@ export default function UnifiedSidebar({
 
                 {/* 매물 유형 필터 */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  <label className="block text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                     매물 유형
                   </label>
                   <div className="relative">
@@ -478,12 +478,12 @@ export default function UnifiedSidebar({
                         e.stopPropagation()
                         setShowTypeFilter(!showTypeFilter)
                       }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm"
+                      className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs sm:text-sm"
                     >
-                      <span className="text-[#111318] dark:text-white">
+                      <span className="text-[#111318] dark:text-white truncate">
                         {propertyTypes.find((t) => t.value === filters.propertyType)?.label || '전체'}
                       </span>
-                      <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                      <span className="material-symbols-outlined text-[14px] sm:text-[18px]">expand_more</span>
                     </button>
                     {showTypeFilter && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 z-50">
@@ -495,7 +495,7 @@ export default function UnifiedSidebar({
                               onFiltersChange({ ...filters, propertyType: type.value })
                               setShowTypeFilter(false)
                             }}
-                            className="w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm"
+                            className="w-full text-left px-2 sm:px-3 py-1.5 sm:py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-xs sm:text-sm"
                           >
                             {type.label}
                           </button>
@@ -507,7 +507,7 @@ export default function UnifiedSidebar({
 
                 {/* 가격 필터 */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  <label className="block text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                     가격
                   </label>
                   <div className="relative">
@@ -516,21 +516,21 @@ export default function UnifiedSidebar({
                         e.stopPropagation()
                         setShowPriceFilter(!showPriceFilter)
                       }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm"
+                      className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs sm:text-sm"
                     >
-                      <span className="text-[#111318] dark:text-white">
+                      <span className="text-[#111318] dark:text-white truncate">
                         {filters.minDeposit || filters.maxDeposit || filters.minRent || filters.maxRent
-                          ? '가격 설정됨'
-                          : '전체 가격'}
+                          ? '설정됨'
+                          : '전체'}
                       </span>
-                      <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                      <span className="material-symbols-outlined text-[14px] sm:text-[18px]">expand_more</span>
                     </button>
                     {showPriceFilter && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 z-50">
-                        <div className="space-y-3">
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 sm:p-4 z-50">
+                        <div className="space-y-2 sm:space-y-3">
                           <div>
-                            <label className="text-xs font-medium mb-1 block">보증금 (만원)</label>
-                            <div className="flex gap-2">
+                            <label className="text-[10px] sm:text-xs font-medium mb-1 block">보증금</label>
+                            <div className="flex gap-1 sm:gap-2">
                               <input
                                 type="number"
                                 placeholder="최소"
@@ -538,7 +538,7 @@ export default function UnifiedSidebar({
                                 onChange={(e) =>
                                   onFiltersChange({ ...filters, minDeposit: e.target.value })
                                 }
-                                className="w-full px-3 py-2 border rounded text-sm"
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border rounded text-xs sm:text-sm"
                               />
                               <input
                                 type="number"
@@ -547,26 +547,26 @@ export default function UnifiedSidebar({
                                 onChange={(e) =>
                                   onFiltersChange({ ...filters, maxDeposit: e.target.value })
                                 }
-                                className="w-full px-3 py-2 border rounded text-sm"
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border rounded text-xs sm:text-sm"
                               />
                             </div>
                           </div>
                           <div>
-                            <label className="text-xs font-medium mb-1 block">월세 (만원)</label>
-                            <div className="flex gap-2">
+                            <label className="text-[10px] sm:text-xs font-medium mb-1 block">월세</label>
+                            <div className="flex gap-1 sm:gap-2">
                               <input
                                 type="number"
                                 placeholder="최소"
                                 value={filters.minRent}
                                 onChange={(e) => onFiltersChange({ ...filters, minRent: e.target.value })}
-                                className="w-full px-3 py-2 border rounded text-sm"
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border rounded text-xs sm:text-sm"
                               />
                               <input
                                 type="number"
                                 placeholder="최대"
                                 value={filters.maxRent}
                                 onChange={(e) => onFiltersChange({ ...filters, maxRent: e.target.value })}
-                                className="w-full px-3 py-2 border rounded text-sm"
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border rounded text-xs sm:text-sm"
                               />
                             </div>
                           </div>
@@ -575,7 +575,7 @@ export default function UnifiedSidebar({
                               e.stopPropagation()
                               setShowPriceFilter(false)
                             }}
-                            className="w-full py-2 bg-primary text-white rounded text-sm font-medium"
+                            className="w-full py-1.5 sm:py-2 bg-primary text-white rounded text-xs sm:text-sm font-medium"
                           >
                             확인
                           </button>
@@ -587,7 +587,7 @@ export default function UnifiedSidebar({
 
                 {/* 면적 필터 */}
                 <div>
-                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  <label className="block text-[10px] sm:text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                     면적
                   </label>
                   <div className="relative">
@@ -596,36 +596,36 @@ export default function UnifiedSidebar({
                         e.stopPropagation()
                         setShowAreaFilter(!showAreaFilter)
                       }}
-                      className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-sm"
+                      className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors text-xs sm:text-sm"
                     >
-                      <span className="text-[#111318] dark:text-white">
-                        {filters.minArea || filters.maxArea ? '면적 설정됨' : '전체 면적'}
+                      <span className="text-[#111318] dark:text-white truncate">
+                        {filters.minArea || filters.maxArea ? '설정됨' : '전체'}
                       </span>
-                      <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                      <span className="material-symbols-outlined text-[14px] sm:text-[18px]">expand_more</span>
                     </button>
                     {showAreaFilter && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-4 z-50">
-                        <div className="space-y-3">
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 sm:p-4 z-50">
+                        <div className="space-y-2 sm:space-y-3">
                           <div>
-                            <label className="text-xs font-medium mb-1 block">면적 (평)</label>
-                            <div className="flex gap-2">
+                            <label className="text-[10px] sm:text-xs font-medium mb-1 block">면적 (평)</label>
+                            <div className="flex gap-1 sm:gap-2">
                               <input
                                 type="number"
                                 placeholder="최소"
                                 value={filters.minArea}
                                 onChange={(e) => onFiltersChange({ ...filters, minArea: e.target.value })}
-                                className="w-full px-3 py-2 border rounded text-sm"
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border rounded text-xs sm:text-sm"
                               />
                               <input
                                 type="number"
                                 placeholder="최대"
                                 value={filters.maxArea}
                                 onChange={(e) => onFiltersChange({ ...filters, maxArea: e.target.value })}
-                                className="w-full px-3 py-2 border rounded text-sm"
+                                className="w-full px-2 py-1.5 sm:px-3 sm:py-2 border rounded text-xs sm:text-sm"
                               />
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1 sm:gap-2">
                             <input
                               type="checkbox"
                               id="parking"
@@ -633,10 +633,10 @@ export default function UnifiedSidebar({
                               onChange={(e) =>
                                 onFiltersChange({ ...filters, hasParking: e.target.checked })
                               }
-                              className="w-4 h-4"
+                              className="w-3 h-3 sm:w-4 sm:h-4"
                             />
-                            <label htmlFor="parking" className="text-sm">
-                              주차 가능만 보기
+                            <label htmlFor="parking" className="text-[10px] sm:text-sm">
+                              주차 가능만
                             </label>
                           </div>
                           <button
@@ -644,7 +644,7 @@ export default function UnifiedSidebar({
                               e.stopPropagation()
                               setShowAreaFilter(false)
                             }}
-                            className="w-full py-2 bg-primary text-white rounded text-sm font-medium"
+                            className="w-full py-1.5 sm:py-2 bg-primary text-white rounded text-xs sm:text-sm font-medium"
                           >
                             확인
                           </button>
@@ -655,13 +655,13 @@ export default function UnifiedSidebar({
                 </div>
 
                 {/* 필터 적용 버튼 */}
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-1 sm:gap-2 pt-1 sm:pt-2">
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
                       onResetFilters()
                     }}
-                    className="flex-1 px-4 py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-[#111318] dark:text-white rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    className="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 bg-transparent border border-gray-300 dark:border-gray-600 text-[#111318] dark:text-white rounded-lg text-[10px] sm:text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     초기화
                   </button>
@@ -670,7 +670,7 @@ export default function UnifiedSidebar({
                       e.stopPropagation()
                       onApplyFilters()
                     }}
-                    className="flex-1 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                    className="flex-1 px-2 sm:px-4 py-1.5 sm:py-2 bg-primary text-white rounded-lg text-[10px] sm:text-sm font-medium hover:bg-blue-600 transition-colors"
                   >
                     적용
                   </button>
@@ -678,11 +678,11 @@ export default function UnifiedSidebar({
               </div>
 
               {/* 매물 목록 */}
-              <div className="mt-6">
-                <h3 className="text-[#111318] dark:text-white tracking-tight text-lg font-bold leading-tight pb-4">
+              <div className="mt-3 sm:mt-6">
+                <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">
                   매물 {filteredProperties.length}개
                 </h3>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2 sm:gap-4">
                   {filteredProperties.map((property) => (
                     <PropertyCard
                       key={property.id}
@@ -699,11 +699,11 @@ export default function UnifiedSidebar({
                     />
                   ))}
                   {filteredProperties.length === 0 && (
-                    <div className="text-center py-12 text-[#616f89] dark:text-gray-400">
-                      <span className="material-symbols-outlined text-5xl mb-2 opacity-50">
+                    <div className="text-center py-6 sm:py-12 text-[#616f89] dark:text-gray-400">
+                      <span className="material-symbols-outlined text-3xl sm:text-5xl mb-2 opacity-50">
                         search_off
                       </span>
-                      <p className="text-sm">검색 결과가 없습니다.</p>
+                      <p className="text-xs sm:text-sm">검색 결과가 없습니다.</p>
                     </div>
                   )}
                 </div>
@@ -712,17 +712,17 @@ export default function UnifiedSidebar({
           )}
 
           {activeTab === 'my-properties' && (
-            <div className="p-4">
+            <div className="p-2 sm:p-4">
               {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div className="flex items-center justify-center py-6 sm:py-12">
+                  <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
                 <>
-                  <h3 className="text-[#111318] dark:text-white tracking-tight text-lg font-bold leading-tight pb-4">
+                  <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">
                     내 매물 {myProperties.length}개
                   </h3>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 sm:gap-4">
                     {myProperties.map((property) => (
                       <PropertyCard
                         key={property.id}
@@ -739,11 +739,11 @@ export default function UnifiedSidebar({
                       />
                     ))}
                     {myProperties.length === 0 && (
-                      <div className="text-center py-12 text-[#616f89] dark:text-gray-400">
-                        <span className="material-symbols-outlined text-5xl mb-2 opacity-50">
+                      <div className="text-center py-6 sm:py-12 text-[#616f89] dark:text-gray-400">
+                        <span className="material-symbols-outlined text-3xl sm:text-5xl mb-2 opacity-50">
                           home
                         </span>
-                        <p className="text-sm">등록한 매물이 없습니다.</p>
+                        <p className="text-xs sm:text-sm">등록한 매물이 없습니다.</p>
                       </div>
                     )}
                   </div>
@@ -753,17 +753,17 @@ export default function UnifiedSidebar({
           )}
 
           {activeTab === 'favorites' && (
-            <div className="p-4">
+            <div className="p-2 sm:p-4">
               {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <div className="flex items-center justify-center py-6 sm:py-12">
+                  <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary"></div>
                 </div>
               ) : (
                 <>
-                  <h3 className="text-[#111318] dark:text-white tracking-tight text-lg font-bold leading-tight pb-4">
+                  <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">
                     즐겨찾기 {favorites.length}개
                   </h3>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2 sm:gap-4">
                     {favorites.map((property) => (
                       <PropertyCard
                         key={property.id}
@@ -779,11 +779,11 @@ export default function UnifiedSidebar({
                       />
                     ))}
                     {favorites.length === 0 && (
-                      <div className="text-center py-12 text-[#616f89] dark:text-gray-400">
-                        <span className="material-symbols-outlined text-5xl mb-2 opacity-50">
+                      <div className="text-center py-6 sm:py-12 text-[#616f89] dark:text-gray-400">
+                        <span className="material-symbols-outlined text-3xl sm:text-5xl mb-2 opacity-50">
                           favorite_border
                         </span>
-                        <p className="text-sm">즐겨찾기한 매물이 없습니다.</p>
+                        <p className="text-xs sm:text-sm">즐겨찾기한 매물이 없습니다.</p>
                       </div>
                     )}
                   </div>
@@ -793,20 +793,20 @@ export default function UnifiedSidebar({
           )}
 
           {activeTab === 'register' && (
-            <div className="p-4 text-center py-12 text-[#616f89] dark:text-gray-400">
-              <span className="material-symbols-outlined text-5xl mb-2 opacity-50">
+            <div className="p-2 sm:p-4 text-center py-6 sm:py-12 text-[#616f89] dark:text-gray-400">
+              <span className="material-symbols-outlined text-3xl sm:text-5xl mb-2 opacity-50">
                 add_circle
               </span>
-              <p className="text-sm mb-4">매물을 등록하려면 버튼을 클릭하세요</p>
+              <p className="text-xs sm:text-sm mb-3 sm:mb-4">매물을 등록하려면 버튼을 클릭하세요</p>
               {isAuthenticated && (user?.role === 'admin' || user?.role === 'agent') ? (
                 <button
                   onClick={() => setRegisterModalOpen(true)}
-                  className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                  className="px-4 sm:px-6 py-2 sm:py-3 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors text-xs sm:text-sm font-medium"
                 >
                   매물 등록
                 </button>
               ) : (
-                <p className="text-xs">매물 등록 권한이 없습니다.</p>
+                <p className="text-[10px] sm:text-xs">매물 등록 권한이 없습니다.</p>
               )}
             </div>
           )}
