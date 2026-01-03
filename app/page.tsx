@@ -25,7 +25,7 @@ export default function Home() {
   // }, [router])
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
       {/* Background Image - Sharp and Clear */}
       <div className="fixed inset-0 z-0">
         <Image

@@ -299,15 +299,15 @@ export default function UnifiedSidebar({
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:relative inset-y-0 left-0 w-80 sm:w-96 bg-white dark:bg-[#111318] shadow-xl lg:shadow-none z-40 transition-transform duration-300 border-r border-gray-200 dark:border-gray-800 ${
+        className={`fixed lg:relative inset-y-0 left-0 w-64 sm:w-80 lg:w-96 bg-white dark:bg-[#111318] shadow-xl lg:shadow-none z-40 transition-transform duration-300 border-r border-gray-200 dark:border-gray-800 ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold text-[#111318] dark:text-white">매물 탐색</h2>
+        <div className="p-2 sm:p-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <h2 className="text-sm sm:text-lg font-bold text-[#111318] dark:text-white">매물 탐색</h2>
             <button
               onClick={(e) => {
                 e.stopPropagation()
@@ -320,13 +320,13 @@ export default function UnifiedSidebar({
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-1 sm:gap-2 flex-nowrap overflow-x-auto">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 setActiveTab('search')
               }}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                 activeTab === 'search'
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
@@ -341,7 +341,7 @@ export default function UnifiedSidebar({
                     e.stopPropagation()
                     setActiveTab('my-properties')
                   }}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                     activeTab === 'my-properties'
                       ? 'bg-primary text-white'
                       : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
@@ -354,13 +354,13 @@ export default function UnifiedSidebar({
                     e.stopPropagation()
                     setActiveTab('favorites')
                   }}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                     activeTab === 'favorites'
                       ? 'bg-primary text-white'
                       : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
                   }`}
                 >
-                  즐겨찾기
+                  즐찾
                 </button>
                 {(user?.role === 'admin' || user?.role === 'agent') && (
                   <button
@@ -370,7 +370,7 @@ export default function UnifiedSidebar({
                       setRegisterModalOpen(true)
                       onRegisterClick?.()
                     }}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                       activeTab === 'register'
                         ? 'bg-primary text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
@@ -385,11 +385,10 @@ export default function UnifiedSidebar({
                     e.stopPropagation()
                     onMyLocationClick?.()
                   }}
-                  className="px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1"
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1 whitespace-nowrap"
                   title="내 위치로 이동"
                 >
-                  <span className="material-symbols-outlined text-[18px]">my_location</span>
-                  <span className="hidden sm:inline">내 위치</span>
+                  <span className="material-symbols-outlined text-[14px] sm:text-[18px]">my_location</span>
                 </button>
               </>
             )}

@@ -83,6 +83,13 @@ export default function MapPage() {
   // Pin it 모드 안내 메시지
   const [pinItMessage, setPinItMessage] = useState<string | null>(null)
 
+  // Pin it 버튼 표시 여부 계산
+  const canShowPinIt = isAuthenticated && user && (
+    (user.tier && ['bronze', 'silver', 'gold', 'platinum', 'premium'].includes(user.tier)) ||
+    user.role === 'admin' ||
+    user.role === 'agent'
+  )
+
   // 승인 상태 확인 및 리다이렉트
   useEffect(() => {
     // 로딩 중이면 대기
@@ -558,6 +565,8 @@ export default function MapPage() {
             center={mapCenter}
             level={mapLevel}
             pinItMode={pinItMode}
+            onPinItClick={handlePinIt}
+            showPinItButton={!!canShowPinIt}
             properties={properties
               .filter((p) => p.lat && p.lng)
               .map((p) => ({

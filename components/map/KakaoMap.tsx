@@ -28,6 +28,8 @@ interface KakaoMapProps {
   center?: { lat: number; lng: number }
   level?: number // 지도 확대/축소 레벨 (1-14, 높을수록 확대)
   pinItMode?: boolean // Pin it 모드 활성화 여부
+  onPinItClick?: () => void // Pin it 버튼 클릭 핸들러
+  showPinItButton?: boolean // Pin it 버튼 표시 여부
 }
 
 export default function KakaoMap({
@@ -39,6 +41,8 @@ export default function KakaoMap({
   center,
   level = 3, // 기본 레벨 (대구 전체 보기)
   pinItMode = false,
+  onPinItClick,
+  showPinItButton = false,
 }: KakaoMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<any>(null)
@@ -504,14 +508,31 @@ export default function KakaoMap({
           style={{ minHeight: '400px' }}
         />
         
-        {/* GPS 위치 이동 버튼 (항상 표시, 클릭 시 GPS 요청) */}
-        <button
-          onClick={moveToUserLocation}
-          className="absolute bottom-24 right-4 z-10 size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          title={userLocation ? "내 위치로 이동" : "내 위치 찾기"}
-        >
-          <span className="material-symbols-outlined text-2xl">my_location</span>
-        </button>
+        {/* 모바일 전용 Pin it + 내 위치 버튼 그룹 */}
+        <div className="absolute bottom-4 left-4 md:bottom-24 md:left-auto md:right-4 z-10 flex flex-col gap-2">
+          {/* Pin it 버튼 - 모바일에서만 표시 */}
+          {showPinItButton && (
+            <button
+              onClick={onPinItClick}
+              className={`md:hidden size-10 rounded-lg shadow-lg flex items-center justify-center transition-colors ${
+                pinItMode
+                  ? 'bg-primary text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+              title={pinItMode ? "Pin it 모드 해제" : "Pin it 모드"}
+            >
+              <span className="material-symbols-outlined text-xl">push_pin</span>
+            </button>
+          )}
+          {/* GPS 위치 이동 버튼 */}
+          <button
+            onClick={moveToUserLocation}
+            className="size-10 md:size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title={userLocation ? "내 위치로 이동" : "내 위치 찾기"}
+          >
+            <span className="material-symbols-outlined text-xl md:text-2xl">my_location</span>
+          </button>
+        </div>
 
         {/* 위치 오류 메시지 */}
         {locationError && (
@@ -521,20 +542,20 @@ export default function KakaoMap({
         )}
 
         {/* 지도 컨트롤 (Kakao Maps: level이 낮을수록 확대, 높을수록 축소) */}
-        <div className="absolute right-4 bottom-8 flex flex-col gap-2 z-10">
+        <div className="absolute right-2 md:right-4 bottom-4 md:bottom-8 flex flex-col gap-1 md:gap-2 z-10">
           <button
             onClick={() => map?.setLevel(Math.max(1, (map.getLevel() || 3) - 1))}
-            className="size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="size-8 md:size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             title="확대"
           >
-            <span className="material-symbols-outlined">add</span>
+            <span className="material-symbols-outlined text-lg md:text-2xl">add</span>
           </button>
           <button
             onClick={() => map?.setLevel(Math.min(14, (map.getLevel() || 3) + 1))}
-            className="size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="size-8 md:size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             title="축소"
           >
-            <span className="material-symbols-outlined">remove</span>
+            <span className="material-symbols-outlined text-lg md:text-2xl">remove</span>
           </button>
         </div>
       </div>
