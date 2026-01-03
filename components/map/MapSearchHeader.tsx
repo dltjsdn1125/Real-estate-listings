@@ -10,17 +10,20 @@ interface MapSearchHeaderProps {
   onQuickRegister?: () => void
   onPinIt?: () => void
   pinItMode?: boolean
+  onSearch?: (keyword: string) => void
 }
 
-export default function MapSearchHeader({ 
-  onToggleSidebar, 
+export default function MapSearchHeader({
+  onToggleSidebar,
   onQuickRegister,
   onPinIt,
   pinItMode = false,
+  onSearch,
 }: MapSearchHeaderProps) {
   const router = useRouter()
   const { user, isAuthenticated, loading, signOut } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileSearchQuery, setMobileSearchQuery] = useState('')
   
   const prevAuthState = useRef<{ isAuthenticated: boolean; loading: boolean; userId: string | null }>({
     isAuthenticated: false,

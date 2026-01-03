@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import MapSearchHeader from '@/components/map/MapSearchHeader'
 import CentralSearchBar from '@/components/map/CentralSearchBar'
@@ -521,6 +521,24 @@ export default function MapPage() {
   // 매물 로딩 중이어도 맵은 표시 (로딩 오버레이만 표시)
   // 에러가 발생해도 맵은 표시 (에러 메시지만 표시)
 
+  // MapView에 전달할 properties를 메모이제이션 (무한 루프 방지)
+  const mapProperties = useMemo(() =>
+    properties
+      .filter((p) => p.lat && p.lng)
+      .map((p) => ({
+        id: p.id,
+        title: p.title,
+        lat: p.lat!,
+        lng: p.lng!,
+        type: p.type,
+        deposit: p.deposit,
+        rent: p.rent,
+        location: p.location,
+        area: p.area,
+        propertyType: p.propertyType,
+      }))
+  , [properties])
+
   return (
     <div 
       className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden h-screen flex flex-col"
@@ -567,20 +585,7 @@ export default function MapPage() {
             pinItMode={pinItMode}
             onPinItClick={handlePinIt}
             showPinItButton={!!canShowPinIt}
-            properties={properties
-              .filter((p) => p.lat && p.lng)
-              .map((p) => ({
-                id: p.id,
-                title: p.title,
-                lat: p.lat!,
-                lng: p.lng!,
-                type: p.type,
-                deposit: p.deposit,
-                rent: p.rent,
-                location: p.location,
-                area: p.area,
-                propertyType: p.propertyType,
-              }))}
+            properties={mapProperties}
           />
 
           {/* 중앙 검색바 */}
