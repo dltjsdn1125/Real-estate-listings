@@ -15,13 +15,24 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ff6b00" rx="10"/><text x="50" y="70" font-size="60" text-anchor="middle" fill="white">🏢</text></svg>',
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      },
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+        sizes: 'any',
+      },
+    ],
+    shortcut: [
+      {
+        url: '/favicon.svg',
         type: 'image/svg+xml',
       },
     ],
     apple: [
       {
-        url: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ff6b00" rx="10"/><text x="50" y="70" font-size="60" text-anchor="middle" fill="white">🏢</text></svg>',
+        url: '/favicon.svg',
         type: 'image/svg+xml',
       },
     ],
