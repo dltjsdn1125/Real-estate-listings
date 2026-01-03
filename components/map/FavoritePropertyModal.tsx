@@ -143,15 +143,15 @@ export default function FavoritePropertyModal({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-2 sm:p-4">
       <div className="bg-white dark:bg-[#111318] rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <div className="p-3 sm:p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-[#111318] dark:text-white">
+            <h2 className="text-base sm:text-xl font-bold text-[#111318] dark:text-white">
               즐겨찾기 매물 등록
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1">
               키워드: &quot;{keyword}&quot;
             </p>
           </div>
@@ -159,24 +159,24 @@ export default function FavoritePropertyModal({
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           >
-            <span className="material-symbols-outlined text-[28px]">close</span>
+            <span className="material-symbols-outlined text-[24px] sm:text-[28px]">close</span>
           </button>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6">
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="flex items-center justify-center py-6 sm:py-12">
+              <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary"></div>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {properties.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <span className="material-symbols-outlined text-5xl mb-2 opacity-50">
+                <div className="text-center py-6 sm:py-12 text-gray-500">
+                  <span className="material-symbols-outlined text-3xl sm:text-5xl mb-2 opacity-50">
                     search_off
                   </span>
-                  <p className="text-sm">검색 결과가 없습니다.</p>
+                  <p className="text-xs sm:text-sm">검색 결과가 없습니다.</p>
                 </div>
               ) : (
                 properties.map((property) => {
@@ -184,28 +184,28 @@ export default function FavoritePropertyModal({
                   return (
                     <div
                       key={property.id}
-                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      className={`p-2 sm:p-4 border rounded-lg cursor-pointer transition-colors ${
                         isSelected
                           ? 'border-primary bg-primary/5'
                           : 'border-gray-200 dark:border-gray-700 hover:border-primary/50'
                       }`}
                       onClick={() => toggleProperty(property.id)}
                     >
-                      <div className="flex items-start gap-3">
+                      <div className="flex items-start gap-2 sm:gap-3">
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleProperty(property.id)}
-                          className="mt-1"
+                          className="mt-0.5 sm:mt-1 w-3.5 h-3.5 sm:w-4 sm:h-4"
                         />
-                        <div className="flex-1">
-                          <h3 className="font-bold text-[#111318] dark:text-white">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm sm:text-base font-bold text-[#111318] dark:text-white truncate">
                             {property.title}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1 truncate">
                             {property.address}
                           </p>
-                          <div className="flex gap-4 mt-2 text-sm">
+                          <div className="flex gap-2 sm:gap-4 mt-1 sm:mt-2 text-xs sm:text-sm">
                             <span>
                               보증금:{' '}
                               {property.deposit
@@ -230,17 +230,17 @@ export default function FavoritePropertyModal({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-3">
+        <div className="p-3 sm:p-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2 sm:gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
           >
             취소
           </button>
           <button
             onClick={handleSave}
             disabled={selectedProperties.size === 0}
-            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             저장 ({selectedProperties.size}개)
           </button>
