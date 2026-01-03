@@ -14,6 +14,7 @@ import { getProperties } from '@/lib/supabase/properties'
 import { supabase } from '@/lib/supabase/client'
 import { getDistrictCoordinates } from '@/lib/constants/daeguDistricts'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { searchPlacesByKeyword, PlaceSearchResult } from '@/lib/utils/geocoding'
 
 interface PropertyForMap {
   id: string
@@ -82,6 +83,8 @@ export default function MapPage() {
   } | null>(null)
   // Pin it 모드 안내 메시지
   const [pinItMessage, setPinItMessage] = useState<string | null>(null)
+  // 카카오 Places 검색 결과 (대구 지역 상호/주소)
+  const [placeSearchResults, setPlaceSearchResults] = useState<PlaceSearchResult[]>([])
 
   // Pin it 버튼 표시 여부 계산
   const canShowPinIt = isAuthenticated && user && (
@@ -374,6 +377,7 @@ export default function MapPage() {
     setFilters(resetFilters)
     setRadiusSearch({ enabled: false })
     setSearchKeyword('') // 검색 키워드도 초기화
+    setPlaceSearchResults([]) // 카카오 Places 검색 결과도 초기화
     loadPropertiesWithFilters()
   }
 
@@ -381,7 +385,7 @@ export default function MapPage() {
     setFilters(newFilters)
   }
 
-  const handleKeywordSearch = (keyword: string) => {
+  const handleKeywordSearch = async (keyword: string) => {
     // 키워드 검색 수행
     if (keyword && keyword.trim()) {
       const trimmedKeyword = keyword.trim()
@@ -391,25 +395,48 @@ export default function MapPage() {
       }
 
       setSearchKeyword(trimmedKeyword)
+      setLoading(true)
 
-      // 즉시 매물 검색 수행 - 대구 전체 지역에서 검색 (지도 영역 제한 없음)
-      const searchFilters: any = {
-        status: 'available',
-        limit: 100, // 키워드 검색 시 더 많은 결과 표시
-        keyword: trimmedKeyword,
-      }
+      try {
+        // 1. 카카오 Places API로 대구 지역 상호/주소 검색
+        const placeResults = await searchPlacesByKeyword(trimmedKeyword, { size: 15 })
 
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 검색 필터 설정:', searchFilters)
-      }
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 카카오 Places 검색 결과:', placeResults.length, '개')
+        }
 
-      // 검색 즉시 실행
-      loadPropertiesWithFilters(searchFilters)
+        setPlaceSearchResults(placeResults)
 
-      // 키워드 검색으로 즐겨찾기 등록 모달 열기 (로그인한 경우)
-      if (isAuthenticated) {
-        setSelectedKeyword(trimmedKeyword)
-        setFavoriteModalOpen(true)
+        // 검색 결과가 있으면 첫 번째 결과 위치로 지도 이동
+        if (placeResults.length > 0) {
+          setMapCenter({ lat: placeResults[0].lat, lng: placeResults[0].lng })
+          setMapLevel(4) // 상세 레벨로 확대
+        }
+
+        // 2. DB에서도 매물 검색 (기존 로직)
+        const searchFilters: any = {
+          status: 'available',
+          limit: 100,
+          keyword: trimmedKeyword,
+        }
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 DB 검색 필터 설정:', searchFilters)
+        }
+
+        // DB 검색 실행
+        await loadPropertiesWithFilters(searchFilters)
+
+        // 키워드 검색으로 즐겨찾기 등록 모달 열기 (로그인한 경우)
+        if (isAuthenticated) {
+          setSelectedKeyword(trimmedKeyword)
+          setFavoriteModalOpen(true)
+        }
+      } catch (error) {
+        console.error('검색 오류:', error)
+        setError('검색 중 오류가 발생했습니다.')
+      } finally {
+        setLoading(false)
       }
     }
   }
@@ -522,8 +549,10 @@ export default function MapPage() {
   // 에러가 발생해도 맵은 표시 (에러 메시지만 표시)
 
   // MapView에 전달할 properties를 메모이제이션 (무한 루프 방지)
-  const mapProperties = useMemo(() =>
-    properties
+  // DB 매물 + 카카오 Places 검색 결과를 합쳐서 전달
+  const mapProperties = useMemo(() => {
+    // DB 매물
+    const dbProperties = properties
       .filter((p) => p.lat && p.lng)
       .map((p) => ({
         id: p.id,
@@ -537,7 +566,24 @@ export default function MapPage() {
         area: p.area,
         propertyType: p.propertyType,
       }))
-  , [properties])
+
+    // 카카오 Places 검색 결과를 마커 형식으로 변환
+    const placeMarkers = placeSearchResults.map((place) => ({
+      id: `place-${place.id}`,
+      title: place.name,
+      lat: place.lat,
+      lng: place.lng,
+      type: 'standard' as const,
+      deposit: '',
+      rent: '',
+      location: place.address,
+      area: '',
+      propertyType: place.category?.split(' > ').pop() || '장소', // 카테고리에서 마지막 항목
+    }))
+
+    // DB 매물과 Places 결과 합치기 (DB 매물 우선)
+    return [...dbProperties, ...placeMarkers]
+  }, [properties, placeSearchResults])
 
   return (
     <div 

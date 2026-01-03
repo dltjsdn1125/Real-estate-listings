@@ -476,3 +476,163 @@ export function normalizeAddress(address: string): string {
   return normalized
 }
 
+/**
+ * 카카오 Places API 검색 결과 타입
+ */
+export interface PlaceSearchResult {
+  id: string
+  name: string
+  address: string
+  roadAddress?: string
+  phone?: string
+  category?: string
+  lat: number
+  lng: number
+}
+
+/**
+ * 카카오 Places API를 사용한 키워드 검색 (여러 결과 반환)
+ * @param keyword 검색 키워드
+ * @param options 검색 옵션
+ * @returns Promise<PlaceSearchResult[]>
+ */
+export async function searchPlacesByKeyword(
+  keyword: string,
+  options?: {
+    size?: number // 검색 결과 개수 (최대 15)
+    page?: number // 페이지 번호
+  }
+): Promise<PlaceSearchResult[]> {
+  return new Promise(async (resolve) => {
+    if (typeof window === 'undefined' || !window.kakao || !window.kakao.maps) {
+      resolve([])
+      return
+    }
+
+    // Kakao Maps API 대기
+    const ready = await waitForKakaoMaps()
+    if (!ready || !window.kakao.maps.services) {
+      resolve([])
+      return
+    }
+
+    try {
+      const places = new window.kakao.maps.services.Places()
+
+      // 대구 지역 우선 검색을 위해 키워드에 "대구" 추가
+      const searchKeyword = keyword.includes('대구') ? keyword : `대구 ${keyword}`
+
+      const searchOptions: any = {}
+      if (options?.size) searchOptions.size = Math.min(options.size, 15)
+      if (options?.page) searchOptions.page = options.page
+
+      places.keywordSearch(
+        searchKeyword,
+        (result: any, status: any, pagination: any) => {
+          if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
+            // 대구 지역 결과만 필터링
+            const daeguResults = result.filter((place: any) =>
+              place.address_name?.includes('대구') ||
+              place.road_address_name?.includes('대구')
+            )
+
+            const places: PlaceSearchResult[] = daeguResults.map((place: any) => ({
+              id: place.id,
+              name: place.place_name,
+              address: place.address_name,
+              roadAddress: place.road_address_name,
+              phone: place.phone,
+              category: place.category_name,
+              lat: parseFloat(place.y),
+              lng: parseFloat(place.x),
+            }))
+
+            if (process.env.NODE_ENV === 'development') {
+              console.log('🔍 카카오 키워드 검색 결과:', {
+                keyword: searchKeyword,
+                totalCount: result.length,
+                daeguCount: daeguResults.length,
+                places: places.slice(0, 3).map(p => p.name),
+              })
+            }
+
+            resolve(places)
+          } else {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('🔍 카카오 키워드 검색 결과 없음:', searchKeyword, status)
+            }
+            resolve([])
+          }
+        },
+        searchOptions
+      )
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('카카오 Places 검색 오류:', error)
+      }
+      resolve([])
+    }
+  })
+}
+
+/**
+ * 카카오 Places API를 사용한 카테고리 검색
+ * @param categoryCode 카테고리 코드 (예: 'FD6' = 음식점, 'CE7' = 카페, 'MT1' = 대형마트)
+ * @param center 검색 중심 좌표
+ * @param radius 검색 반경 (미터)
+ * @returns Promise<PlaceSearchResult[]>
+ */
+export async function searchPlacesByCategory(
+  categoryCode: string,
+  center: { lat: number; lng: number },
+  radius: number = 1000
+): Promise<PlaceSearchResult[]> {
+  return new Promise(async (resolve) => {
+    if (typeof window === 'undefined' || !window.kakao || !window.kakao.maps) {
+      resolve([])
+      return
+    }
+
+    const ready = await waitForKakaoMaps()
+    if (!ready || !window.kakao.maps.services) {
+      resolve([])
+      return
+    }
+
+    try {
+      const places = new window.kakao.maps.services.Places()
+
+      places.categorySearch(
+        categoryCode,
+        (result: any, status: any) => {
+          if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
+            const searchResults: PlaceSearchResult[] = result.map((place: any) => ({
+              id: place.id,
+              name: place.place_name,
+              address: place.address_name,
+              roadAddress: place.road_address_name,
+              phone: place.phone,
+              category: place.category_name,
+              lat: parseFloat(place.y),
+              lng: parseFloat(place.x),
+            }))
+
+            resolve(searchResults)
+          } else {
+            resolve([])
+          }
+        },
+        {
+          location: new window.kakao.maps.LatLng(center.lat, center.lng),
+          radius: radius,
+        }
+      )
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('카카오 카테고리 검색 오류:', error)
+      }
+      resolve([])
+    }
+  })
+}
+
