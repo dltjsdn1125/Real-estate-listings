@@ -230,17 +230,17 @@ export default function FavoritePropertyModal({
         </div>
 
         {/* Footer */}
-        <div className="p-3 sm:p-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2 sm:gap-3">
+        <div className="p-2 sm:p-6 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2 sm:gap-3">
           <button
             onClick={onClose}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+            className="px-2 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
           >
             취소
           </button>
           <button
             onClick={handleSave}
             disabled={selectedProperties.size === 0}
-            className="px-4 sm:px-6 py-1.5 sm:py-2 text-xs sm:text-sm bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 sm:px-6 py-1 sm:py-1.5 text-[10px] sm:text-xs bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             저장 ({selectedProperties.size}개)
           </button>
