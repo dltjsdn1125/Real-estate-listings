@@ -32,10 +32,10 @@ export default function LoginPage() {
 
       if (data.user) {
         console.log('로그인 성공, 사용자 정보 확인 중:', data.user.id)
-        
+
         // 잠시 대기 (세션이 완전히 설정될 때까지)
         await new Promise((resolve) => setTimeout(resolve, 500))
-        
+
         // 승인 상태 확인
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -43,8 +43,21 @@ export default function LoginPage() {
           .eq('id', data.user.id)
           .single()
 
+        // RLS 정책 오류 시에도 진행 (승인 상태를 확인할 수 없으면 일단 진행)
         if (userError) {
           console.error('사용자 정보 조회 오류:', userError)
+          // RLS 오류인 경우 일단 맵 페이지로 이동 (맵 페이지에서 다시 확인)
+          if (userError.code === 'PGRST301' || userError.message?.includes('RLS') || userError.code === '42501') {
+            console.log('RLS 정책 오류, 맵 페이지에서 다시 확인')
+            window.location.href = '/map'
+            return
+          }
+          // 데이터가 없는 경우 (신규 가입 후 users 테이블에 아직 없는 경우)
+          if (userError.code === 'PGRST116') {
+            console.log('사용자 정보 없음, pending 페이지로 이동')
+            window.location.href = '/auth/pending'
+            return
+          }
           throw new Error('사용자 정보를 불러올 수 없습니다.')
         }
 
@@ -126,6 +139,7 @@ export default function LoginPage() {
               <input
                 id="email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => {
                   e.stopPropagation()
@@ -148,6 +162,7 @@ export default function LoginPage() {
               <input
                 id="password"
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => {
                   e.stopPropagation()
