@@ -171,15 +171,8 @@ export default function NewPropertyPage() {
     e.preventDefault()
     setLoading(true)
 
-    try {
-      // 현재 사용자 정보 가져오기
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) throw new Error('로그인이 필요합니다.')
-
-      // 매물 데이터 준비
-      const propertyData = {
+    // 매물 데이터 준비 (catch 블록에서 접근 가능하도록 함수 외부로 이동)
+    const propertyData = {
         title: formData.title,
         description: null,
         property_type: formData.property_type as PropertyType,
@@ -210,13 +203,25 @@ export default function NewPropertyPage() {
         is_premium: formData.is_premium,
         is_blurred: false,
         admin_notes: formData.admin_notes || null,
-        created_by: user.id,
         agent_id: null,
         status: 'available' as const,
+      }
+
+    try {
+      // 현재 사용자 정보 가져오기
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser()
+      if (!authUser) throw new Error('로그인이 필요합니다.')
+
+      // created_by 추가하여 완전한 매물 데이터 생성
+      const propertyDataWithUser = {
+        ...propertyData,
+        created_by: authUser.id,
       } satisfies Omit<Property, 'id' | 'created_at' | 'updated_at'>
 
       // 매물 생성
-      const property = await createProperty(propertyData)
+      const property = await createProperty(propertyDataWithUser)
 
       // 이미지 업로드 및 저장
       if (images.length > 0) {
@@ -252,7 +257,13 @@ export default function NewPropertyPage() {
         console.error('등록 오류 상세:', {
           error,
           propertyData,
-          user: { id: user?.id, role: user?.role }
+          user: { id: user?.id, role: user?.role },
+          formData: {
+            title: formData.title,
+            property_type: formData.property_type,
+            transaction_type: formData.transaction_type,
+            address: formData.address,
+          }
         })
       }
     } finally {
