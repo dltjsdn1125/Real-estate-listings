@@ -339,11 +339,6 @@ export default function PropertyDetailPage({ params }: PageProps) {
               </div>
             )}
             {/* Image Gallery */}
-            {process.env.NODE_ENV === 'development' && property.lat && property.lng && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                디버그: 제목={property.title}, 주소={property.address}, 좌표=({property.lat?.toFixed(6)}, {property.lng?.toFixed(6)})
-              </div>
-            )}
             <PropertyImageGallery 
               images={property.images} 
               latitude={property.lat}
