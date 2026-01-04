@@ -179,7 +179,7 @@ export default function NewPropertyPage() {
       if (!user) throw new Error('로그인이 필요합니다.')
 
       // 매물 데이터 준비
-      const propertyData: Omit<Property, 'id' | 'created_at' | 'updated_at'> = {
+      const propertyData = {
         title: formData.title,
         description: null,
         property_type: formData.property_type as PropertyType,
@@ -213,7 +213,7 @@ export default function NewPropertyPage() {
         created_by: user.id,
         agent_id: null,
         status: 'available' as const,
-      }
+      } satisfies Omit<Property, 'id' | 'created_at' | 'updated_at'>
 
       // 매물 생성
       const property = await createProperty(propertyData)
