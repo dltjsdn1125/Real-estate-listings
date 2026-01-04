@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
-import Breadcrumbs from '@/components/common/Breadcrumbs'
 import { getPropertyById, updateProperty } from '@/lib/supabase/properties'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/hooks/useAuth'
@@ -259,19 +258,25 @@ export default function PropertyEditPage({ params }: PageProps) {
     )
   }
 
+  const handleBack = () => {
+    router.push(`/properties/${id}`)
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
-      <Header showSearch={true} />
+      <Header 
+        showSearch={true}
+        backButton={
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-[#111318] dark:text-white border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            <span className="hidden lg:inline">돌아가기</span>
+          </button>
+        }
+      />
       <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-6">
-        <Breadcrumbs
-          items={[
-            { label: '홈', href: '/' },
-            { label: '지도', href: '/map' },
-            { label: property.title, href: `/properties/${id}` },
-            { label: '수정', href: '#' },
-          ]}
-        />
-
         <div className="mt-6">
           <h1 className="text-2xl font-bold text-[#111318] dark:text-white mb-6">매물 수정</h1>
 
