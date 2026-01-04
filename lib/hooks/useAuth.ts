@@ -37,8 +37,12 @@ export function useAuth() {
         }
 
         // 인증 오류가 있으면 사용자 없음으로 처리
+        // AuthSessionMissingError는 세션이 없을 때 발생하는 정상적인 오류이므로 조용히 처리
         if (authError) {
-          console.error('Auth check error:', authError)
+          // AuthSessionMissingError는 세션이 없는 정상적인 상태이므로 에러로 로깅하지 않음
+          if (authError.name !== 'AuthSessionMissingError') {
+            console.error('Auth check error:', authError)
+          }
           setLoading(false)
           return
         }
@@ -65,8 +69,11 @@ export function useAuth() {
             setUser(data)
           }
         }
-      } catch (error) {
-        console.error('Auth check error:', error)
+      } catch (error: any) {
+        // AuthSessionMissingError는 세션이 없는 정상적인 상태이므로 에러로 로깅하지 않음
+        if (error?.name !== 'AuthSessionMissingError') {
+          console.error('Auth check error:', error)
+        }
       } finally {
         setLoading(false)
       }

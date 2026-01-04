@@ -67,9 +67,12 @@ export async function middleware(request: NextRequest) {
     if (!error && userData) {
       user = userData
     }
-  } catch (error) {
+  } catch (error: any) {
     // 인증 오류는 무시하고 계속 진행 (비로그인 사용자 허용)
-    console.error('Middleware auth check error:', error)
+    // AuthSessionMissingError는 세션이 없을 때 발생하는 정상적인 오류이므로 로깅하지 않음
+    if (error?.name !== 'AuthSessionMissingError') {
+      console.error('Middleware auth check error:', error)
+    }
   }
 
   const pathname = request.nextUrl.pathname
