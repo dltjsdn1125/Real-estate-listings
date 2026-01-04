@@ -508,16 +508,23 @@ export default function KakaoMap({
           style={{ minHeight: '400px' }}
         />
         
-        {/* 모바일 전용 Pin it + 내 위치 버튼 그룹 */}
-        <div className="absolute bottom-4 left-4 md:bottom-24 md:left-auto md:right-4 z-10 flex flex-col gap-2">
-          {/* Pin it 버튼 - 모바일에서만 표시 */}
+        {/* 위치 오류 메시지 */}
+        {locationError && (
+          <div className="absolute top-4 left-4 z-10 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-3 py-2 rounded-lg text-sm">
+            {locationError}
+          </div>
+        )}
+
+        {/* 모바일 하단 컨트롤 바 */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 md:hidden z-20 flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full shadow-lg px-2 py-1.5">
+          {/* Pin it 버튼 */}
           {showPinItButton && (
             <button
               onClick={onPinItClick}
-              className={`md:hidden size-10 rounded-lg shadow-lg flex items-center justify-center transition-colors ${
+              className={`size-10 rounded-full flex items-center justify-center transition-colors ${
                 pinItMode
                   ? 'bg-primary text-white'
-                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
               title={pinItMode ? "Pin it 모드 해제" : "Pin it 모드"}
             >
@@ -527,35 +534,70 @@ export default function KakaoMap({
           {/* GPS 위치 이동 버튼 */}
           <button
             onClick={moveToUserLocation}
-            className="size-10 md:size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="size-10 rounded-full flex items-center justify-center text-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title={userLocation ? "내 위치로 이동" : "내 위치 찾기"}
           >
-            <span className="material-symbols-outlined text-xl md:text-2xl">my_location</span>
+            <span className="material-symbols-outlined text-xl">my_location</span>
+          </button>
+          {/* 구분선 */}
+          <div className="w-px h-6 bg-gray-300 dark:bg-gray-600"></div>
+          {/* 확대 버튼 */}
+          <button
+            onClick={() => map?.setLevel(Math.max(1, (map.getLevel() || 3) - 1))}
+            className="size-10 rounded-full flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="확대"
+          >
+            <span className="material-symbols-outlined text-xl">add</span>
+          </button>
+          {/* 축소 버튼 */}
+          <button
+            onClick={() => map?.setLevel(Math.min(14, (map.getLevel() || 3) + 1))}
+            className="size-10 rounded-full flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="축소"
+          >
+            <span className="material-symbols-outlined text-xl">remove</span>
           </button>
         </div>
 
-        {/* 위치 오류 메시지 */}
-        {locationError && (
-          <div className="absolute top-4 left-4 z-10 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-3 py-2 rounded-lg text-sm">
-            {locationError}
-          </div>
-        )}
-
-        {/* 지도 컨트롤 (Kakao Maps: level이 낮을수록 확대, 높을수록 축소) */}
-        <div className="absolute right-2 md:right-4 bottom-4 md:bottom-8 flex flex-col gap-1 md:gap-2 z-10">
+        {/* 데스크톱 전용 컨트롤 */}
+        <div className="hidden md:flex absolute right-4 bottom-8 flex-col gap-2 z-10">
+          {/* Pin it 버튼 - 데스크톱 */}
+          {showPinItButton && (
+            <button
+              onClick={onPinItClick}
+              className={`size-12 rounded-lg shadow-lg flex items-center justify-center transition-colors ${
+                pinItMode
+                  ? 'bg-primary text-white'
+                  : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+              }`}
+              title={pinItMode ? "Pin it 모드 해제" : "Pin it 모드"}
+            >
+              <span className="material-symbols-outlined text-2xl">push_pin</span>
+            </button>
+          )}
+          {/* GPS 위치 이동 버튼 */}
+          <button
+            onClick={moveToUserLocation}
+            className="size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title={userLocation ? "내 위치로 이동" : "내 위치 찾기"}
+          >
+            <span className="material-symbols-outlined text-2xl">my_location</span>
+          </button>
+          {/* 확대 버튼 */}
           <button
             onClick={() => map?.setLevel(Math.max(1, (map.getLevel() || 3) - 1))}
-            className="size-8 md:size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             title="확대"
           >
-            <span className="material-symbols-outlined text-lg md:text-2xl">add</span>
+            <span className="material-symbols-outlined text-2xl">add</span>
           </button>
+          {/* 축소 버튼 */}
           <button
             onClick={() => map?.setLevel(Math.min(14, (map.getLevel() || 3) + 1))}
-            className="size-8 md:size-10 bg-white dark:bg-gray-800 rounded-lg shadow-md flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+            className="size-12 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex items-center justify-center text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             title="축소"
           >
-            <span className="material-symbols-outlined text-lg md:text-2xl">remove</span>
+            <span className="material-symbols-outlined text-2xl">remove</span>
           </button>
         </div>
       </div>
