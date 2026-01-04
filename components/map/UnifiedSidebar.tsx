@@ -115,6 +115,8 @@ interface Property {
   title: string
   location: string
   address?: string | null
+  district?: string
+  dong?: string
   deposit: string
   rent: string
   area: string

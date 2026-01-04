@@ -72,13 +72,21 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    let query = supabase.from('admin_settings').select('*')
+    let result: any
     
     if (settingKey) {
-      query = query.eq('setting_key', settingKey).single()
+      result = await supabase
+        .from('admin_settings')
+        .select('*')
+        .eq('setting_key', settingKey)
+        .single()
+    } else {
+      result = await supabase
+        .from('admin_settings')
+        .select('*')
     }
 
-    const { data, error } = await query
+    const { data, error } = result
 
     if (error) {
       console.error('Settings fetch error:', error)

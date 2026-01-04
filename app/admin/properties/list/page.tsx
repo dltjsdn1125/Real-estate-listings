@@ -7,12 +7,12 @@ import AdminHeader from '@/components/admin/AdminHeader'
 import Breadcrumbs from '@/components/common/Breadcrumbs'
 import { supabase } from '@/lib/supabase/client'
 import { useAuth } from '@/lib/hooks/useAuth'
-import type { Property } from '@/lib/supabase/types'
+import type { Property, PropertyImage } from '@/lib/supabase/types'
 
 export default function PropertyListPage() {
   const router = useRouter()
   const { user, isAuthenticated, loading: authLoading } = useAuth()
-  const [properties, setProperties] = useState<Property[]>([])
+  const [properties, setProperties] = useState<(Property & { property_images?: PropertyImage[]; creator?: { full_name: string; email: string } })[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'available' | 'sold' | 'pending' | 'hidden'>('all')
   const [searchQuery, setSearchQuery] = useState('')

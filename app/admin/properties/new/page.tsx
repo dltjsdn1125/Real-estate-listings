@@ -251,7 +251,6 @@ export default function NewPropertyPage() {
       if (process.env.NODE_ENV === 'development') {
         console.error('등록 오류 상세:', {
           error,
-          propertyData,
           user: { id: user?.id, role: user?.role }
         })
       }
