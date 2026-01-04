@@ -47,6 +47,7 @@ export const metadata: Metadata = {
   other: {
     'mobile-web-app-capable': 'yes',
     'application-name': '대구 상가',
+    'screen-orientation': 'portrait', // 모바일 화면 방향 고정 (세로)
   },
 }
 
@@ -61,6 +62,8 @@ export default function RootLayout({
     <html lang="ko" className="light">
       <head>
         <link rel="preconnect" href="https://dapi.kakao.com" crossOrigin="anonymous" />
+        {/* 모바일 화면 방향 고정 (세로) */}
+        <meta name="screen-orientation" content="portrait" />
       </head>
       <body className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display antialiased">
         {children}
