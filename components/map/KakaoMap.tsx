@@ -30,6 +30,7 @@ interface KakaoMapProps {
   pinItMode?: boolean // Pin it 모드 활성화 여부
   onPinItClick?: () => void // Pin it 버튼 클릭 핸들러
   showPinItButton?: boolean // Pin it 버튼 표시 여부
+  selectedLocation?: { lat: number; lng: number; address?: string } | null // 선택된 위치 (위치 보기에서 사용)
 }
 
 export default function KakaoMap({
