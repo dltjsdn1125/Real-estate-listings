@@ -221,6 +221,7 @@ export default function PropertyDetailPage({ params }: PageProps) {
         lat: verifiedLat,
         lng: verifiedLng,
         address: data.address,
+        createdBy: data.created_by,
       }
 
       setProperty(formattedProperty)
@@ -290,7 +291,20 @@ export default function PropertyDetailPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header showSearch={true} />
+      <Header 
+        showSearch={true} 
+        imageUploadButton={
+          isAuthenticated ? (
+            <PropertyImageUpload
+              propertyId={id}
+              onUploadComplete={() => {
+                loadProperty()
+              }}
+              showButtonOnly={true}
+            />
+          ) : undefined
+        }
+      />
       <main className="flex-grow w-full max-w-[1280px] mx-auto px-4 md:px-6 lg:px-8 py-6">
         <Breadcrumbs items={property.breadcrumbs} />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -312,15 +326,17 @@ export default function PropertyDetailPage({ params }: PageProps) {
                 ))}
               </div>
             </div>
-            {/* Image Upload (if authenticated) */}
+            {/* Image Upload (if authenticated) - Desktop only */}
             {isAuthenticated && (
-              <PropertyImageUpload
-                propertyId={id}
-                onUploadComplete={() => {
-                  // 이미지 업로드 완료 후 매물 정보 다시 로드
-                  loadProperty()
-                }}
-              />
+              <div className="hidden md:block">
+                <PropertyImageUpload
+                  propertyId={id}
+                  onUploadComplete={() => {
+                    // 이미지 업로드 완료 후 매물 정보 다시 로드
+                    loadProperty()
+                  }}
+                />
+              </div>
             )}
             {/* Image Gallery */}
             {process.env.NODE_ENV === 'development' && property.lat && property.lng && (
@@ -338,7 +354,12 @@ export default function PropertyDetailPage({ params }: PageProps) {
             {/* Info Cards Section */}
             <PropertySummary {...property.summary} />
             {/* Restricted Content Block (Key Money) */}
-            <KeyMoneySection keyMoney={property.keyMoney} />
+            <KeyMoneySection 
+              keyMoney={property.keyMoney} 
+              propertyId={id}
+              propertyOwnerId={property.createdBy}
+              onUpdate={loadProperty}
+            />
             {/* Description Section */}
             <div className="flex flex-col gap-4 py-4">
               <h3 className="text-xl font-bold text-[#111318] dark:text-white">

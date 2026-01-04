@@ -425,7 +425,7 @@ export default function NewPropertyPage() {
                       required
                       maxLength={40}
                       placeholder="예: 동성로 메인 상권 1층 무권리 상가 (최대 40자)"
-                      className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 placeholder:text-gray-400"
+                      className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 placeholder:text-xs placeholder:text-gray-400"
                     />
                   </div>
                 </div>
@@ -468,7 +468,7 @@ export default function NewPropertyPage() {
                           value={formData.dong}
                           onChange={handleInputChange}
                           placeholder="동/가 입력"
-                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11"
+                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 placeholder:text-xs placeholder:text-gray-400"
                         />
                       </div>
                     </div>
@@ -484,7 +484,7 @@ export default function NewPropertyPage() {
                           onChange={handleInputChange}
                           required
                           placeholder="도로명 또는 지번 주소 검색"
-                          className="flex-1 rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11"
+                          className="flex-1 rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 placeholder:text-xs placeholder:text-gray-400"
                         />
                         <button
                           type="button"
@@ -499,7 +499,7 @@ export default function NewPropertyPage() {
                         value={formData.detail_address}
                         onChange={handleInputChange}
                         placeholder="상세 주소 (층, 호수 등) - 비공개 시 '비공개' 입력"
-                        className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 mt-1"
+                        className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 mt-1 placeholder:text-xs placeholder:text-gray-400"
                       />
                     </div>
                     <div className="flex items-center gap-2 mt-2">
@@ -584,7 +584,7 @@ export default function NewPropertyPage() {
                           value={formData.deposit}
                           onChange={handleInputChange}
                           placeholder="0"
-                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right"
+                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right placeholder:text-xs placeholder:text-gray-400"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">
                           만원
@@ -602,7 +602,7 @@ export default function NewPropertyPage() {
                           value={formData.monthly_rent}
                           onChange={handleInputChange}
                           placeholder="0"
-                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right"
+                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right placeholder:text-xs placeholder:text-gray-400"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">
                           만원
@@ -620,7 +620,7 @@ export default function NewPropertyPage() {
                           value={formData.key_money}
                           onChange={handleInputChange}
                           placeholder="없음"
-                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right"
+                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right placeholder:text-xs placeholder:text-gray-400"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">
                           만원
@@ -638,7 +638,7 @@ export default function NewPropertyPage() {
                           value={formData.maintenance_fee}
                           onChange={handleInputChange}
                           placeholder="0"
-                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right"
+                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 pr-12 text-right placeholder:text-xs placeholder:text-gray-400"
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-500">
                           만원
@@ -720,7 +720,7 @@ export default function NewPropertyPage() {
                           value={formData.floor_current}
                           onChange={handleInputChange}
                           placeholder="1"
-                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 text-center"
+                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 text-center placeholder:text-xs placeholder:text-gray-400"
                         />
                         <span className="text-gray-400">/</span>
                         <input
@@ -729,7 +729,7 @@ export default function NewPropertyPage() {
                           value={formData.floor_total}
                           onChange={handleInputChange}
                           placeholder="5"
-                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 text-center"
+                          className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary h-11 text-center placeholder:text-xs placeholder:text-gray-400"
                         />
                       </div>
                     </div>
@@ -780,13 +780,13 @@ export default function NewPropertyPage() {
                   </div>
                   
                   {/* 업종 가능 여부 */}
-                  <div className="flex flex-col gap-3 md:col-span-2">
-                    <label className="text-sm font-semibold text-[#111318] dark:text-gray-300">
+                  <div className="flex flex-col gap-3 md:col-span-2 mb-4">
+                    <label className="text-sm font-semibold text-[#111318] dark:text-gray-300 pl-1">
                       가능 업종 (선택)
                     </label>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-3 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700">
+                    <div className="ml-1 sm:ml-2 mr-1 sm:mr-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 sm:gap-x-4 gap-y-2.5 sm:gap-y-3 px-6 sm:px-8 py-3 sm:py-4 mb-4 rounded-lg bg-gray-50/50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700">
                       {['음식점', '카페', '소매업', '서비스업', '학원', '병원', '사무실', '기타'].map((type) => (
-                        <label key={type} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+                        <label key={type} className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity min-w-0">
                           <input
                             type="checkbox"
                             checked={formData.allowed_business_types.includes(type)}
@@ -803,9 +803,9 @@ export default function NewPropertyPage() {
                                 }))
                               }
                             }}
-                            className="rounded text-primary focus:ring-primary border-gray-300 dark:border-gray-600 w-4 h-4 cursor-pointer"
+                            className="rounded text-primary focus:ring-primary border-gray-300 dark:border-gray-600 w-4 h-4 cursor-pointer shrink-0"
                           />
-                          <span className="text-sm text-[#111318] dark:text-gray-300 select-none">{type}</span>
+                          <span className="text-sm text-[#111318] dark:text-gray-300 select-none truncate">{type}</span>
                         </label>
                       ))}
                     </div>
@@ -924,7 +924,7 @@ export default function NewPropertyPage() {
                       onChange={handleInputChange}
                       placeholder="내부 관리용 메모를 입력하세요 (임대인 연락처, 특이사항 등)"
                       rows={3}
-                      className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary p-3 resize-none"
+                      className="w-full rounded-lg border-[#d1d5db] dark:border-gray-700 bg-white dark:bg-gray-800 text-[#111318] dark:text-gray-200 focus:border-primary focus:ring-primary p-3 resize-none placeholder:text-xs placeholder:text-gray-400"
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

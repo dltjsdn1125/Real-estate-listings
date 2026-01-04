@@ -20,6 +20,8 @@ interface PropertyCardProps {
   lat?: number
   lng?: number
   isOwner?: boolean
+  isBlurred?: boolean
+  canViewBlurred?: boolean
   onFavorite?: (id: string) => void
   onClick?: (id: string) => void
   onViewDetail?: (id: string) => void
@@ -42,6 +44,8 @@ export default function PropertyCard({
   lat,
   lng,
   isOwner = false,
+  isBlurred = false,
+  canViewBlurred = false,
   onFavorite,
   onClick,
   onViewDetail,
@@ -51,7 +55,7 @@ export default function PropertyCard({
   const [hasRoadview, setHasRoadview] = useState(false)
   const [isCheckingRoadview, setIsCheckingRoadview] = useState(false)
 
-  // 로드뷰 존재 여부 확인
+  // 로드뷰 존재 여부 확인 - 지연 로딩 (화면에 보일 때만 체크)
   useEffect(() => {
     if (!lat || !lng || typeof window === 'undefined') {
       setHasRoadview(false)
@@ -61,12 +65,13 @@ export default function PropertyCard({
     const checkRoadview = async () => {
       setIsCheckingRoadview(true)
       try {
-        // 카카오 맵 API가 로드될 때까지 대기
+        // 카카오 맵 API가 로드될 때까지 대기 (최대 시도 횟수 감소)
         let attempts = 0
-        const maxAttempts = 20
+        const maxAttempts = 10 // 20에서 10으로 감소
 
         const waitForKakao = () => {
           return new Promise<boolean>((resolve) => {
+            // 체크 간격 단축
             const checkInterval = setInterval(() => {
               attempts++
               if (window.kakao && window.kakao.maps && window.kakao.maps.RoadviewClient) {
@@ -76,7 +81,7 @@ export default function PropertyCard({
                 clearInterval(checkInterval)
                 resolve(false)
               }
-            }, 500)
+            }, 100) // 200/500에서 100으로 단축
           })
         }
 
@@ -97,11 +102,56 @@ export default function PropertyCard({
       }
     }
 
-    // 약간의 지연 후 체크 (Kakao API 초기화 시간 확보)
-    const timeoutId = setTimeout(checkRoadview, 1000)
+    // Intersection Observer로 화면에 보일 때만 체크
+    const cardElement = document.getElementById(`property-card-${id}`)
+    if (!cardElement) {
+      // 카드가 아직 DOM에 없으면 약간의 지연 후 다시 시도
+      const timeoutId = setTimeout(() => {
+        const retryElement = document.getElementById(`property-card-${id}`)
+        if (retryElement) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  observer.disconnect()
+                  checkRoadview()
+                }
+              })
+            },
+            {
+              rootMargin: '100px',
+              threshold: 0.1,
+            }
+          )
+          observer.observe(retryElement)
+        } else {
+          // 여전히 없으면 기본값으로 설정
+          setHasRoadview(false)
+        }
+      }, 100)
+      return () => clearTimeout(timeoutId)
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          // 화면에 보이기 시작하면 로드뷰 체크
+          if (entry.isIntersecting) {
+            observer.disconnect()
+            checkRoadview()
+          }
+        })
+      },
+      {
+        rootMargin: '100px', // 화면 밖 100px 전에 미리 체크
+        threshold: 0.1,
+      }
+    )
+
+    observer.observe(cardElement)
 
     return () => {
-      clearTimeout(timeoutId)
+      observer.disconnect()
     }
   }, [lat, lng, id])
 
@@ -134,27 +184,38 @@ export default function PropertyCard({
     }
   }
 
-  if (type === 'premium') {
+  // 블러 처리 여부 결정
+  const shouldBlur = isBlurred && !canViewBlurred
+
+  if (type === 'premium' || shouldBlur) {
     return (
       <div
         className="relative group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-yellow-400/30 overflow-hidden cursor-pointer"
         onClick={handleClick}
       >
-        <div className="absolute top-0 right-0 bg-yellow-400 text-[#111318] text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">
-          PREMIUM
-        </div>
+        {type === 'premium' && (
+          <div className="absolute top-0 right-0 bg-yellow-400 text-[#111318] text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">
+            PREMIUM
+          </div>
+        )}
         <div>
           <h4 className="text-[#111318] dark:text-white text-base font-bold leading-tight">
             {title}
           </h4>
           <p className="text-[#616f89] dark:text-gray-400 text-sm mt-1">{location}</p>
-          <div className="mt-2 select-none filter blur-sm opacity-60">
+          {/* 블러 처리된 정보 영역 */}
+          <div className={`mt-2 select-none ${shouldBlur ? 'filter blur-sm opacity-60' : ''}`}>
             <div className="flex items-baseline gap-1">
               <span className="text-primary font-bold text-lg">{deposit}</span>
               <span className="text-xs font-medium">보증금</span>
               <span className="text-xs px-1">/</span>
               <span className="text-primary font-bold text-lg">{rent}</span>
             </div>
+            {area && (
+              <div className="mt-1 text-xs text-[#616f89] dark:text-gray-400">
+                {area}
+              </div>
+            )}
           </div>
           <div className="mt-4 flex items-center justify-center">
             <button className="shadow-lg bg-[#111318] dark:bg-primary text-white text-sm font-bold py-2 px-4 rounded-lg hover:scale-105 transition-transform">
@@ -168,6 +229,7 @@ export default function PropertyCard({
 
   return (
     <div
+      id={`property-card-${id}`}
       className="group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-transparent hover:border-primary/30 transition-all cursor-pointer"
       onClick={handleClick}
     >
@@ -181,7 +243,7 @@ export default function PropertyCard({
                   상호
                 </span>
               )}
-              <h4 className="text-[#111318] dark:text-white text-base font-bold leading-tight line-clamp-1">
+              <h4 className="text-[#111318] dark:text-white text-sm md:text-base font-bold leading-tight line-clamp-1">
                 {title}
               </h4>
             </div>
@@ -225,21 +287,21 @@ export default function PropertyCard({
           {hasRoadview && lat && lng ? (
             <button
               onClick={handleRoadviewClick}
-              className="h-9 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-sm font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="h-7 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-xs font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-              <span className="material-symbols-outlined text-[16px]">streetview</span>
+              <span className="material-symbols-outlined text-[14px]">streetview</span>
               로드뷰 보기
             </button>
           ) : (
-            <div className="h-9"></div>
+            <div className="h-7"></div>
           )}
           
           {/* 위치 보기 */}
           <button
             onClick={handleClick}
-            className="h-9 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-sm font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="h-7 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-xs font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <span className="material-symbols-outlined text-[16px]">location_on</span>
+            <span className="material-symbols-outlined text-[14px]">location_on</span>
             위치 보기
           </button>
           
@@ -247,9 +309,9 @@ export default function PropertyCard({
           <Link
             href={`/properties/${id}`}
             onClick={(e) => e.stopPropagation()}
-            className="h-9 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-sm font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="h-7 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-xs font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <span className="material-symbols-outlined text-[16px]">visibility</span>
+            <span className="material-symbols-outlined text-[14px]">visibility</span>
             자세히 보기
           </Link>
           
@@ -260,13 +322,13 @@ export default function PropertyCard({
                 e.stopPropagation()
                 onEdit?.(id)
               }}
-              className="h-9 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-sm font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="h-7 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-xs font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-              <span className="material-symbols-outlined text-[16px]">edit</span>
+              <span className="material-symbols-outlined text-[14px]">edit</span>
               수정하기
             </button>
           ) : (
-            <div className="h-9"></div>
+            <div className="h-7"></div>
           )}
         </div>
       </div>

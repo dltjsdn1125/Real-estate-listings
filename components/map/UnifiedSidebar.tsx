@@ -5,11 +5,110 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { supabase } from '@/lib/supabase/client'
 import PropertyCard from './PropertyCard'
+import PlaceSearchResultCard from './PlaceSearchResultCard'
 import QuickPropertyRegisterModal from './QuickPropertyRegisterModal'
 import FavoritePropertyModal from './FavoritePropertyModal'
-import { addressToCoordinates, waitForKakaoMaps } from '@/lib/utils/geocoding'
+import { addressToCoordinates, waitForKakaoMaps, PlaceSearchResult } from '@/lib/utils/geocoding'
 import { FilterState } from './PropertySearchSidebar'
 import { addFavorite, removeFavorite } from '@/lib/supabase/favorites'
+import { REGION_SETTINGS, MAJOR_CITIES, REGION_SETTING_KEY } from '@/lib/constants/regionSettings'
+
+// 블러 권한 설정 컴포넌트
+function BlurPermissionSettings() {
+  const { user, isAuthenticated } = useAuth()
+  const [minTier, setMinTier] = useState<string>('gold')
+  const [loading, setLoading] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      setLoading(true)
+      try {
+        const { data } = await supabase
+          .from('admin_settings')
+          .select('setting_value')
+          .eq('setting_key', 'blur_view_min_tier')
+          .single()
+
+        if (data?.setting_value) {
+          const value = data.setting_value as any
+          setMinTier(value.min_tier || 'gold')
+        }
+      } catch (error) {
+        console.error('블러 권한 설정 로드 오류:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadSettings()
+  }, [])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const { error } = await supabase
+        .from('admin_settings')
+        .upsert({
+          setting_key: 'blur_view_min_tier',
+          setting_value: { min_tier: minTier },
+          description: '블러 처리된 매물을 볼 수 있는 최소 tier',
+          updated_at: new Date().toISOString(),
+        })
+
+      if (error) throw error
+      alert('블러 권한 설정이 저장되었습니다.')
+    } catch (error) {
+      console.error('블러 권한 설정 저장 오류:', error)
+      alert('설정 저장 중 오류가 발생했습니다.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="text-sm text-[#616f89] dark:text-gray-400">
+        로딩 중...
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">
+        블러 권한 설정
+      </h3>
+      <div className="space-y-3 sm:space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-[#111318] dark:text-white mb-2">
+            블러 처리된 매물을 볼 수 있는 최소 등급
+          </label>
+          <select
+            value={minTier}
+            onChange={(e) => setMinTier(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-sm text-[#111318] dark:text-white"
+          >
+            <option value="bronze">Bronze</option>
+            <option value="silver">Silver</option>
+            <option value="gold">Gold</option>
+            <option value="premium">Premium</option>
+            <option value="platinum">Platinum</option>
+          </select>
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            선택한 등급 이상의 사용자만 블러 처리된 매물을 볼 수 있습니다.
+          </p>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="w-full px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving ? '저장 중...' : '설정 저장'}
+        </button>
+      </div>
+    </div>
+  )
+}
 
 interface Property {
   id: string
@@ -46,6 +145,10 @@ interface UnifiedSidebarProps {
   onRegisterClick?: () => void
   onMyLocationClick?: () => void
   initialTab?: 'search' | 'my-properties' | 'favorites' | 'register'
+  placeSearchResults?: PlaceSearchResult[]
+  searchKeyword?: string
+  regionSetting?: { type: 'daegu' | 'nationwide' | 'custom'; customCity?: string }
+  onRegionSettingChange?: (setting: { type: 'daegu' | 'nationwide' | 'custom'; customCity?: string }) => void
 }
 
 export default function UnifiedSidebar({
@@ -63,10 +166,14 @@ export default function UnifiedSidebar({
   onRegisterClick,
   onMyLocationClick,
   initialTab = 'search',
+  placeSearchResults = [],
+  searchKeyword = '',
+  regionSetting = { type: 'daegu' },
+  onRegionSettingChange,
 }: UnifiedSidebarProps) {
   const router = useRouter()
   const { user, isAuthenticated } = useAuth()
-  const [activeTab, setActiveTab] = useState<'search' | 'my-properties' | 'favorites' | 'register'>(initialTab)
+  const [activeTab, setActiveTab] = useState<'search' | 'my-properties' | 'favorites' | 'register' | 'settings'>(initialTab)
   const [myProperties, setMyProperties] = useState<Property[]>([])
   const [favorites, setFavorites] = useState<Property[]>([])
   const [loading, setLoading] = useState(false)
@@ -247,11 +354,7 @@ export default function UnifiedSidebar({
         }
       }
 
-      // 즐겨찾기 모달은 로그인 사용자에게만 표시
-      if (isAuthenticated) {
-        setSelectedKeyword(query)
-        setFavoriteModalOpen(true)
-      }
+      // 즐겨찾기 모달 자동 열기 제거 (검색 결과 우선 표시)
     } catch (error) {
       console.error('검색 오류:', error)
     } finally {
@@ -320,19 +423,20 @@ export default function UnifiedSidebar({
           </div>
 
           {/* Tabs */}
-          <div className="flex gap-1 sm:gap-2 flex-nowrap overflow-x-auto">
+          <div className="flex gap-1 flex-nowrap">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 setActiveTab('search')
               }}
-              className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+              className={`flex-1 px-1 py-1.5 rounded-lg transition-colors flex items-center justify-center ${
                 activeTab === 'search'
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
               }`}
+              title="검색"
             >
-              검색
+              <span className="material-symbols-outlined text-[20px]">search</span>
             </button>
             {isAuthenticated && (
               <>
@@ -341,26 +445,28 @@ export default function UnifiedSidebar({
                     e.stopPropagation()
                     setActiveTab('my-properties')
                   }}
-                  className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`flex-1 px-1 py-1.5 rounded-lg transition-colors flex items-center justify-center ${
                     activeTab === 'my-properties'
                       ? 'bg-primary text-white'
                       : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
                   }`}
+                  title="내 매물"
                 >
-                  내 매물
+                  <span className="material-symbols-outlined text-[20px]">home</span>
                 </button>
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
                     setActiveTab('favorites')
                   }}
-                  className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`flex-1 px-1 py-1.5 rounded-lg transition-colors flex items-center justify-center ${
                     activeTab === 'favorites'
                       ? 'bg-primary text-white'
                       : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
                   }`}
+                  title="즐겨찾기"
                 >
-                  즐찾
+                  <span className="material-symbols-outlined text-[20px]">star</span>
                 </button>
                 {(user?.role === 'admin' || user?.role === 'agent') && (
                   <button
@@ -370,13 +476,14 @@ export default function UnifiedSidebar({
                       setRegisterModalOpen(true)
                       onRegisterClick?.()
                     }}
-                    className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
+                    className={`flex-1 px-1 py-1.5 rounded-lg transition-colors flex items-center justify-center ${
                       activeTab === 'register'
                         ? 'bg-primary text-white'
                         : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
                     }`}
+                    title="등록"
                   >
-                    등록
+                    <span className="material-symbols-outlined text-[20px]">add</span>
                   </button>
                 )}
                 {/* 내 위치찾기 버튼 */}
@@ -385,13 +492,28 @@ export default function UnifiedSidebar({
                     e.stopPropagation()
                     onMyLocationClick?.()
                   }}
-                  className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-1 whitespace-nowrap"
+                  className="flex-1 px-1 py-1.5 rounded-lg transition-colors bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center"
                   title="내 위치로 이동"
                 >
-                  <span className="material-symbols-outlined text-[14px] sm:text-[18px]">my_location</span>
+                  <span className="material-symbols-outlined text-[20px]">my_location</span>
                 </button>
               </>
             )}
+            {/* 설정 탭 (모든 사용자) */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setActiveTab('settings')
+              }}
+              className={`flex-1 px-1 py-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                activeTab === 'settings'
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-[#111318] dark:text-white'
+              }`}
+              title="설정"
+            >
+              <span className="material-symbols-outlined text-[20px]">settings</span>
+            </button>
           </div>
         </div>
 
@@ -680,13 +802,30 @@ export default function UnifiedSidebar({
               {/* 매물 목록 */}
               <div className="mt-3 sm:mt-6">
                 <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">
-                  매물 {filteredProperties.length}개
+                  {placeSearchResults.length > 0 
+                    ? `검색 결과 ${placeSearchResults.length}개` 
+                    : searchKeyword && searchKeyword.trim()
+                    ? `검색 결과 없음 (매물 ${filteredProperties.length}개)`
+                    : `매물 ${filteredProperties.length}개`}
                 </h3>
                 <div className="flex flex-col gap-2 sm:gap-4">
+                  {/* Places 검색 결과 우선 표시 */}
+                  {placeSearchResults && placeSearchResults.length > 0 && placeSearchResults.map((place) => (
+                    <PlaceSearchResultCard
+                      key={`place-${place.id}`}
+                      place={place}
+                      searchKeyword={searchKeyword}
+                      onLocationClick={onSearchAddress}
+                    />
+                  ))}
+                  
+                  {/* DB 매물 표시 */}
                   {filteredProperties.map((property) => (
                     <PropertyCard
                       key={property.id}
                       {...property}
+                      isBlurred={property.isBlurred}
+                      canViewBlurred={property.canViewBlurred}
                       onClick={() => onPropertyClick?.(property.id)}
                       onViewDetail={(id) => {
                         // 상세 페이지로 이동
@@ -698,7 +837,8 @@ export default function UnifiedSidebar({
                       }}
                     />
                   ))}
-                  {filteredProperties.length === 0 && (
+                  
+                  {placeSearchResults.length === 0 && filteredProperties.length === 0 && (
                     <div className="text-center py-6 sm:py-12 text-[#616f89] dark:text-gray-400">
                       <span className="material-symbols-outlined text-3xl sm:text-5xl mb-2 opacity-50">
                         search_off
@@ -807,6 +947,109 @@ export default function UnifiedSidebar({
                 </button>
               ) : (
                 <p className="text-[10px] sm:text-xs">매물 등록 권한이 없습니다.</p>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="p-2 sm:p-4 space-y-6">
+              {/* 검색 지역 설정 */}
+              <div>
+                <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">
+                  검색 지역 설정
+                </h3>
+              <div className="space-y-3 sm:space-y-4">
+                {/* 대구 */}
+                <label className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                  regionSetting.type === 'daegu'
+                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#151c2b]'
+                }`}>
+                  <input
+                    type="radio"
+                    name="region"
+                    value="daegu"
+                    checked={regionSetting.type === 'daegu'}
+                    onChange={() => onRegionSettingChange?.({ type: 'daegu' })}
+                    className="w-4 h-4 text-primary focus:ring-primary"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm sm:text-base text-[#111318] dark:text-white">대구</div>
+                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">대구 지역 내에서만 검색</div>
+                  </div>
+                </label>
+
+                {/* 전국 */}
+                <label className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                  regionSetting.type === 'nationwide'
+                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#151c2b]'
+                }`}>
+                  <input
+                    type="radio"
+                    name="region"
+                    value="nationwide"
+                    checked={regionSetting.type === 'nationwide'}
+                    onChange={() => onRegionSettingChange?.({ type: 'nationwide' })}
+                    className="w-4 h-4 text-primary focus:ring-primary"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm sm:text-base text-[#111318] dark:text-white">전국</div>
+                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">전국 모든 지역 검색</div>
+                  </div>
+                </label>
+
+                {/* 사용자 지정 */}
+                <label className={`flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                  regionSetting.type === 'custom'
+                    ? 'border-primary bg-primary/5 dark:bg-primary/10'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-[#151c2b]'
+                }`}>
+                  <input
+                    type="radio"
+                    name="region"
+                    value="custom"
+                    checked={regionSetting.type === 'custom'}
+                    onChange={() => onRegionSettingChange?.({ type: 'custom', customCity: '서울' })}
+                    className="w-4 h-4 text-primary focus:ring-primary"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm sm:text-base text-[#111318] dark:text-white">사용자 지정</div>
+                    {regionSetting.type === 'custom' && (
+                      <select
+                        value={regionSetting.customCity || '서울'}
+                        onChange={(e) => onRegionSettingChange?.({ type: 'custom', customCity: e.target.value })}
+                        className="mt-2 w-full px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-xs sm:text-sm text-[#111318] dark:text-white"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <option value="서울">서울</option>
+                        <option value="부산">부산</option>
+                        <option value="대구">대구</option>
+                        <option value="인천">인천</option>
+                        <option value="광주">광주</option>
+                        <option value="대전">대전</option>
+                        <option value="울산">울산</option>
+                        <option value="세종">세종</option>
+                        <option value="수원">수원</option>
+                        <option value="성남">성남</option>
+                        <option value="고양">고양</option>
+                        <option value="용인">용인</option>
+                        <option value="청주">청주</option>
+                        <option value="천안">천안</option>
+                        <option value="전주">전주</option>
+                        <option value="포항">포항</option>
+                        <option value="제주">제주</option>
+                      </select>
+                    )}
+                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5">특정 도시 중심으로 검색</div>
+                  </div>
+                </label>
+              </div>
+              </div>
+
+              {/* 블러 권한 설정 (관리자만) */}
+              {isAuthenticated && (user?.role === 'admin' || user?.role === 'agent') && (
+                <BlurPermissionSettings />
               )}
             </div>
           )}

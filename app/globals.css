@@ -50,10 +50,6 @@ body {
   scrollbar-width: none;
 }
 
-/* Mobile map view optimizations */
-@media (max-width: 768px) {
-  body {
-    overflow: hidden;
-  }
-}
+/* Mobile map view optimizations - removed global overflow:hidden to allow scrolling on landing page */
+/* If needed for specific pages, apply overflow:hidden directly to those page components */
 

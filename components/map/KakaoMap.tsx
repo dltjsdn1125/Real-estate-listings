@@ -237,14 +237,14 @@ export default function KakaoMap({
           styles: [
             {
               // 클러스터 마커 스타일
-              width: '50px',
-              height: '50px',
-              background: 'rgba(255, 107, 0, 0.8)',
-              borderRadius: '25px',
+              width: '40px',
+              height: '40px',
+              background: 'rgba(255, 0, 0, 0.6)',
+              borderRadius: '20px',
               color: '#fff',
               textAlign: 'center',
               fontWeight: 'bold',
-              lineHeight: '50px',
+              lineHeight: '40px',
             },
           ],
         })

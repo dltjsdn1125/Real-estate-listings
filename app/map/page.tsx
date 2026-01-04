@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useMemo, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import MapSearchHeader from '@/components/map/MapSearchHeader'
 import CentralSearchBar from '@/components/map/CentralSearchBar'
 import UnifiedSidebar from '@/components/map/UnifiedSidebar'
@@ -15,6 +15,8 @@ import { supabase } from '@/lib/supabase/client'
 import { getDistrictCoordinates } from '@/lib/constants/daeguDistricts'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { searchPlacesByKeyword, PlaceSearchResult } from '@/lib/utils/geocoding'
+import { REGION_SETTINGS, MAJOR_CITIES, REGION_SETTING_KEY, RegionType } from '@/lib/constants/regionSettings'
+import { canViewBlurred } from '@/lib/utils/blurPermission'
 
 interface PropertyForMap {
   id: string
@@ -43,6 +45,7 @@ export default function MapPage() {
   const [properties, setProperties] = useState<PropertyForMap[]>([])
   const [loading, setLoading] = useState(true)
   const [userTier, setUserTier] = useState<string>('bronze')
+  const [canViewBlurredState, setCanViewBlurredState] = useState(false)
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | undefined>(undefined)
   const [mapLevel, setMapLevel] = useState<number>(8)
   const [radiusSearch, setRadiusSearch] = useState<{
@@ -85,6 +88,20 @@ export default function MapPage() {
   const [pinItMessage, setPinItMessage] = useState<string | null>(null)
   // 카카오 Places 검색 결과 (대구 지역 상호/주소)
   const [placeSearchResults, setPlaceSearchResults] = useState<PlaceSearchResult[]>([])
+  // 지역 설정 (기본값: 대구)
+  const [regionSetting, setRegionSetting] = useState<{ type: RegionType; customCity?: string }>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(REGION_SETTING_KEY)
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch {
+          return { type: 'daegu' }
+        }
+      }
+    }
+    return { type: 'daegu' }
+  })
 
   // Pin it 버튼 표시 여부 계산
   const canShowPinIt = isAuthenticated && user && (
@@ -92,6 +109,43 @@ export default function MapPage() {
     user.role === 'admin' ||
     user.role === 'agent'
   )
+
+  // 블러 권한 확인
+  useEffect(() => {
+    const checkBlurPermission = async () => {
+      if (user) {
+        const canView = await canViewBlurred(user)
+        setCanViewBlurredState(canView)
+      } else {
+        setCanViewBlurredState(false)
+      }
+    }
+    checkBlurPermission()
+  }, [user])
+
+  // 지역 설정 변경 시 localStorage 저장 및 지도 중심 이동
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(REGION_SETTING_KEY, JSON.stringify(regionSetting))
+    }
+
+    // 지역 설정에 따라 지도 중심 이동
+    if (regionSetting.type === 'daegu') {
+      const daegu = REGION_SETTINGS.daegu
+      setMapCenter({ lat: daegu.lat, lng: daegu.lng })
+      setMapLevel(daegu.level)
+    } else if (regionSetting.type === 'nationwide') {
+      const nationwide = REGION_SETTINGS.nationwide
+      setMapCenter({ lat: nationwide.lat, lng: nationwide.lng })
+      setMapLevel(nationwide.level)
+    } else if (regionSetting.type === 'custom' && regionSetting.customCity) {
+      const city = MAJOR_CITIES.find(c => c.name === regionSetting.customCity)
+      if (city) {
+        setMapCenter({ lat: city.lat, lng: city.lng })
+        setMapLevel(city.level)
+      }
+    }
+  }, [regionSetting])
 
   // 승인 상태 확인 및 리다이렉트
   useEffect(() => {
@@ -107,6 +161,20 @@ export default function MapPage() {
       return
     }
   }, [isAuthenticated, isApproved, authLoading, router, user])
+
+  // 쿼리 파라미터에서 검색 키워드 읽기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const keyword = params.get('keyword')
+      if (keyword && keyword.trim() && !searchKeyword) {
+        // 검색 키워드가 있으면 자동으로 검색 실행
+        setSearchKeyword(keyword.trim())
+        handleKeywordSearch(keyword.trim())
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // 초기 마운트 시 한 번만 실행
 
   useEffect(() => {
     // 매물 로드 (승인된 사용자 또는 비로그인 사용자)
@@ -248,6 +316,9 @@ export default function MapPage() {
           const imageUrl = firstImage?.image_url || '/images/placeholder-property.jpg'
           const imageAlt = firstImage?.alt_text || property.title
 
+          // 블러 처리 여부 확인
+          const isBlurred = property.is_blurred || false
+          
           return {
             id: property.id,
             title: property.title,
@@ -264,6 +335,8 @@ export default function MapPage() {
             lat: property.latitude ? Number(property.latitude) : undefined,
             lng: property.longitude ? Number(property.longitude) : undefined,
             isOwner: !!(isAuthenticated && user && property.created_by === user.id),
+            isBlurred,
+            canViewBlurred: canViewBlurredState,
             imageUrl,
             imageAlt,
           }
@@ -394,50 +467,95 @@ export default function MapPage() {
         console.log('🔍 handleKeywordSearch 호출:', trimmedKeyword)
       }
 
+      // 검색 시작 시 이전 Places 검색 결과만 초기화 (DB 매물은 유지)
+      setPlaceSearchResults([])
       setSearchKeyword(trimmedKeyword)
       setLoading(true)
+      setError(null)
+      setSidebarOpen(true) // 검색 시 사이드바 열기
+      setSidebarTab('search') // 검색 탭으로 전환
 
       try {
-        // 1. 카카오 Places API로 대구 지역 상호/주소 검색
-        const placeResults = await searchPlacesByKeyword(trimmedKeyword, { size: 15 })
-
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🔍 카카오 Places 검색 결과:', placeResults.length, '개')
+        // 1. 카카오 Places API로 실제 상호/주소 검색 (우선)
+        // 지역 설정에 따라 검색 키워드 조정
+        let searchKeyword = trimmedKeyword
+        if (regionSetting.type === 'daegu') {
+          // 대구 지역 검색: 키워드에 대구 추가
+          searchKeyword = trimmedKeyword.includes('대구') ? trimmedKeyword : `대구 ${trimmedKeyword}`
+        } else if (regionSetting.type === 'custom' && regionSetting.customCity) {
+          // 사용자 지정 도시 검색: 키워드에 도시명 추가
+          searchKeyword = trimmedKeyword.includes(regionSetting.customCity) ? trimmedKeyword : `${regionSetting.customCity} ${trimmedKeyword}`
         }
+        // 전국 검색은 키워드 그대로 사용
+
+        console.log('🔍 Places 검색 시작:', { original: trimmedKeyword, searchKeyword, region: regionSetting.type })
+        const placeResults = await searchPlacesByKeyword(searchKeyword, { size: 30 })
+
+        console.log('🔍 Places 검색 완료:', {
+          keyword: trimmedKeyword,
+          resultCount: placeResults.length,
+          results: placeResults.slice(0, 5).map(p => ({
+            name: p.name,
+            address: p.address || p.roadAddress,
+            lat: p.lat,
+            lng: p.lng
+          }))
+        })
 
         setPlaceSearchResults(placeResults)
+        
+        // 디버깅: 검색 결과 상태 확인
+        console.log('🔍 placeSearchResults state 업데이트:', placeResults.length, '개')
+        if (placeResults.length > 0) {
+          console.log('🔍 검색 결과 상세:', placeResults.slice(0, 3))
+        }
 
         // 검색 결과가 있으면 첫 번째 결과 위치로 지도 이동
-        if (placeResults.length > 0) {
+        if (placeResults && placeResults.length > 0) {
           setMapCenter({ lat: placeResults[0].lat, lng: placeResults[0].lng })
           setMapLevel(4) // 상세 레벨로 확대
+          
+          // 검색 결과가 있으면 DB 검색은 선택적으로 수행 (검색 결과 우선 표시)
+          // DB 검색은 백그라운드에서 수행
+          const searchFilters: any = {
+            status: 'available',
+            limit: 100,
+            keyword: trimmedKeyword,
+          }
+          
+          // DB 검색은 비동기로 실행 (결과는 추가로 표시)
+          loadPropertiesWithFilters(searchFilters).catch(err => {
+            console.error('DB 검색 오류:', err)
+          })
+          
+          // 로딩 상태 해제 (Places 결과가 있으면 즉시 표시)
+          setLoading(false)
+        } else {
+          // Places 검색 결과가 없으면 DB 검색만 수행
+          const searchFilters: any = {
+            status: 'available',
+            limit: 100,
+            keyword: trimmedKeyword,
+          }
+
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔍 Places 검색 결과 없음, DB 검색만 수행:', searchFilters)
+          }
+
+          await loadPropertiesWithFilters(searchFilters)
+          setLoading(false)
         }
 
-        // 2. DB에서도 매물 검색 (기존 로직)
-        const searchFilters: any = {
-          status: 'available',
-          limit: 100,
-          keyword: trimmedKeyword,
-        }
-
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🔍 DB 검색 필터 설정:', searchFilters)
-        }
-
-        // DB 검색 실행
-        await loadPropertiesWithFilters(searchFilters)
-
-        // 키워드 검색으로 즐겨찾기 등록 모달 열기 (로그인한 경우)
-        if (isAuthenticated) {
-          setSelectedKeyword(trimmedKeyword)
-          setFavoriteModalOpen(true)
-        }
+        // 키워드 검색 시 즐겨찾기 모달 자동 열기 제거 (검색 결과 우선 표시)
       } catch (error) {
         console.error('검색 오류:', error)
         setError('검색 중 오류가 발생했습니다.')
-      } finally {
         setLoading(false)
       }
+    } else {
+      // 빈 키워드면 검색 결과 초기화
+      setPlaceSearchResults([])
+      setSearchKeyword('')
     }
   }
 
@@ -618,6 +736,10 @@ export default function MapPage() {
           onKeywordSearch={handleKeywordSearch}
           onMyLocationClick={handleMyLocation}
           initialTab={sidebarTab}
+          placeSearchResults={placeSearchResults}
+          searchKeyword={searchKeyword}
+          regionSetting={regionSetting}
+          onRegionSettingChange={setRegionSetting}
         />
 
         {/* 지도 영역 */}
@@ -650,9 +772,9 @@ export default function MapPage() {
 
           {/* Pin it 모드 안내 메시지 */}
           {pinItMessage && (
-            <div className="absolute top-14 sm:top-20 left-2 right-2 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-auto z-30 bg-primary text-white px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg shadow-xl flex items-center gap-2 sm:gap-3 animate-pulse">
+            <div className="absolute top-14 sm:top-20 left-1/2 -translate-x-1/2 w-auto z-30 bg-primary text-white px-3 sm:px-6 py-1.5 sm:py-3 rounded-lg shadow-xl flex items-center gap-2 sm:gap-3 animate-pulse">
               <span className="material-symbols-outlined text-[18px] sm:text-[24px] shrink-0">push_pin</span>
-              <p className="text-xs sm:text-sm font-medium whitespace-nowrap truncate">{pinItMessage}</p>
+              <p className="text-xs sm:text-sm font-medium whitespace-nowrap">{pinItMessage}</p>
               <button
                 onClick={() => {
                   setPinItMode(false)

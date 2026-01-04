@@ -66,10 +66,10 @@ export async function getRoadviewPanoId(
     return new Promise((resolve) => {
       const timeoutId = setTimeout(() => {
         if (process.env.NODE_ENV === 'development') {
-          console.warn('🔍 getRoadviewPanoId - Timeout after 10 seconds')
+          console.warn('🔍 getRoadviewPanoId - Timeout after 5 seconds')
         }
         resolve(null)
-      }, 10000)
+      }, 5000) // 10초에서 5초로 단축
 
       try {
         // LatLng 객체 생성 (문서에 따르면 첫 번째 인자는 LatLng 객체여야 함)

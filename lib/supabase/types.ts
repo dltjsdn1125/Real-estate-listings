@@ -17,6 +17,7 @@ export interface User {
   approval_status: ApprovalStatus
   approved_at: string | null
   approved_by: string | null
+  can_view_blurred: boolean
   created_at: string
   updated_at: string
 }
@@ -51,6 +52,7 @@ export interface Property {
   immediate_move_in: boolean
   is_public: boolean
   is_premium: boolean
+  is_blurred: boolean
   admin_notes: string | null
   created_by: string
   agent_id: string | null

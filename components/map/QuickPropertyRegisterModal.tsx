@@ -45,6 +45,7 @@ export default function QuickPropertyRegisterModal({
     exclusive_area: '',
   })
   const [addToFavorites, setAddToFavorites] = useState(false)
+  const [isBlurred, setIsBlurred] = useState(false)
   
   // 사용자 등급 확인 (bronze 이상이면 권리금 입력 가능)
   const canInputKeyMoney = user && user.tier && ['bronze', 'silver', 'gold', 'platinum', 'premium', 'agent', 'admin'].includes(user.tier)
@@ -171,6 +172,7 @@ export default function QuickPropertyRegisterModal({
         immediate_move_in: false,
         is_public: true,
         is_premium: false,
+        is_blurred: isBlurred,
         admin_notes: null,
         created_by: user.id,
         agent_id: null,
@@ -388,6 +390,22 @@ export default function QuickPropertyRegisterModal({
               placeholder="예: 10.5"
             />
           </div>
+
+          {/* 블러 처리 옵션 (관리자/에이전트만) */}
+          {(user?.role === 'admin' || user?.role === 'agent') && (
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isBlurred"
+                checked={isBlurred}
+                onChange={(e) => setIsBlurred(e.target.checked)}
+                className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
+              />
+              <label htmlFor="isBlurred" className="text-sm text-[#111318] dark:text-gray-300">
+                블러 처리 (일반 사용자에게 정보 숨김)
+              </label>
+            </div>
+          )}
 
           {/* 즐겨찾기 추가 옵션 */}
           <div className="flex items-center gap-2">

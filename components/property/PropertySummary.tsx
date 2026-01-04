@@ -34,7 +34,7 @@ export default function PropertySummary({
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-[#f0f2f4] dark:border-gray-800 p-6 shadow-sm">
-      <h3 className="text-lg font-bold mb-5 flex items-center gap-2">
+      <h3 className="text-base md:text-lg font-bold mb-5 flex items-center gap-2">
         <span className="material-symbols-outlined text-primary">info</span>
         Property Summary
       </h3>
@@ -44,7 +44,7 @@ export default function PropertySummary({
             <span className="text-xs text-[#616f89] font-medium uppercase tracking-wider">
               {item.label}
             </span>
-            <span className="text-base font-semibold text-[#111318] dark:text-white">
+            <span className="text-sm md:text-base font-semibold text-[#111318] dark:text-white">
               {item.value}
             </span>
           </div>

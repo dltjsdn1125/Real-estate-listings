@@ -519,24 +519,31 @@ export async function searchPlacesByKeyword(
     try {
       const places = new window.kakao.maps.services.Places()
 
-      // 대구 지역 우선 검색을 위해 키워드에 "대구" 추가
-      const searchKeyword = keyword.includes('대구') ? keyword : `대구 ${keyword}`
+      // 키워드 그대로 사용 (대구 자동 추가 제거 - 모든 지역 검색)
+      // 사용자가 원하는 대로 키워드만으로 검색하여 모든 결과 반환
+      const searchKeyword = keyword
 
       const searchOptions: any = {}
-      if (options?.size) searchOptions.size = Math.min(options.size, 15)
+      // 카카오 Places API는 최대 15개까지 지원하지만, 여러 페이지로 나누어 검색 가능
+      if (options?.size) {
+        // 최대 15개로 제한 (카카오 API 제한)
+        searchOptions.size = Math.min(options.size, 15)
+      } else {
+        searchOptions.size = 15 // 기본값
+      }
       if (options?.page) searchOptions.page = options.page
 
-      places.keywordSearch(
-        searchKeyword,
-        (result: any, status: any, pagination: any) => {
-          if (status === window.kakao.maps.services.Status.OK && result.length > 0) {
-            // 대구 지역 결과만 필터링
-            const daeguResults = result.filter((place: any) =>
-              place.address_name?.includes('대구') ||
-              place.road_address_name?.includes('대구')
-            )
+      let allResults: PlaceSearchResult[] = []
+      let currentPage = options?.page || 1
+      const maxPages = options?.size && options.size > 15 ? Math.ceil(options.size / 15) : 1
 
-            const places: PlaceSearchResult[] = daeguResults.map((place: any) => ({
+      const searchCallback = (result: any, status: any, pagination: any) => {
+        console.log('🔍 searchCallback 호출:', { status, resultCount: result?.length, hasNext: pagination?.hasNext })
+        
+        if (status === window.kakao.maps.services.Status.OK) {
+          if (result && result.length > 0) {
+            // 모든 검색 결과 반환 (대구 지역 필터링 제거 - 모든 결과 반환)
+            const pageResults: PlaceSearchResult[] = result.map((place: any) => ({
               id: place.id,
               name: place.place_name,
               address: place.address_name,
@@ -547,25 +554,43 @@ export async function searchPlacesByKeyword(
               lng: parseFloat(place.x),
             }))
 
-            if (process.env.NODE_ENV === 'development') {
-              console.log('🔍 카카오 키워드 검색 결과:', {
-                keyword: searchKeyword,
-                totalCount: result.length,
-                daeguCount: daeguResults.length,
-                places: places.slice(0, 3).map(p => p.name),
-              })
+            allResults = [...allResults, ...pageResults]
+            console.log('🔍 수집된 결과:', allResults.length, '개')
+
+            // 다음 페이지가 있고, 아직 원하는 개수에 도달하지 않았으면 다음 페이지 검색
+            if (pagination && pagination.hasNext && currentPage < maxPages && allResults.length < (options?.size || 15)) {
+              console.log('🔍 다음 페이지 검색:', currentPage + 1)
+              currentPage++
+              searchOptions.page = currentPage
+              places.keywordSearch(searchKeyword, searchCallback, searchOptions)
+              return
             }
 
-            resolve(places)
+            // 최종 결과 반환
+            const finalResults = options?.size ? allResults.slice(0, options.size) : allResults
+
+            console.log('🔍 카카오 키워드 검색 최종 결과:', {
+              keyword: searchKeyword,
+              totalCount: allResults.length,
+              finalCount: finalResults.length,
+              pages: currentPage,
+              places: finalResults.slice(0, 5).map(p => ({ name: p.name, address: p.address || p.roadAddress })),
+            })
+
+            resolve(finalResults)
           } else {
-            if (process.env.NODE_ENV === 'development') {
-              console.log('🔍 카카오 키워드 검색 결과 없음:', searchKeyword, status)
-            }
-            resolve([])
+            // 결과가 없으면 지금까지 수집한 결과 반환
+            console.log('🔍 카카오 키워드 검색 - 현재 페이지 결과 없음:', searchKeyword, '수집된 결과:', allResults.length)
+            resolve(allResults.length > 0 ? allResults : [])
           }
-        },
-        searchOptions
-      )
+        } else {
+          console.log('🔍 카카오 키워드 검색 오류:', searchKeyword, status)
+          // 오류가 발생해도 지금까지 수집한 결과 반환
+          resolve(allResults.length > 0 ? allResults : [])
+        }
+      }
+
+      places.keywordSearch(searchKeyword, searchCallback, searchOptions)
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('카카오 Places 검색 오류:', error)

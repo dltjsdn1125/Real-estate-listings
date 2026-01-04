@@ -8,12 +8,14 @@ interface PropertyImageUploadProps {
   propertyId: string
   onUploadComplete?: () => void
   userId?: string
+  showButtonOnly?: boolean
 }
 
 export default function PropertyImageUpload({
   propertyId,
   onUploadComplete,
   userId,
+  showButtonOnly = false,
 }: PropertyImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -87,30 +89,42 @@ export default function PropertyImageUpload({
     }
   }
 
+  const uploadButton = (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileSelect}
+        disabled={uploading}
+        className="hidden"
+        id="property-image-upload"
+      />
+      <label
+        htmlFor="property-image-upload"
+        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          uploading
+            ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
+            : 'bg-primary text-white hover:bg-blue-600'
+        }`}
+      >
+        {uploading ? '업로드 중...' : '이미지 추가'}
+      </label>
+    </>
+  )
+
+  if (showButtonOnly) {
+    return uploadButton
+  }
+
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <h3 className="text-lg font-bold text-[#111318] dark:text-white">매물 이미지</h3>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleFileSelect}
-          disabled={uploading}
-          className="hidden"
-          id="property-image-upload"
-        />
-        <label
-          htmlFor="property-image-upload"
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-            uploading
-              ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 cursor-not-allowed'
-              : 'bg-primary text-white hover:bg-blue-600'
-          }`}
-        >
-          {uploading ? '업로드 중...' : '이미지 추가'}
-        </label>
+        <div className="md:ml-auto">
+          {uploadButton}
+        </div>
       </div>
 
       {error && (

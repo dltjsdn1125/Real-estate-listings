@@ -35,6 +35,10 @@ export default function PropertyImageGallery({
   const [verifiedLng, setVerifiedLng] = useState<number | undefined>(longitude)
   const [isVerifying, setIsVerifying] = useState(false)
 
+  // 로드뷰 사용 가능 여부: 좌표가 있으면 사용 가능 (검증 완료 여부와 무관)
+  // 이 변수는 useEffect에서 사용되므로 상단에 정의해야 함
+  const hasRoadView = Boolean((verifiedLat !== undefined ? verifiedLat : latitude) && (verifiedLng !== undefined ? verifiedLng : longitude))
+
   // 클라이언트 사이드에서 좌표 검증 (제목과 주소 기반)
   useEffect(() => {
     if (typeof window === 'undefined' || !address || !title || !latitude || !longitude) {
@@ -95,18 +99,35 @@ export default function PropertyImageGallery({
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const hash = window.location.hash
-      if (hash === '#roadview' && latitude && longitude) {
+      const hasCoords = (verifiedLat || latitude) && (verifiedLng || longitude)
+      if (hash === '#roadview' && hasCoords) {
         setViewMode('roadview')
       }
     }
-  }, [latitude, longitude])
+  }, [latitude, longitude, verifiedLat, verifiedLng])
+
+  // 좌표 검증 완료 후에도 URL 해시 다시 확인
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !isVerifying) {
+      const hash = window.location.hash
+      const hasCoords = (verifiedLat || latitude) && (verifiedLng || longitude)
+      if (hash === '#roadview' && hasCoords && viewMode !== 'roadview') {
+        setViewMode('roadview')
+      }
+    }
+  }, [isVerifying, verifiedLat, verifiedLng, latitude, longitude, viewMode])
+
+  // 이미지가 없고 로드뷰가 있으면 자동으로 로드뷰 탭으로 전환
+  useEffect(() => {
+    if (images.length === 0 && hasRoadView && viewMode === 'images') {
+      setViewMode('roadview')
+    }
+  }, [images.length, hasRoadView, viewMode])
 
   const handleImageClick = (index: number) => {
     setSelectedIndex(index)
     onImageClick?.(index)
   }
-
-  const hasRoadView = (verifiedLat || latitude) && (verifiedLng || longitude)
 
   const mainImage = images[selectedIndex] || images[0]
   const subImages = images.slice(1, 3)
@@ -247,8 +268,8 @@ export default function PropertyImageGallery({
         </div>
       )}
 
-      {/* 이미지가 없을 때 빈 컨테이너 표시 */}
-      {viewMode === 'images' && images.length === 0 && (
+      {/* 이미지가 없을 때 빈 컨테이너 표시 (로드뷰가 없을 때만) */}
+      {viewMode === 'images' && images.length === 0 && !hasRoadView && (
         <div className="w-full h-[400px] md:h-[480px] rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
           <div className="text-center p-8">
             <span className="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500 mb-4 block">
@@ -264,11 +285,28 @@ export default function PropertyImageGallery({
         </div>
       )}
 
+      {/* 이미지가 없고 로드뷰가 있을 때는 로드뷰로 자동 전환 */}
+      {viewMode === 'images' && images.length === 0 && hasRoadView && (
+        <div className="w-full h-[400px] md:h-[480px] rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+          <div className="text-center p-8">
+            <span className="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500 mb-4 block">
+              image
+            </span>
+            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+              등록된 이미지가 없습니다
+            </p>
+            <p className="text-gray-400 dark:text-gray-500 text-xs mt-2">
+              로드뷰 탭에서 위치를 확인할 수 있습니다
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 로드뷰 + 항공뷰 */}
       {viewMode === 'roadview' && hasRoadView && (
-        <div className="flex gap-4 rounded-xl overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-4 rounded-xl overflow-hidden">
           {/* 로드뷰 (50%) */}
-          <div className="w-1/2 rounded-xl overflow-hidden">
+          <div className="w-full md:w-1/2 rounded-xl overflow-hidden">
             {process.env.NODE_ENV === 'development' && (
               <div className="text-xs text-blue-600 dark:text-blue-400 p-2 bg-blue-50 dark:bg-blue-900/20">
                 {isVerifying ? '좌표 검증 중...' : (
@@ -287,12 +325,12 @@ export default function PropertyImageGallery({
             <KakaoRoadView
               latitude={verifiedLat || latitude!}
               longitude={verifiedLng || longitude!}
-              height="480px"
+              height="300px"
               className="w-full"
             />
           </div>
           {/* 항공뷰 (50%) */}
-          <div className="w-1/2 rounded-xl overflow-hidden">
+          <div className="w-full md:w-1/2 rounded-xl overflow-hidden">
             {process.env.NODE_ENV === 'development' && (
               <div className="text-xs text-blue-600 dark:text-blue-400 p-2 bg-blue-50 dark:bg-blue-900/20">
                 {isVerifying ? '좌표 검증 중...' : (
@@ -311,7 +349,7 @@ export default function PropertyImageGallery({
             <KakaoAerialView
               latitude={verifiedLat || latitude!}
               longitude={verifiedLng || longitude!}
-              height="480px"
+              height="300px"
               className="w-full"
             />
           </div>

@@ -82,14 +82,14 @@ export default function KakaoRoadView({
         })
       }
 
-      // 타임아웃 설정
+      // 타임아웃 설정 (3초로 단축)
       const timeoutId = setTimeout(() => {
         if (process.env.NODE_ENV === 'development') {
           console.warn('⚠️ KakaoRoadView - 타임아웃')
         }
         setError('로드뷰를 불러오는 데 시간이 너무 오래 걸립니다.')
         setLoading(false)
-      }, 10000)
+      }, 3000)
 
       // roadviewClient.getNearestPanoId(position, 50, function(panoId) {
       //     roadview.setPanoId(panoId, position);
@@ -156,16 +156,16 @@ export default function KakaoRoadView({
       return
     }
 
-    // Script가 이미 로드 중이거나 로드된 경우 대기
+    // Script가 이미 로드 중이거나 로드된 경우 빠르게 체크 (50ms 간격)
     const checkInterval = setInterval(() => {
       if (window.kakao && window.kakao.maps && window.kakao.maps.Roadview) {
         clearInterval(checkInterval)
         setRoadviewLoaded(true)
       }
-    }, 100)
+    }, 50)
 
-    // 최대 10초 대기
-    setTimeout(() => {
+    // 최대 5초 대기 (1초에서 5초로 증가하되, 체크 간격은 더 빠르게)
+    const timeoutId = setTimeout(() => {
       clearInterval(checkInterval)
       if (!window.kakao || !window.kakao.maps || !window.kakao.maps.Roadview) {
         // Script가 없으면 로드 시도
@@ -175,9 +175,8 @@ export default function KakaoRoadView({
         script.onload = () => {
           if (window.kakao && window.kakao.maps) {
             window.kakao.maps.load(() => {
-              setTimeout(() => {
-                setRoadviewLoaded(true)
-              }, 500)
+              // setTimeout 제거하여 즉시 로드
+              setRoadviewLoaded(true)
             })
           }
         }
@@ -187,7 +186,12 @@ export default function KakaoRoadView({
         }
         document.head.appendChild(script)
       }
-    }, 1000)
+    }, 200) // 1초에서 200ms로 단축
+
+    return () => {
+      clearInterval(checkInterval)
+      clearTimeout(timeoutId)
+    }
   }, [KAKAO_MAP_API_KEY])
 
   return (

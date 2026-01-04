@@ -25,9 +25,9 @@ export default function Home() {
   // }, [router])
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden overflow-y-auto">
+    <div className="min-h-screen relative overflow-x-hidden">
       {/* Background Image - Sharp and Clear */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=100&w=2400&auto=format&fit=crop"
           alt="Bright Modern Office Interior"
@@ -45,7 +45,7 @@ export default function Home() {
         <Header showSearch={false} showLogin={true} glassmorphism={true} />
       </div>
 
-      <main className="relative z-10 flex min-h-[calc(100vh-64px)] flex-col items-center justify-center p-4 md:p-16">
+      <main className="relative z-10 flex min-h-[calc(100vh-64px)] flex-col items-center justify-center p-4 md:p-16 pb-8 md:pb-16">
         <div className="text-center max-w-4xl mx-auto">
           {/* Hero Section with Glass Effect */}
           <div className="backdrop-blur-xl bg-white/10 dark:bg-slate-900/10 border border-white/20 dark:border-white/10 rounded-2xl p-6 md:p-8 mb-6 shadow-2xl">
