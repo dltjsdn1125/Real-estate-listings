@@ -44,8 +44,8 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
               {backButton}
             </div>
           )}
-          {/* 모바일에서 로그아웃 버튼을 최 좌측에 배치 (뒤로가기 버튼이 없을 때만) */}
-          {!backButton && isAuthenticated && user && (
+          {/* 모바일에서 로그아웃 버튼을 최 좌측에 배치 (뒤로가기 버튼이 없을 때만) - 로딩 중에는 숨김 */}
+          {!loading && !backButton && isAuthenticated && user && (
             <button
               onClick={handleLogout}
               className={`md:hidden flex h-10 px-3 items-center justify-center rounded-lg text-sm font-bold transition-colors ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
@@ -53,8 +53,8 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
               로그아웃
             </button>
           )}
-          {/* 로그아웃 버튼 (뒤로가기 버튼과 같은 행, 뒤로가기 버튼 다음에 배치) */}
-          {backButton && isAuthenticated && user && (
+          {/* 로그아웃 버튼 (뒤로가기 버튼과 같은 행, 뒤로가기 버튼 다음에 배치) - 로딩 중에는 숨김 */}
+          {!loading && backButton && isAuthenticated && user && (
             <button
               onClick={handleLogout}
               className={`md:hidden flex h-10 px-3 items-center justify-center rounded-lg text-sm font-bold transition-colors ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
@@ -131,7 +131,13 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
                 {backButton}
               </div>
             )}
-            {isAuthenticated && user ? (
+            {/* 로딩 중일 때는 스켈레톤 표시 */}
+            {loading ? (
+              <div className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg animate-pulse ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800'}`}>
+                <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+                <div className="w-20 h-4 rounded bg-gray-300 dark:bg-gray-600"></div>
+              </div>
+            ) : isAuthenticated && user ? (
               <>
                 {/* User Info */}
                 <div className={`hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800'}`}>

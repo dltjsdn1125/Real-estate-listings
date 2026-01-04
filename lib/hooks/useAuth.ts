@@ -4,8 +4,38 @@ import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { User } from '@/lib/supabase/types'
 
+// 로컬 스토리지에서 캐시된 사용자 정보 가져오기 (초기 렌더링 최적화용)
+function getCachedUser(): User | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const cached = localStorage.getItem('daegu_cached_user')
+    if (cached) {
+      return JSON.parse(cached)
+    }
+  } catch {
+    // 파싱 실패 시 무시
+  }
+  return null
+}
+
+// 사용자 정보 캐시에 저장
+function setCachedUser(user: User | null) {
+  if (typeof window === 'undefined') return
+  try {
+    if (user) {
+      localStorage.setItem('daegu_cached_user', JSON.stringify(user))
+    } else {
+      localStorage.removeItem('daegu_cached_user')
+    }
+  } catch {
+    // 저장 실패 시 무시
+  }
+}
+
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
+  // 초기 상태를 캐시에서 가져오기 (깜빡임 방지)
+  const cachedUser = useRef(getCachedUser())
+  const [user, setUser] = useState<User | null>(cachedUser.current)
   const [loading, setLoading] = useState(true)
   const [authUser, setAuthUser] = useState<any>(null)
   const initialCheckDone = useRef(false)
@@ -52,9 +82,10 @@ export function useAuth() {
           if (!isInvalidTokenError && process.env.NODE_ENV === 'development') {
             console.warn('Auth check error:', authError.message)
           }
-          
+
           setAuthUser(null)
           setUser(null)
+          setCachedUser(null) // 캐시도 삭제
           setLoading(false)
           return
         }
@@ -79,7 +110,11 @@ export function useAuth() {
 
           if (!error && data) {
             setUser(data)
+            setCachedUser(data) // 캐시에 저장
           }
+        } else {
+          // 인증된 사용자가 없으면 캐시도 삭제
+          setCachedUser(null)
         }
       } catch (error: any) {
         // 무효한 토큰 오류 처리
@@ -98,6 +133,7 @@ export function useAuth() {
           }
           setAuthUser(null)
           setUser(null)
+          setCachedUser(null) // 캐시도 삭제
         }
 
         // AuthSessionMissingError는 세션이 없는 정상적인 상태이므로 에러로 로깅하지 않음
@@ -142,6 +178,7 @@ export function useAuth() {
       if (event === 'SIGNED_OUT') {
         setAuthUser(null)
         setUser(null)
+        setCachedUser(null) // 캐시도 삭제
         return
       }
 
@@ -164,6 +201,7 @@ export function useAuth() {
 
         if (data) {
           setUser(data)
+          setCachedUser(data) // 캐시에 저장
         }
       }
     })
@@ -209,6 +247,7 @@ export function useAuth() {
     await supabase.auth.signOut()
     setUser(null)
     setAuthUser(null)
+    setCachedUser(null) // 캐시도 삭제
   }
 
   return {

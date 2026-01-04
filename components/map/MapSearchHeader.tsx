@@ -187,7 +187,13 @@ export default function MapSearchHeader({
             )}
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
-            {isAuthenticated && user ? (
+            {/* 로딩 중일 때는 스켈레톤 표시 */}
+            {loading ? (
+              <div className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800 animate-pulse">
+                <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+                <div className="w-20 h-4 rounded bg-gray-300 dark:bg-gray-600"></div>
+              </div>
+            ) : isAuthenticated && user ? (
               <>
                 {/* User Info - Desktop Only */}
                 <div className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg bg-[#f0f2f4] dark:bg-gray-800">

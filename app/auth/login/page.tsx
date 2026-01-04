@@ -36,12 +36,34 @@ export default function LoginPage() {
         // 잠시 대기 (세션이 완전히 설정될 때까지)
         await new Promise((resolve) => setTimeout(resolve, 500))
 
-        // 승인 상태 확인
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('approval_status, role')
-          .eq('id', data.user.id)
-          .single()
+        // 승인 상태 확인 (재시도 로직 추가)
+        let userData = null
+        let userError = null
+        let retryCount = 0
+        const maxRetries = 3
+
+        while (retryCount < maxRetries) {
+          const result = await supabase
+            .from('users')
+            .select('approval_status, role')
+            .eq('id', data.user.id)
+            .single()
+
+          userData = result.data
+          userError = result.error
+
+          // 성공하거나 RLS 오류가 아니면 종료
+          if (!userError || (userError.code !== 'PGRST301' && !userError.message?.includes('RLS') && userError.code !== '42501')) {
+            break
+          }
+
+          // RLS 오류인 경우 재시도 (세션이 완전히 설정될 때까지 대기)
+          retryCount++
+          if (retryCount < maxRetries) {
+            console.log(`사용자 정보 조회 재시도 ${retryCount}/${maxRetries - 1}`)
+            await new Promise((resolve) => setTimeout(resolve, 500 * retryCount)) // 점진적 대기
+          }
+        }
 
         // RLS 정책 오류 시에도 진행 (승인 상태를 확인할 수 없으면 일단 진행)
         if (userError) {
@@ -58,7 +80,10 @@ export default function LoginPage() {
             window.location.href = '/auth/pending'
             return
           }
-          throw new Error('사용자 정보를 불러올 수 없습니다.')
+          // 기타 오류는 에러 표시하지 않고 맵 페이지로 이동 (useAuth에서 처리)
+          console.warn('사용자 정보 조회 실패, 맵 페이지로 이동:', userError)
+          window.location.href = '/map'
+          return
         }
 
         console.log('사용자 정보:', { approval_status: userData?.approval_status, role: userData?.role })

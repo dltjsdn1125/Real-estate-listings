@@ -114,6 +114,13 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
+    // 로그인/회원가입 페이지는 클라이언트에서 처리하도록 허용
+    // (세션 설정 직후 미들웨어가 실행될 때 에러 방지)
+    if (pathname === '/auth/login' || pathname === '/auth/signup') {
+      // 로그인 직후 세션이 완전히 설정되기 전에는 클라이언트에서 처리하도록 허용
+      return response
+    }
+
     // 승인 상태 확인 (에러 처리 추가)
     try {
       const { data: userData, error: userError } = await supabase
@@ -124,7 +131,10 @@ export async function middleware(request: NextRequest) {
 
       // 데이터베이스 조회 오류 시 기본 응답 반환 (무한 리다이렉트 방지)
       if (userError) {
-        console.error('Middleware - User data fetch error:', userError)
+        // 개발 환경에서만 로깅 (프로덕션에서는 로그 축소)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Middleware - User data fetch error:', userError)
+        }
         // 오류 발생 시에도 페이지 접근 허용 (클라이언트에서 처리)
         return response
       }
@@ -137,8 +147,11 @@ export async function middleware(request: NextRequest) {
       // 승인된 사용자는 map으로 리다이렉트
       return NextResponse.redirect(new URL('/map', request.url))
     } catch (error) {
-      console.error('Middleware - Auth page access error:', error)
-      // 에러 발생 시 기본 응답 반환
+      // 개발 환경에서만 로깅
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Middleware - Auth page access error:', error)
+      }
+      // 에러 발생 시 기본 응답 반환 (500 에러 방지)
       return response
     }
   }

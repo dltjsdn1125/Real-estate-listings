@@ -59,6 +59,34 @@ export default function KakaoMap({
   const [pinItMarker, setPinItMarker] = useState<any>(null) // Pin it 모드 마커
   const [selectedLocationMarker, setSelectedLocationMarker] = useState<any>(null) // 선택된 위치 마커
   const pendingCenterRef = useRef<{ lat: number; lng: number } | undefined>(undefined) // 지도가 준비되기 전에 설정된 center 저장
+  
+  // BFCache 정리를 위해 최신 상태를 ref로 저장
+  const markersRef = useRef<any[]>([])
+  const clustererRef = useRef<any>(null)
+  const userMarkerRef = useRef<any>(null)
+  const pinItMarkerRef = useRef<any>(null)
+  const selectedLocationMarkerRef = useRef<any>(null)
+  
+  // 상태와 ref 동기화
+  useEffect(() => {
+    markersRef.current = markers
+  }, [markers])
+  
+  useEffect(() => {
+    clustererRef.current = clusterer
+  }, [clusterer])
+  
+  useEffect(() => {
+    userMarkerRef.current = userMarker
+  }, [userMarker])
+  
+  useEffect(() => {
+    pinItMarkerRef.current = pinItMarker
+  }, [pinItMarker])
+  
+  useEffect(() => {
+    selectedLocationMarkerRef.current = selectedLocationMarker
+  }, [selectedLocationMarker])
 
   // pinItMode를 ref로 저장하여 이벤트 핸들러에서 최신 값 참조
   const pinItModeRef = useRef(pinItMode)
@@ -208,13 +236,272 @@ export default function KakaoMap({
     }
   }, [map, userLocation])
 
+  // 지도 초기화 함수 (재사용 가능하도록 분리)
+  const initializeMap = useCallback(() => {
+    // 조건 확인
+    if (!window.kakao || !window.kakao.maps) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - API가 아직 로드되지 않음')
+      }
+      return false
+    }
+
+    // 이미 지도가 있으면 스킵
+    if (mapInstanceRef.current) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - 이미 지도 인스턴스가 존재함')
+      }
+      return false
+    }
+
+    // mapRef가 없으면 스킵
+    if (!mapRef.current) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - mapRef가 없음')
+      }
+      return false
+    }
+
+    try {
+      // mapRef의 innerHTML을 완전히 정리 (BFCache 복원 시 이전 DOM 제거)
+      if (mapRef.current.innerHTML) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 KakaoMap - mapRef DOM 정리 중...')
+        }
+        mapRef.current.innerHTML = ''
+      }
+
+      // 중심 좌표 결정
+      const defaultCenter = pendingCenterRef.current || center || userLocation || { lat: 35.8714, lng: 128.6014 }
+
+      // 고해상도 지도 옵션
+      const mapOption = {
+        center: new window.kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
+        level: level,
+      }
+
+      // 지도 생성
+      const kakaoMap = new window.kakao.maps.Map(mapRef.current, mapOption)
+      mapInstanceRef.current = kakaoMap
+      setMap(kakaoMap)
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ KakaoMap - 지도 초기화 완료')
+      }
+      
+      // 마커 클러스터러 생성
+      if (window.kakao.maps.MarkerClusterer) {
+        try {
+          const markerClusterer = new window.kakao.maps.MarkerClusterer({
+            map: kakaoMap,
+            averageCenter: true,
+            minLevel: 5,
+            disableClickZoom: false,
+            styles: [
+              {
+                width: '40px',
+                height: '40px',
+                background: 'rgba(255, 0, 0, 0.6)',
+                borderRadius: '20px',
+                color: '#fff',
+                textAlign: 'center',
+                fontWeight: 'bold',
+                lineHeight: '40px',
+              },
+            ],
+          })
+          setClusterer(markerClusterer)
+        } catch (error) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('MarkerClusterer 생성 실패:', error)
+          }
+          setClusterer(null)
+        }
+      } else {
+        setClusterer(null)
+      }
+
+      // 지도 클릭 이벤트 추가
+      window.kakao.maps.event.addListener(kakaoMap, 'click', (mouseEvent: any) => {
+        const latlng = mouseEvent.latLng
+        const lat = latlng.getLat()
+        const lng = latlng.getLng()
+
+        if (pinItModeRef.current && kakaoMap) {
+          setPinItMarker((prevMarker: any) => {
+            if (prevMarker) {
+              prevMarker.setMap(null)
+            }
+            return null
+          })
+
+          const marker = new window.kakao.maps.Marker({
+            position: latlng,
+            map: kakaoMap,
+            image: new window.kakao.maps.MarkerImage(
+              'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+              new window.kakao.maps.Size(64, 69),
+              { offset: new window.kakao.maps.Point(32, 69) }
+            ),
+            zIndex: 2000,
+          })
+          setPinItMarker(marker)
+        }
+
+        onMapClickRef.current?.(lat, lng)
+      })
+
+      // 지도 준비 완료 콜백
+      onMapReady?.(kakaoMap)
+
+      // 지도 영역 변경 시 bounds 전달
+      window.kakao.maps.event.addListener(kakaoMap, 'idle', () => {
+        if (onBoundsChangeRef.current) {
+          const bounds = kakaoMap.getBounds()
+          const sw = bounds.getSouthWest()
+          const ne = bounds.getNorthEast()
+          onBoundsChangeRef.current({
+            sw: { lat: sw.getLat(), lng: sw.getLng() },
+            ne: { lat: ne.getLat(), lng: ne.getLng() },
+          })
+        }
+      })
+
+      return true
+    } catch (error) {
+      console.error('❌ 지도 초기화 오류:', error)
+      return false
+    }
+  }, [center, level, userLocation, onMapReady])
+
   // BFCache 복원 감지 및 지도 재초기화
   useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        // BFCache에서 복원된 경우 - 지도를 완전히 리셋하고 재초기화
+    const forceReinit = () => {
+      // 지도가 없으면 강제로 재초기화
+      if (!mapInstanceRef.current && window.kakao && window.kakao.maps) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('🔄 KakaoMap - BFCache 복원 감지, 지도 재초기화')
+          console.log('🔄 KakaoMap - 지도가 없음, 강제 재초기화 시도')
+        }
+        
+        // mapLoaded 상태를 false로 설정한 다음 true로 설정하여 초기화 useEffect가 트리거되도록 함
+        setMapLoaded(false)
+        
+        // 재시도 로직 (mapRef가 준비될 때까지 대기)
+        let retryCount = 0
+        const maxRetries = 20
+        const retryInterval = 200
+        
+        const attemptInit = () => {
+          // mapRef가 준비되었는지 확인
+          if (!mapRef.current) {
+            if (retryCount < maxRetries) {
+              retryCount++
+              if (process.env.NODE_ENV === 'development') {
+                console.log(`🔄 KakaoMap - mapRef 대기 중 ${retryCount}/${maxRetries}`)
+              }
+              setTimeout(attemptInit, retryInterval)
+            } else {
+              if (process.env.NODE_ENV === 'development') {
+                console.error('❌ KakaoMap - mapRef 준비 실패, mapLoaded를 true로 설정하여 재시도')
+              }
+              // mapRef가 없어도 mapLoaded를 true로 설정하여 초기화 useEffect가 트리거되도록 함
+              setMapLoaded(true)
+            }
+            return
+          }
+          
+          // mapRef가 준비되었으면 mapLoaded를 true로 설정하여 초기화 useEffect 트리거
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ KakaoMap - mapRef 준비 완료, mapLoaded를 true로 설정')
+          }
+          setMapLoaded(true)
+        }
+        
+        setTimeout(attemptInit, 100)
+      } else if (!window.kakao || !window.kakao.maps) {
+        // API가 아직 로드되지 않았으면 false로 설정하여 Script의 onLoad가 처리하도록
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ KakaoMap - API가 아직 로드되지 않음')
+        }
+        setMapLoaded(false)
+      }
+    }
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      // 항상 로그 출력 (pageshow 이벤트 감지 확인)
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 KakaoMap - pageshow 이벤트 감지 (persisted:', event.persisted, ', mapInstanceRef:', !!mapInstanceRef.current, ', mapRef:', !!mapRef.current, ')')
+      }
+      
+      // BFCache에서 복원된 경우 또는 일반 페이지 표시 시 지도 상태 확인
+      if (event.persisted || true) { // 항상 확인하도록 변경
+        // 기존 지도 인스턴스 정리 (ref를 사용하여 최신 값 참조)
+        if (mapInstanceRef.current) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔄 KakaoMap - 기존 지도 인스턴스 정리 중...')
+          }
+          try {
+            // 모든 마커 제거 (ref로 최신 값 참조)
+            const currentMarkers = markersRef.current
+            if (currentMarkers.length > 0) {
+              currentMarkers.forEach((marker) => {
+                try {
+                  marker.setMap(null)
+                } catch (e) {
+                  // 무시
+                }
+              })
+            }
+            // 클러스터러 제거 (ref로 최신 값 참조)
+            const currentClusterer = clustererRef.current
+            if (currentClusterer) {
+              try {
+                currentClusterer.clear()
+              } catch (e) {
+                // 무시
+              }
+            }
+            // 사용자 마커 제거 (ref로 최신 값 참조)
+            const currentUserMarker = userMarkerRef.current
+            if (currentUserMarker) {
+              try {
+                currentUserMarker.setMap(null)
+              } catch (e) {
+                // 무시
+              }
+            }
+            // Pin it 마커 제거 (ref로 최신 값 참조)
+            const currentPinItMarker = pinItMarkerRef.current
+            if (currentPinItMarker) {
+              try {
+                currentPinItMarker.setMap(null)
+              } catch (e) {
+                // 무시
+              }
+            }
+            // 선택된 위치 마커 제거 (ref로 최신 값 참조)
+            const currentSelectedLocationMarker = selectedLocationMarkerRef.current
+            if (currentSelectedLocationMarker) {
+              try {
+                currentSelectedLocationMarker.setMap(null)
+              } catch (e) {
+                // 무시
+              }
+            }
+            // 지도 인스턴스 제거
+            try {
+              if (mapRef.current) {
+                mapRef.current.innerHTML = ''
+              }
+            } catch (e) {
+              // 무시
+            }
+          } catch (e) {
+            // 정리 오류 무시
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('⚠️ KakaoMap - 지도 인스턴스 정리 중 오류:', e)
+            }
+          }
         }
         
         // 모든 상태 및 ref 리셋
@@ -224,173 +511,243 @@ export default function KakaoMap({
         setClusterer(null)
         setSelectedLocationMarker(null)
         setPinItMarker(null)
+        setUserMarker(null)
+        pendingCenterRef.current = undefined // pendingCenter도 초기화
         
-        // Kakao Maps API가 이미 로드되어 있으면 바로 재초기화
-        // Script의 onLoad는 이미 로드된 스크립트에 대해 다시 실행되지 않으므로
-        // 직접 mapLoaded를 true로 설정하여 재초기화 트리거
-        if (window.kakao && window.kakao.maps) {
-          if (process.env.NODE_ENV === 'development') {
-            console.log('🔄 KakaoMap - API 이미 로드됨, 즉시 재초기화')
+        // ref들도 초기화
+        markersRef.current = []
+        clustererRef.current = null
+        userMarkerRef.current = null
+        pinItMarkerRef.current = null
+        selectedLocationMarkerRef.current = null
+        
+        // mapRef의 innerHTML을 완전히 정리 (BFCache 복원 시 이전 DOM 제거)
+        if (mapRef.current && mapRef.current.innerHTML) {
+          try {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('🔄 KakaoMap - pageshow 시 mapRef DOM 추가 정리')
+            }
+            mapRef.current.innerHTML = ''
+          } catch (e) {
+            // 정리 오류 무시
           }
-          // 약간의 지연을 두고 mapLoaded를 true로 설정하여 재초기화 트리거
-          // mapRef가 준비될 시간을 주기 위해 지연
-          setTimeout(() => {
-            setMapLoaded(true)
-          }, 300)
-        } else {
-          // API가 아직 로드되지 않았으면 false로 설정하여 Script의 onLoad가 처리하도록
-          setMapLoaded(false)
         }
+        
+        // mapLoaded를 false로 설정
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 KakaoMap - mapLoaded를 false로 설정')
+        }
+        setMapLoaded(false)
+        
+        // DOM이 안정화될 시간을 주고 강제 재초기화 시도
+        setTimeout(() => {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔄 KakaoMap - pageshow 후 재초기화 시작 (mapRef:', !!mapRef.current, ', window.kakao:', !!window.kakao, ')')
+          }
+          
+          // mapRef가 준비될 때까지 대기
+          let retryCount = 0
+          const maxRetries = 50
+          const retryInterval = 100
+          
+          const checkAndReinit = () => {
+            if (!mapRef.current) {
+              if (retryCount < maxRetries) {
+                retryCount++
+                if (process.env.NODE_ENV === 'development' && retryCount % 5 === 0) {
+                  console.log(`🔄 KakaoMap - pageshow 후 mapRef 대기 중 ${retryCount}/${maxRetries}`)
+                }
+                setTimeout(checkAndReinit, retryInterval)
+              } else {
+                if (process.env.NODE_ENV === 'development') {
+                  console.error('❌ KakaoMap - mapRef 대기 한도 초과, mapLoaded를 true로 설정하여 재시도')
+                }
+                // mapRef가 없어도 mapLoaded를 true로 설정하여 초기화 useEffect가 트리거되도록 함
+                setMapLoaded(true)
+              }
+              return
+            }
+            
+            // mapRef가 준비되었으면 initializeMap을 직접 호출
+            if (process.env.NODE_ENV === 'development') {
+              console.log('✅ KakaoMap - pageshow 후 mapRef 준비 완료, initializeMap 직접 호출')
+            }
+            // mapLoaded를 true로 설정하고 initializeMap을 직접 호출
+            setMapLoaded(true)
+            // 약간의 지연 후 initializeMap 호출 (상태 업데이트 완료 대기)
+            setTimeout(() => {
+              if (mapRef.current && !mapInstanceRef.current) {
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('🔄 KakaoMap - pageshow 후 initializeMap 호출 시도')
+                }
+                const result = initializeMap()
+                if (result) {
+                  if (process.env.NODE_ENV === 'development') {
+                    console.log('✅ KakaoMap - pageshow 후 initializeMap 성공')
+                  }
+                } else {
+                  if (process.env.NODE_ENV === 'development') {
+                    console.error('❌ KakaoMap - pageshow 후 initializeMap 실패, 재시도...')
+                  }
+                  // 재시도
+                  setTimeout(() => {
+                    if (mapRef.current && !mapInstanceRef.current) {
+                      initializeMap()
+                    }
+                  }, 200)
+                }
+              } else {
+                if (process.env.NODE_ENV === 'development') {
+                  console.warn('⚠️ KakaoMap - pageshow 후 initializeMap 호출 스킵 (mapRef:', !!mapRef.current, ', mapInstanceRef:', !!mapInstanceRef.current, ')')
+                }
+              }
+            }, 100)
+          }
+          
+          checkAndReinit()
+        }, 200)
       }
     }
 
-    window.addEventListener('pageshow', handlePageShow)
-    return () => {
-      window.removeEventListener('pageshow', handlePageShow)
-    }
-  }, [])
-
-  // 지도 초기화
-  useEffect(() => {
-    // 지도가 이미 생성되었거나 필요한 조건이 충족되지 않으면 리턴
-    // mapInstanceRef도 확인하여 이미 지도가 있으면 스킵
-    if (map || mapInstanceRef.current || !mapLoaded || !window.kakao || !window.kakao.maps) {
-      return
+    // focus 이벤트도 감지하여 지도가 없을 때 재초기화
+    const handleFocus = () => {
+      // 약간의 지연 후 지도 상태 확인 (페이지 전환 후 DOM이 안정화될 시간을 줌)
+      setTimeout(() => {
+        forceReinit()
+      }, 300)
     }
 
-    // mapRef가 준비될 때까지 대기
-    const checkAndInit = () => {
-      if (!mapRef.current || map || mapInstanceRef.current) return
-
-      try {
-        // 중심 좌표 결정 (우선순위: pendingCenterRef > props center > GPS 위치 > 대구 중심)
-        const defaultCenter = pendingCenterRef.current || center || userLocation || { lat: 35.8714, lng: 128.6014 }
-
-        // 고해상도 지도 옵션
-        const mapOption = {
-          center: new window.kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
-          level: level, // 지도 확대/축소 레벨 (3-14, 낮을수록 확대)
-        }
-
-        // 지도 생성
-        const kakaoMap = new window.kakao.maps.Map(mapRef.current, mapOption)
-        mapInstanceRef.current = kakaoMap // ref에도 저장 (항상 최신 상태 유지)
-        setMap(kakaoMap)
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log('✅ KakaoMap - mapInstanceRef 설정 완료:', !!mapInstanceRef.current)
-        }
-        
-        // pendingCenterRef가 있으면 사용 후 초기화하지 않음 (나중에 center useEffect에서 처리)
-        // 초기화 시에는 이미 defaultCenter로 사용되었으므로 그대로 두고,
-        // map이 설정된 후 useEffect에서 pendingCenterRef를 확인하여 추가 이동 처리
-
-        // 마커 클러스터러 생성 (존재하는 경우에만)
-        if (window.kakao.maps.MarkerClusterer) {
-          try {
-            const markerClusterer = new window.kakao.maps.MarkerClusterer({
-              map: kakaoMap,
-              averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치로 클러스터 마커 위치 설정
-              minLevel: 5, // 클러스터 할 최소 지도 레벨 (5 이상일 때 클러스터링)
-              disableClickZoom: false, // 클러스터 마커 클릭 시 지도 확대 활성화
-              styles: [
-                {
-                  // 클러스터 마커 스타일
-                  width: '40px',
-                  height: '40px',
-                  background: 'rgba(255, 0, 0, 0.6)',
-                  borderRadius: '20px',
-                  color: '#fff',
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  lineHeight: '40px',
-                },
-              ],
-            })
-            setClusterer(markerClusterer)
-          } catch (error) {
+    // pageshow 이벤트 리스너 등록 (캡처 단계에서도 감지하도록 { capture: true } 추가)
+    window.addEventListener('pageshow', handlePageShow, { capture: true })
+    window.addEventListener('focus', handleFocus)
+    
+    // visibilitychange 이벤트도 감지 (페이지가 보일 때)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        setTimeout(() => {
+          if (!mapInstanceRef.current && mapRef.current && window.kakao && window.kakao.maps) {
             if (process.env.NODE_ENV === 'development') {
-              console.warn('MarkerClusterer 생성 실패 (클러스터링 비활성화):', error)
+              console.log('🔄 KakaoMap - visibilitychange 이벤트로 지도 재초기화 시도')
             }
-            setClusterer(null)
+            forceReinit()
           }
-        } else {
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('MarkerClusterer를 사용할 수 없습니다 (클러스터링 비활성화)')
-          }
-          setClusterer(null)
-        }
+        }, 300)
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow, { capture: true })
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [initializeMap]) // initializeMap을 의존성 배열에 추가
 
-        // 지도 클릭 이벤트 추가
-        window.kakao.maps.event.addListener(kakaoMap, 'click', (mouseEvent: any) => {
-          const latlng = mouseEvent.latLng
-          const lat = latlng.getLat()
-          const lng = latlng.getLng()
-
-          // Pin it 모드일 때 빨간색 마커 표시 (ref로 최신 값 참조)
-          if (pinItModeRef.current && kakaoMap) {
-            // 기존 Pin it 마커 제거
-            setPinItMarker((prevMarker: any) => {
-              if (prevMarker) {
-                prevMarker.setMap(null)
-              }
-              return null
-            })
-
-            // 새로운 빨간색 마커 생성
-            const marker = new window.kakao.maps.Marker({
-              position: latlng,
-              map: kakaoMap,
-              image: new window.kakao.maps.MarkerImage(
-                'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-                new window.kakao.maps.Size(64, 69),
-                { offset: new window.kakao.maps.Point(32, 69) }
-              ),
-              zIndex: 2000, // 다른 마커보다 위에 표시
-            })
-            setPinItMarker(marker)
-          }
-
-          // ref로 최신 콜백 호출
-          onMapClickRef.current?.(lat, lng)
-        })
-
-        // 지도 준비 완료 콜백
-        onMapReady?.(kakaoMap)
-
-        // 지도 영역 변경 시 bounds 전달 (idle 이벤트: 지도 이동/줌 완료 후 발생)
-        window.kakao.maps.event.addListener(kakaoMap, 'idle', () => {
-          if (onBoundsChangeRef.current) {
-            const bounds = kakaoMap.getBounds()
-            const sw = bounds.getSouthWest()
-            const ne = bounds.getNorthEast()
-            onBoundsChangeRef.current({
-              sw: { lat: sw.getLat(), lng: sw.getLng() },
-              ne: { lat: ne.getLat(), lng: ne.getLng() },
-            })
-          }
-        })
-
+  // 컴포넌트 마운트 시 지도 상태 확인 및 초기화
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 지도 상태 확인
+    const checkMapStatus = () => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 KakaoMap - 컴포넌트 마운트 시 지도 상태 확인 (mapInstanceRef:', !!mapInstanceRef.current, ', mapRef:', !!mapRef.current, ', mapLoaded:', mapLoaded, ')')
+      }
+      
+      // mapInstanceRef가 없고 mapRef가 있으면 강제 초기화 시도
+      if (!mapInstanceRef.current && mapRef.current && window.kakao && window.kakao.maps) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('✅ Kakao Map 초기화 완료')
+          console.log('🔄 KakaoMap - 지도 인스턴스가 없고 mapRef가 있으므로 초기화 시도')
         }
-      } catch (error) {
-        console.error('❌ 지도 초기화 오류:', error)
+        // mapRef의 innerHTML을 정리한 후 초기화
+        if (mapRef.current.innerHTML) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔄 KakaoMap - 마운트 시 mapRef DOM 정리')
+          }
+          mapRef.current.innerHTML = ''
+        }
+        // mapLoaded를 true로 설정하여 초기화 useEffect가 트리거되도록 함
+        setMapLoaded(true)
+        // 약간의 지연 후 initializeMap 직접 호출
+        setTimeout(() => {
+          if (mapRef.current && !mapInstanceRef.current) {
+            initializeMap()
+          }
+        }, 100)
+      } else if (!mapInstanceRef.current && mapRef.current && (!window.kakao || !window.kakao.maps)) {
+        // API가 아직 로드되지 않았으면 mapLoaded를 false로 설정하여 Script의 onLoad가 처리하도록
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ KakaoMap - API가 아직 로드되지 않음, mapLoaded를 false로 설정')
+        }
         setMapLoaded(false)
       }
     }
-
-    // DOM이 준비될 때까지 대기
-    if (mapRef.current) {
-      checkAndInit()
-    } else {
-      const timer = setTimeout(() => {
-        checkAndInit()
-      }, 200)
-      return () => clearTimeout(timer)
+    
+    // 초기 확인
+    checkMapStatus()
+    
+    // 약간의 지연 후 다시 확인 (DOM이 완전히 렌더링된 후)
+    const timeoutId = setTimeout(checkMapStatus, 500)
+    
+    // 추가 확인 (1초 후) - BFCache 복원 시나리오 대응
+    const timeoutId2 = setTimeout(checkMapStatus, 1000)
+    
+    return () => {
+      clearTimeout(timeoutId)
+      clearTimeout(timeoutId2)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapLoaded])
+  }, [initializeMap]) // initializeMap을 의존성 배열에 추가
+
+  // 지도 초기화 (mapLoaded 변경 시)
+  useEffect(() => {
+    // 필요한 조건이 충족되지 않으면 리턴
+    if (!mapLoaded || !window.kakao || !window.kakao.maps) {
+      return
+    }
+
+    // mapInstanceRef가 이미 있으면 스킵
+    if (mapInstanceRef.current) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - 이미 지도 인스턴스가 존재함, 초기화 스킵')
+      }
+      return
+    }
+
+    // mapRef가 준비될 때까지 대기 및 재시도
+    if (mapRef.current) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 KakaoMap - mapLoaded가 true이고 mapRef가 준비되었으므로 initializeMap 호출')
+      }
+      initializeMap()
+    } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 KakaoMap - mapLoaded가 true이지만 mapRef가 없음, 재시도 시작')
+      }
+      // mapRef가 없을 때 여러 번 재시도
+      let retryCount = 0
+      const maxRetries = 30
+      const retryInterval = 100
+      
+      const retryTimer = setInterval(() => {
+        retryCount++
+        if (mapRef.current) {
+          clearInterval(retryTimer)
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ KakaoMap - mapRef 준비 완료, initializeMap 호출')
+          }
+          initializeMap()
+        } else if (retryCount >= maxRetries) {
+          clearInterval(retryTimer)
+          if (process.env.NODE_ENV === 'development') {
+            console.error('❌ KakaoMap - mapRef 재시도 한도 초과')
+          }
+        } else if (retryCount % 5 === 0) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`🔄 KakaoMap - mapRef 재시도 중 ${retryCount}/${maxRetries}`)
+          }
+        }
+      }, retryInterval)
+      
+      return () => clearInterval(retryTimer)
+    }
+  }, [mapLoaded, initializeMap])
 
   // 지도가 준비되면 사용자 위치 마커 표시
   useEffect(() => {
