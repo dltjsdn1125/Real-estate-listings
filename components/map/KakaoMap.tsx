@@ -228,27 +228,41 @@ export default function KakaoMap({
         const kakaoMap = new window.kakao.maps.Map(mapRef.current, mapOption)
         setMap(kakaoMap)
 
-        // 마커 클러스터러 생성
-        const markerClusterer = new window.kakao.maps.MarkerClusterer({
-          map: kakaoMap,
-          averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치로 클러스터 마커 위치 설정
-          minLevel: 5, // 클러스터 할 최소 지도 레벨 (5 이상일 때 클러스터링)
-          disableClickZoom: false, // 클러스터 마커 클릭 시 지도 확대 활성화
-          styles: [
-            {
-              // 클러스터 마커 스타일
-              width: '40px',
-              height: '40px',
-              background: 'rgba(255, 0, 0, 0.6)',
-              borderRadius: '20px',
-              color: '#fff',
-              textAlign: 'center',
-              fontWeight: 'bold',
-              lineHeight: '40px',
-            },
-          ],
-        })
-        setClusterer(markerClusterer)
+        // 마커 클러스터러 생성 (존재하는 경우에만)
+        if (window.kakao.maps.MarkerClusterer) {
+          try {
+            const markerClusterer = new window.kakao.maps.MarkerClusterer({
+              map: kakaoMap,
+              averageCenter: true, // 클러스터에 포함된 마커들의 평균 위치로 클러스터 마커 위치 설정
+              minLevel: 5, // 클러스터 할 최소 지도 레벨 (5 이상일 때 클러스터링)
+              disableClickZoom: false, // 클러스터 마커 클릭 시 지도 확대 활성화
+              styles: [
+                {
+                  // 클러스터 마커 스타일
+                  width: '40px',
+                  height: '40px',
+                  background: 'rgba(255, 0, 0, 0.6)',
+                  borderRadius: '20px',
+                  color: '#fff',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  lineHeight: '40px',
+                },
+              ],
+            })
+            setClusterer(markerClusterer)
+          } catch (error) {
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('MarkerClusterer 생성 실패 (클러스터링 비활성화):', error)
+            }
+            setClusterer(null)
+          }
+        } else {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('MarkerClusterer를 사용할 수 없습니다 (클러스터링 비활성화)')
+          }
+          setClusterer(null)
+        }
 
         // 지도 클릭 이벤트 추가
         window.kakao.maps.event.addListener(kakaoMap, 'click', (mouseEvent: any) => {
@@ -401,8 +415,16 @@ export default function KakaoMap({
       newMarkers.push(marker)
     })
 
-    // 클러스터러에 마커 추가
-    clusterer.addMarkers(newMarkers)
+    // 클러스터러에 마커 추가 (클러스터러가 있는 경우에만)
+    if (clusterer && clusterer.addMarkers) {
+      try {
+        clusterer.addMarkers(newMarkers)
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('클러스터러에 마커 추가 실패:', error)
+        }
+      }
+    }
     setMarkers(newMarkers)
 
     // 모든 마커가 보이도록 지도 범위 조정

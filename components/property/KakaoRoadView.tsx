@@ -186,16 +186,37 @@ function KakaoRoadView({
         checkIntervalRef.current = null
       }
 
-      // Roadview 인스턴스 정리
+      // Roadview 인스턴스 정리 (안전하게)
       try {
-        if (roadviewRef.current && containerRef.current) {
-          // Kakao Maps Roadview가 DOM에서 자동으로 제거되도록 함
-          // 직접 제거하려고 하면 오류가 발생할 수 있음
+        // containerRef가 여전히 DOM에 연결되어 있는지 확인
+        if (containerRef.current && containerRef.current.parentNode) {
+          // Roadview 인스턴스가 있는 경우 안전하게 정리
+          if (roadviewRef.current) {
+            try {
+              // Kakao Maps의 내부 정리 메서드가 있다면 호출
+              if (typeof roadviewRef.current.relayout === 'function') {
+                roadviewRef.current.relayout()
+              }
+            } catch (e) {
+              // relayout 오류는 무시
+            }
+            // ref만 null로 설정 (DOM은 React가 정리)
+            roadviewRef.current = null
+          }
+        } else {
+          // containerRef가 이미 DOM에서 제거된 경우 ref만 정리
           roadviewRef.current = null
         }
-        clientRef.current = null
+        
+        // Client ref 정리
+        if (clientRef.current) {
+          clientRef.current = null
+        }
       } catch (e) {
-        // 정리 중 오류 무시
+        // 정리 중 발생한 모든 오류 무시 (React가 이미 DOM을 정리했을 수 있음)
+        if (process.env.NODE_ENV === 'development') {
+          console.debug('KakaoRoadView cleanup 오류 (무시됨):', e)
+        }
       }
     }
   }, [latitude, longitude])
