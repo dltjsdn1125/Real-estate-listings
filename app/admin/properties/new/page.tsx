@@ -208,6 +208,7 @@ export default function NewPropertyPage() {
         immediate_move_in: formData.immediate_move_in,
         is_public: formData.is_public,
         is_premium: formData.is_premium,
+        is_blurred: false,
         admin_notes: formData.admin_notes || null,
         created_by: user.id,
         agent_id: null,
