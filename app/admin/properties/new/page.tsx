@@ -68,6 +68,7 @@ export default function NewPropertyPage() {
     // 관리자 설정
     is_public: true,
     is_premium: false,
+    is_blurred: false,
     admin_notes: '',
     // 태그
     tags: [] as string[],
@@ -208,7 +209,7 @@ export default function NewPropertyPage() {
         immediate_move_in: formData.immediate_move_in,
         is_public: formData.is_public,
         is_premium: formData.is_premium,
-        is_blurred: false,
+        is_blurred: formData.is_blurred,
         admin_notes: formData.admin_notes || null,
         created_by: user.id,
         agent_id: null,
@@ -962,6 +963,26 @@ export default function NewPropertyPage() {
                             type="checkbox"
                             name="is_premium"
                             checked={formData.is_premium}
+                            onChange={handleInputChange}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                        </label>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3 p-4 rounded-lg bg-background-light dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-[#111318] dark:text-white">블러 처리</span>
+                          <span className="text-xs text-gray-500">
+                            매물 정보를 블러 처리하여 표시합니다.
+                          </span>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="is_blurred"
+                            checked={formData.is_blurred}
                             onChange={handleInputChange}
                             className="sr-only peer"
                           />
