@@ -128,6 +128,8 @@ interface Property {
   lat?: number
   lng?: number
   isOwner?: boolean
+  isBlurred?: boolean
+  canViewBlurred?: boolean
 }
 
 interface UnifiedSidebarProps {

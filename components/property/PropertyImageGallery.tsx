@@ -26,96 +26,22 @@ export default function PropertyImageGallery({
   onImageClick,
   latitude,
   longitude,
-  address,
-  title,
 }: PropertyImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(currentIndex)
   const [viewMode, setViewMode] = useState<'images' | 'roadview'>('images')
-  const [verifiedLat, setVerifiedLat] = useState<number | undefined>(latitude)
-  const [verifiedLng, setVerifiedLng] = useState<number | undefined>(longitude)
-  const [isVerifying, setIsVerifying] = useState(false)
 
-  // 로드뷰 사용 가능 여부: 좌표가 있으면 사용 가능 (검증 완료 여부와 무관)
-  // 이 변수는 useEffect에서 사용되므로 상단에 정의해야 함
-  const hasRoadView = Boolean((verifiedLat !== undefined ? verifiedLat : latitude) && (verifiedLng !== undefined ? verifiedLng : longitude))
-
-  // 클라이언트 사이드에서 좌표 검증 (제목과 주소 기반)
-  useEffect(() => {
-    if (typeof window === 'undefined' || !address || !title || !latitude || !longitude) {
-      return
-    }
-
-    const verifyCoordinates = async () => {
-      setIsVerifying(true)
-      try {
-        const { waitForKakaoMaps, findCoordinatesByAddressAndTitle } = await import('@/lib/utils/geocoding')
-        const kakaoReady = await waitForKakaoMaps()
-        
-        if (kakaoReady) {
-          const titleBasedCoords = await findCoordinatesByAddressAndTitle(address, title)
-          
-          if (titleBasedCoords) {
-            const latDiff = Math.abs(titleBasedCoords.lat - latitude)
-            const lngDiff = Math.abs(titleBasedCoords.lng - longitude)
-            
-            // 좌표 차이가 0.005도(약 500m) 이상이면 상호명 기반 좌표 사용
-            if (latDiff > 0.005 || lngDiff > 0.005) {
-              if (process.env.NODE_ENV === 'development') {
-                console.warn('⚠️ PropertyImageGallery - 좌표 불일치 감지, 상호명 기반 좌표 사용:', {
-                  제목: title,
-                  주소: address,
-                  원래좌표: { lat: latitude, lng: longitude },
-                  검증좌표: titleBasedCoords,
-                  차이: { lat: latDiff, lng: lngDiff }
-                })
-              }
-              setVerifiedLat(titleBasedCoords.lat)
-              setVerifiedLng(titleBasedCoords.lng)
-            } else {
-              setVerifiedLat(latitude)
-              setVerifiedLng(longitude)
-            }
-          } else {
-            setVerifiedLat(latitude)
-            setVerifiedLng(longitude)
-          }
-        } else {
-          setVerifiedLat(latitude)
-          setVerifiedLng(longitude)
-        }
-      } catch (error) {
-        console.error('좌표 검증 실패:', error)
-        setVerifiedLat(latitude)
-        setVerifiedLng(longitude)
-      } finally {
-        setIsVerifying(false)
-      }
-    }
-
-    verifyCoordinates()
-  }, [address, title, latitude, longitude])
+  // 로드뷰 사용 가능 여부: 좌표가 있으면 사용 가능
+  const hasRoadView = Boolean(latitude && longitude)
 
   // URL 해시를 확인하여 로드뷰 탭 자동 열기
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && hasRoadView) {
       const hash = window.location.hash
-      const hasCoords = (verifiedLat || latitude) && (verifiedLng || longitude)
-      if (hash === '#roadview' && hasCoords) {
+      if (hash === '#roadview') {
         setViewMode('roadview')
       }
     }
-  }, [latitude, longitude, verifiedLat, verifiedLng])
-
-  // 좌표 검증 완료 후에도 URL 해시 다시 확인
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !isVerifying) {
-      const hash = window.location.hash
-      const hasCoords = (verifiedLat || latitude) && (verifiedLng || longitude)
-      if (hash === '#roadview' && hasCoords && viewMode !== 'roadview') {
-        setViewMode('roadview')
-      }
-    }
-  }, [isVerifying, verifiedLat, verifiedLng, latitude, longitude, viewMode])
+  }, [hasRoadView])
 
   // 이미지가 없고 로드뷰가 있으면 자동으로 로드뷰 탭으로 전환
   useEffect(() => {
@@ -307,48 +233,18 @@ export default function PropertyImageGallery({
         <div className="flex flex-col md:flex-row gap-4 rounded-xl overflow-hidden">
           {/* 로드뷰 (50%) */}
           <div className="w-full md:w-1/2 rounded-xl overflow-hidden">
-            {process.env.NODE_ENV === 'development' && (
-              <div className="text-xs text-blue-600 dark:text-blue-400 p-2 bg-blue-50 dark:bg-blue-900/20">
-                {isVerifying ? '좌표 검증 중...' : (
-                  <>
-                    원래 좌표: {latitude?.toFixed(6)}, {longitude?.toFixed(6)}<br/>
-                    {verifiedLat && verifiedLng && (verifiedLat !== latitude || verifiedLng !== longitude) && (
-                      <>검증 좌표: {verifiedLat.toFixed(6)}, {verifiedLng.toFixed(6)} (상호명 기반)</>
-                    )}
-                    {(!verifiedLat || !verifiedLng || (verifiedLat === latitude && verifiedLng === longitude)) && (
-                      <>사용 좌표: {latitude?.toFixed(6)}, {longitude?.toFixed(6)}</>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
             <KakaoRoadView
-              latitude={verifiedLat || latitude!}
-              longitude={verifiedLng || longitude!}
+              latitude={latitude!}
+              longitude={longitude!}
               height="300px"
               className="w-full"
             />
           </div>
           {/* 항공뷰 (50%) */}
           <div className="w-full md:w-1/2 rounded-xl overflow-hidden">
-            {process.env.NODE_ENV === 'development' && (
-              <div className="text-xs text-blue-600 dark:text-blue-400 p-2 bg-blue-50 dark:bg-blue-900/20">
-                {isVerifying ? '좌표 검증 중...' : (
-                  <>
-                    원래 좌표: {latitude?.toFixed(6)}, {longitude?.toFixed(6)}<br/>
-                    {verifiedLat && verifiedLng && (verifiedLat !== latitude || verifiedLng !== longitude) && (
-                      <>검증 좌표: {verifiedLat.toFixed(6)}, {verifiedLng.toFixed(6)} (상호명 기반)</>
-                    )}
-                    {(!verifiedLat || !verifiedLng || (verifiedLat === latitude && verifiedLng === longitude)) && (
-                      <>사용 좌표: {latitude?.toFixed(6)}, {longitude?.toFixed(6)}</>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
             <KakaoAerialView
-              latitude={verifiedLat || latitude!}
-              longitude={verifiedLng || longitude!}
+              latitude={latitude!}
+              longitude={longitude!}
               height="300px"
               className="w-full"
             />

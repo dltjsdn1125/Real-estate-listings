@@ -2,11 +2,8 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import Script from 'next/script'
 import KakaoRoadView from '@/components/property/KakaoRoadView'
 import Header from '@/components/common/Header'
-
-const KAKAO_MAP_API_KEY = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY || ''
 
 function RoadviewContent() {
   const searchParams = useSearchParams()
@@ -78,22 +75,7 @@ function RoadviewContent() {
   }
 
   return (
-    <>
-      {/* 카카오 맵 스크립트 미리 로드 */}
-      {KAKAO_MAP_API_KEY && (
-        <Script
-          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAO_MAP_API_KEY}&libraries=services&autoload=false`}
-          strategy="afterInteractive"
-          onLoad={() => {
-            if (window.kakao && window.kakao.maps) {
-              window.kakao.maps.load(() => {
-                // 스크립트 로드 완료
-              })
-            }
-          }}
-        />
-      )}
-      <div className="min-h-screen bg-background-light dark:bg-background-dark">
+    <div className="min-h-screen bg-background-light dark:bg-background-dark">
         <Header showSearch={true} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="mb-4">
@@ -121,7 +103,6 @@ function RoadviewContent() {
           </div>
         </main>
       </div>
-    </>
   )
 }
 

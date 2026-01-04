@@ -302,7 +302,7 @@ export async function coordinatesToAddress(
 }
 
 /**
- * Kakao Maps API 로드 대기
+ * Kakao Maps API 로드 대기 (빠른 버전)
  */
 export function waitForKakaoMaps(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -311,58 +311,39 @@ export function waitForKakaoMaps(): Promise<boolean> {
       return
     }
 
-    // 이미 로드된 경우
-    if (window.kakao && window.kakao.maps) {
-      if (window.kakao.maps.services) {
-        resolve(true)
+    // 이미 로드된 경우 즉시 반환
+    if (window.kakao?.maps) {
+      // kakao.maps.load 호출이 필요한 경우
+      if (!window.kakao.maps.LatLng && window.kakao.maps.load) {
+        window.kakao.maps.load(() => resolve(true))
         return
       }
-      // 지도는 로드되었지만 services가 아직 없는 경우, 최대 5초 대기
-      let attempts = 0
-      const maxQuickAttempts = 25 // 5초 대기
-      const quickCheck = setInterval(() => {
-        attempts++
-        if (window.kakao && window.kakao.maps && window.kakao.maps.services) {
-          clearInterval(quickCheck)
-          resolve(true)
-          return
-        }
-        if (attempts >= maxQuickAttempts) {
-          clearInterval(quickCheck)
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('Kakao Maps services 로드 타임아웃 - 지도는 로드되었지만 services가 없습니다')
-          }
-          // 지도는 로드되었으므로 true 반환 (services는 나중에 사용할 때 체크)
-          resolve(true)
-          return
-        }
-      }, 200)
+      resolve(true)
       return
     }
 
-    // 로드 대기 (최대 10초)
+    // 빠른 폴링 (20ms 간격, 최대 2초)
     let attempts = 0
-    const maxAttempts = 50 // 50 * 200ms = 10초
+    const maxAttempts = 100
 
     const checkInterval = setInterval(() => {
       attempts++
 
-      if (window.kakao && window.kakao.maps) {
+      if (window.kakao?.maps) {
         clearInterval(checkInterval)
-        // services는 나중에 필요할 때 체크
-        resolve(true)
+        if (!window.kakao.maps.LatLng && window.kakao.maps.load) {
+          window.kakao.maps.load(() => resolve(true))
+        } else {
+          resolve(true)
+        }
         return
       }
 
       if (attempts >= maxAttempts) {
         clearInterval(checkInterval)
-        // 개발 환경에서만 에러 로그 출력
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('Kakao Maps API 로드 타임아웃')
-        }
         resolve(false)
       }
-    }, 200)
+    }, 20)
   })
 }
 

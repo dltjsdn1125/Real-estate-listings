@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import './globals.css'
 
 export const viewport: Viewport = {
@@ -54,27 +55,36 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const kakaoMapApiKey = process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY || ''
+
   return (
     <html lang="ko" className="light">
+      <head>
+        <link rel="preconnect" href="https://dapi.kakao.com" crossOrigin="anonymous" />
+      </head>
       <body className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display antialiased">
         {children}
-        <script
+        {/* Kakao Maps SDK - beforeInteractive로 빠르게 로드 */}
+        {kakaoMapApiKey && (
+          <Script
+            id="kakao-maps-sdk"
+            src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapApiKey}&libraries=services&autoload=false`}
+            strategy="beforeInteractive"
+          />
+        )}
+        <Script
+          id="service-worker-cleanup"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
-              // 개발 환경에서는 Service Worker 완전 비활성화
               if ('serviceWorker' in navigator && typeof window !== 'undefined') {
                 const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
                 if (isDev) {
-                  // 개발 환경: 모든 Service Worker 제거
                   navigator.serviceWorker.getRegistrations().then((registrations) => {
                     registrations.forEach((registration) => {
                       registration.unregister().catch(() => {});
                     });
                   });
-                  // Service Worker 등록 방지
-                  navigator.serviceWorker.register = function() {
-                    return Promise.reject(new Error('Service Worker disabled in development'));
-                  };
                 }
               }
             `,
@@ -84,4 +94,3 @@ export default function RootLayout({
     </html>
   )
 }
-
