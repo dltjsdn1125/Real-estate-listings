@@ -98,6 +98,7 @@ function RoadviewContent() {
           </div>
           <div className="bg-white dark:bg-[#151c2b] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
             <KakaoRoadView
+              key={`${lat}-${lng}`}
               latitude={lat}
               longitude={lng}
               width="100%"

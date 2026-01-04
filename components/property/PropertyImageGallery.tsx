@@ -234,6 +234,7 @@ export default function PropertyImageGallery({
           {/* 로드뷰 (50%) */}
           <div className="w-full md:w-1/2 rounded-xl overflow-hidden">
             <KakaoRoadView
+              key={`roadview-${latitude}-${longitude}`}
               latitude={latitude!}
               longitude={longitude!}
               height="300px"

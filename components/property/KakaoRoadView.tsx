@@ -190,8 +190,22 @@ function KakaoRoadView({
       // ref를 먼저 null로 설정하여 이후 DOM 조작을 방지
       const roadview = roadviewRef.current
       const client = clientRef.current
+      const container = containerRef.current
+      
       roadviewRef.current = null
       clientRef.current = null
+
+      // container의 innerHTML을 즉시 비워서 Kakao Maps가 생성한 DOM 노드를 제거
+      // 이렇게 하면 React가 나중에 removeChild를 시도할 때 이미 제거된 노드가 되어 오류 방지
+      if (container) {
+        try {
+          // container의 모든 자식 노드를 안전하게 제거
+          // innerHTML을 사용하면 Kakao Maps가 생성한 모든 노드가 한 번에 제거됨
+          container.innerHTML = ''
+        } catch (e) {
+          // innerHTML 설정 오류 무시 (이미 제거되었을 수 있음)
+        }
+      }
 
       // DOM 정리는 다음 이벤트 루프에서 수행하여 React의 정리와 충돌 방지
       setTimeout(() => {
@@ -205,6 +219,14 @@ function KakaoRoadView({
               }
             } catch (e) {
               // 정리 메서드 호출 오류 무시
+            }
+          }
+          // Client 인스턴스도 정리
+          if (client) {
+            try {
+              // 필요한 경우 client 정리 메서드 호출
+            } catch (e) {
+              // 정리 오류 무시
             }
           }
         } catch (e) {
