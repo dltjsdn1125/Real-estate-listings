@@ -139,20 +139,6 @@ export function useAuth() {
         })
       }
 
-      // 토큰 갱신 실패 처리
-      if (event === 'TOKEN_REFRESH_FAILED') {
-        // 무효한 토큰이므로 세션 정리
-        setAuthUser(null)
-        setUser(null)
-        // 로컬 세션 정리 (무음으로 처리)
-        try {
-          await supabase.auth.signOut({ scope: 'local' })
-        } catch (error) {
-          // 정리 실패는 무시
-        }
-        return
-      }
-
       if (event === 'SIGNED_OUT') {
         setAuthUser(null)
         setUser(null)
