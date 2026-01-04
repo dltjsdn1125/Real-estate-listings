@@ -321,9 +321,9 @@ function MapPageContent() {
         filters.radiusKm = radiusSearch.radiusKm
       }
       
-      // 타임아웃 설정 (60초로 증가 - 키워드 검색 시 더 오래 걸릴 수 있음)
+      // 타임아웃 설정 (90초로 증가 - 키워드 검색 및 복잡한 쿼리 시 더 오래 걸릴 수 있음)
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('매물을 불러오는 데 시간이 너무 오래 걸립니다. 네트워크 연결을 확인해주세요.')), 60000)
+        setTimeout(() => reject(new Error('매물을 불러오는 데 시간이 너무 오래 걸립니다. 잠시 후 다시 시도해주세요.')), 90000)
       })
       
       // 디버깅: 검색 전 로그
@@ -353,6 +353,12 @@ function MapPageContent() {
       }
 
       if (fetchError) {
+        // 타임아웃 오류인 경우 명확한 메시지 표시
+        if (fetchError.message?.includes('시간이 너무 오래 걸립니다')) {
+          throw fetchError
+        }
+        // 기타 오류는 상세 메시지 포함
+        console.error('매물 로딩 오류:', fetchError)
         throw new Error(fetchError.message || '매물을 불러오는 중 오류가 발생했습니다.')
       }
 

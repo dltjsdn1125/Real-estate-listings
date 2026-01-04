@@ -181,12 +181,17 @@ export default function QuickPropertyRegisterModal({
 
       const createdProperty = await createProperty(propertyData)
       
+      if (!createdProperty || !createdProperty.id) {
+        throw new Error('매물 등록에 실패했습니다. 응답 데이터가 올바르지 않습니다.')
+      }
+      
       // 즐겨찾기에 추가
-      if (addToFavorites && createdProperty?.id && onAddToFavorites) {
+      if (addToFavorites && createdProperty.id && onAddToFavorites) {
         try {
           await onAddToFavorites(createdProperty.id)
         } catch (error) {
           console.error('즐겨찾기 추가 실패:', error)
+          // 즐겨찾기 추가 실패해도 등록은 성공한 것으로 처리
         }
       }
       

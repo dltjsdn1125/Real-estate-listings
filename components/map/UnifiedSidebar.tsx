@@ -528,9 +528,9 @@ export default function UnifiedSidebar({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto h-[calc(100vh-180px)]">
+        <div className="flex-1 overflow-y-auto h-[calc(100vh-180px)] pb-0">
           {activeTab === 'search' && (
-            <div className="p-2 sm:p-4 space-y-2 sm:space-y-4">
+            <div className="p-2 sm:p-4 space-y-2 sm:space-y-4 pb-0">
               {/* 검색바 */}
               <form onSubmit={handleSearchSubmit} className="relative w-full">
                 <div className="flex w-full items-stretch rounded-lg h-9 sm:h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
@@ -862,7 +862,7 @@ export default function UnifiedSidebar({
           )}
 
           {activeTab === 'my-properties' && (
-            <div className="p-2 sm:p-4">
+            <div className="p-2 sm:p-4 pb-0">
               {loading ? (
                 <div className="flex items-center justify-center py-6 sm:py-12">
                   <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary"></div>
@@ -903,7 +903,7 @@ export default function UnifiedSidebar({
           )}
 
           {activeTab === 'favorites' && (
-            <div className="p-2 sm:p-4">
+            <div className="p-2 sm:p-4 pb-0">
               {loading ? (
                 <div className="flex items-center justify-center py-6 sm:py-12">
                   <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary"></div>
@@ -943,7 +943,7 @@ export default function UnifiedSidebar({
           )}
 
           {activeTab === 'register' && (
-            <div className="p-2 sm:p-4 text-center py-6 sm:py-12 text-[#616f89] dark:text-gray-400">
+            <div className="p-2 sm:p-4 pb-0 text-center py-6 sm:py-12 text-[#616f89] dark:text-gray-400">
               <span className="material-symbols-outlined text-3xl sm:text-5xl mb-2 opacity-50">
                 add_circle
               </span>
@@ -962,7 +962,7 @@ export default function UnifiedSidebar({
           )}
 
           {activeTab === 'settings' && (
-            <div className="p-2 sm:p-4 space-y-6">
+            <div className="p-2 sm:p-4 pb-0 space-y-6">
               {/* 검색 지역 설정 */}
               <div>
                 <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">

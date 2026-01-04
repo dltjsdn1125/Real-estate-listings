@@ -240,10 +240,21 @@ export default function NewPropertyPage() {
         await addPropertyTags(tagData)
       }
 
-      router.push(`/admin/properties/${property.id}`)
-    } catch (error) {
+      // 매물 상세 페이지로 리다이렉트
+      router.push(`/properties/${property.id}`)
+    } catch (error: any) {
       console.error('Error creating property:', error)
-      alert('매물 등록 중 오류가 발생했습니다.')
+      const errorMessage = error?.message || error?.error?.message || '알 수 없는 오류가 발생했습니다.'
+      alert(`매물 등록 중 오류가 발생했습니다: ${errorMessage}`)
+      
+      // 개발 환경에서 상세 오류 정보 출력
+      if (process.env.NODE_ENV === 'development') {
+        console.error('등록 오류 상세:', {
+          error,
+          propertyData,
+          user: { id: user?.id, role: user?.role }
+        })
+      }
     } finally {
       setLoading(false)
     }

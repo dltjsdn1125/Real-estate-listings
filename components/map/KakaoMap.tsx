@@ -117,6 +117,14 @@ export default function KakaoMap({
     if (!map || !window.kakao) return
 
     // 기존 마커 제거
+    // Kakao Maps API 클래스 확인
+    if (!window.kakao?.maps?.LatLng || !window.kakao?.maps?.Marker || !window.kakao?.maps?.MarkerImage || !window.kakao?.maps?.Size || !window.kakao?.maps?.Point) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - API 클래스가 아직 로드되지 않음 (updateUserMarker)')
+      }
+      return
+    }
+
     setUserMarker((prevMarker: any) => {
       if (prevMarker) {
         prevMarker.setMap(null)
@@ -246,6 +254,14 @@ export default function KakaoMap({
       return false
     }
 
+    // Kakao Maps API가 완전히 로드되었는지 확인 (LatLng, Map 등 필수 클래스 확인)
+    if (!window.kakao.maps.LatLng || !window.kakao.maps.Map) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - API 클래스가 아직 로드되지 않음 (LatLng, Map 확인)')
+      }
+      return false
+    }
+
     // 이미 지도가 있으면 스킵
     if (mapInstanceRef.current) {
       if (process.env.NODE_ENV === 'development') {
@@ -274,7 +290,14 @@ export default function KakaoMap({
       // 중심 좌표 결정
       const defaultCenter = pendingCenterRef.current || center || userLocation || { lat: 35.8714, lng: 128.6014 }
 
-      // 고해상도 지도 옵션
+      // 고해상도 지도 옵션 (LatLng가 로드되었는지 다시 확인)
+      if (!window.kakao.maps.LatLng) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ KakaoMap - LatLng 클래스를 사용할 수 없음')
+        }
+        return false
+      }
+
       const mapOption = {
         center: new window.kakao.maps.LatLng(defaultCenter.lat, defaultCenter.lng),
         level: level,
@@ -328,6 +351,14 @@ export default function KakaoMap({
         const lng = latlng.getLng()
 
         if (pinItModeRef.current && kakaoMap) {
+          // Kakao Maps API 클래스 확인
+          if (!window.kakao?.maps?.Marker || !window.kakao?.maps?.MarkerImage || !window.kakao?.maps?.Size || !window.kakao?.maps?.Point) {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('⚠️ KakaoMap - API 클래스가 아직 로드되지 않음 (Pin it 마커)')
+            }
+            return
+          }
+
           setPinItMarker((prevMarker: any) => {
             if (prevMarker) {
               prevMarker.setMap(null)
@@ -755,9 +786,16 @@ export default function KakaoMap({
       updateUserMarker(userLocation)
       // 사용자가 위치를 요청한 경우 지도 이동
       if (watchId !== null || userLocation.lat !== 35.8714 || userLocation.lng !== 128.6014) {
-        const moveLatLon = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
-        map.setCenter(moveLatLon)
-        map.setLevel(3) // 확대 레벨 (3 = 상세 지도)
+        // Kakao Maps API 클래스 확인
+        if (window.kakao?.maps?.LatLng) {
+          try {
+            const moveLatLon = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
+            map.setCenter(moveLatLon)
+            map.setLevel(3) // 확대 레벨 (3 = 상세 지도)
+          } catch (error) {
+            console.error('❌ KakaoMap - 사용자 위치로 지도 이동 오류:', error)
+          }
+        }
       }
     }
   }, [map, userLocation, locationError, updateUserMarker, watchId])
@@ -791,6 +829,13 @@ export default function KakaoMap({
     if (centerToMove) {
       if (process.env.NODE_ENV === 'development') {
         console.log('📍 KakaoMap - map 준비 후 pendingCenter로 이동:', centerToMove, 'level:', level)
+      }
+      // Kakao Maps API 클래스 확인
+      if (!window.kakao?.maps?.LatLng) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ KakaoMap - LatLng 클래스가 아직 로드되지 않음 (pendingCenter 이동)')
+        }
+        return
       }
       try {
         const moveLatLon = new window.kakao.maps.LatLng(centerToMove.lat, centerToMove.lng)
@@ -830,6 +875,13 @@ export default function KakaoMap({
       if (process.env.NODE_ENV === 'development') {
         console.log('📍 KakaoMap - center prop 변경으로 지도 이동:', center, 'level:', level, 'mapInstanceRef 사용:', !!mapInstanceRef.current, 'map state:', !!map)
       }
+      // Kakao Maps API 클래스 확인
+      if (!window.kakao?.maps?.LatLng) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ KakaoMap - LatLng 클래스가 아직 로드되지 않음 (center 이동)')
+        }
+        return
+      }
       try {
         const moveLatLon = new window.kakao.maps.LatLng(center.lat, center.lng)
         currentMap.panTo(moveLatLon) // 부드럽게 이동
@@ -856,6 +908,14 @@ export default function KakaoMap({
     // 기존 마커 제거
     clusterer.clear()
     const newMarkers: any[] = []
+
+    // Kakao Maps API 클래스 확인
+    if (!window.kakao?.maps?.LatLng || !window.kakao?.maps?.Marker || !window.kakao?.maps?.InfoWindow || !window.kakao?.maps?.event) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - API 클래스가 아직 로드되지 않음 (매물 마커)')
+      }
+      return
+    }
 
     // 매물 마커 생성 (기본 마커 사용, 프리미엄은 라벨로 구분)
     properties.forEach((property) => {
@@ -905,11 +965,18 @@ export default function KakaoMap({
 
     // 모든 마커가 보이도록 지도 범위 조정
     if (properties.length > 0 && !center) {
-      const bounds = new window.kakao.maps.LatLngBounds()
-      properties.forEach((property) => {
-        bounds.extend(new window.kakao.maps.LatLng(property.lat, property.lng))
-      })
-      map.setBounds(bounds)
+      // Kakao Maps API 클래스 확인
+      if (window.kakao?.maps?.LatLngBounds && window.kakao?.maps?.LatLng) {
+        try {
+          const bounds = new window.kakao.maps.LatLngBounds()
+          properties.forEach((property) => {
+            bounds.extend(new window.kakao.maps.LatLng(property.lat, property.lng))
+          })
+          map.setBounds(bounds)
+        } catch (error) {
+          console.error('❌ KakaoMap - 지도 범위 조정 오류:', error)
+        }
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, clusterer, properties, onMarkerClick, center])
@@ -930,9 +997,19 @@ export default function KakaoMap({
       return
     }
 
-    // 기존 선택 위치 마커 제거
-    if (selectedLocationMarker) {
-      selectedLocationMarker.setMap(null)
+    // Kakao Maps API 클래스 확인
+    if (!window.kakao.maps.LatLng || !window.kakao.maps.Marker || !window.kakao.maps.MarkerImage || !window.kakao.maps.Size || !window.kakao.maps.Point) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('⚠️ KakaoMap - API 클래스가 아직 로드되지 않음 (selectedLocation 마커)')
+      }
+      return
+    }
+
+    // 기존 선택 위치 마커 제거 (ref로 최신 값 참조)
+    const currentSelectedLocationMarker = selectedLocationMarkerRef.current
+    if (currentSelectedLocationMarker) {
+      currentSelectedLocationMarker.setMap(null)
+      selectedLocationMarkerRef.current = null
       setSelectedLocationMarker(null)
     }
 
@@ -959,6 +1036,7 @@ export default function KakaoMap({
         })
 
         marker.setMap(currentMap)
+        selectedLocationMarkerRef.current = marker
         setSelectedLocationMarker(marker)
 
         if (process.env.NODE_ENV === 'development') {
@@ -968,7 +1046,10 @@ export default function KakaoMap({
         console.error('❌ 선택된 위치 마커 생성 오류:', error)
       }
     }
-  }, [map, selectedLocation, selectedLocationMarker])
+    // selectedLocationMarker를 의존성 배열에서 제거하여 무한 루프 방지
+    // 의존성 배열 크기를 고정하기 위해 항상 동일한 요소 포함
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, selectedLocation?.lat, selectedLocation?.lng])
 
   // GPS 위치로 지도 이동 (사용자 제스처로 GPS 요청)
   const moveToUserLocation = useCallback(() => {
@@ -978,10 +1059,14 @@ export default function KakaoMap({
     // 위치가 있으면 지도 이동 (약간의 지연 후)
     if (map && userLocation) {
       setTimeout(() => {
-        if (userLocation && map) {
-          const moveLatLon = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
-          map.setCenter(moveLatLon)
-          map.setLevel(3) // 확대 레벨 (3 = 상세 지도)
+        if (userLocation && map && window.kakao?.maps?.LatLng) {
+          try {
+            const moveLatLon = new window.kakao.maps.LatLng(userLocation.lat, userLocation.lng)
+            map.setCenter(moveLatLon)
+            map.setLevel(3) // 확대 레벨 (3 = 상세 지도)
+          } catch (error) {
+            console.error('❌ KakaoMap - 사용자 위치로 지도 이동 오류:', error)
+          }
         }
       }, 500)
     }
