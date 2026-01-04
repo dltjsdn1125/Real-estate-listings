@@ -23,6 +23,8 @@ interface PropertyForMap {
   title: string
   location: string
   address?: string | null
+  district?: string
+  dong?: string
   deposit: string
   rent: string
   area: string
@@ -274,6 +276,7 @@ function MapPageContent() {
   useEffect(() => {
     // 매물 로드 (승인된 사용자 또는 비로그인 사용자)
     // 맵은 항상 표시되어야 하므로 매물 로딩과 분리
+    // searchKeyword는 클라이언트 필터링만 사용하므로 dependency에서 제거 (DB 재호출 불필요)
     if (!authLoading) {
       // 승인된 사용자 또는 비로그인 사용자는 매물 조회 가능
       if (!isAuthenticated || isApproved) {
@@ -284,7 +287,7 @@ function MapPageContent() {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [radiusSearch, authLoading, isApproved, isAuthenticated, searchKeyword])
+  }, [radiusSearch, authLoading, isApproved, isAuthenticated])
 
   const checkUserTier = async () => {
     const {
@@ -306,13 +309,11 @@ function MapPageContent() {
       
       const filters: any = customFilters || {
         status: 'available',
-        limit: 50,
+        limit: 1000, // 관리자 페이지와 동일하게 모든 매물 로드 (클라이언트 필터링)
       }
       
-      // 키워드 검색 파라미터 추가 (customFilters에 없으면 state에서 가져옴)
-      if (!filters.keyword && searchKeyword && searchKeyword.trim()) {
-        filters.keyword = searchKeyword.trim()
-      }
+      // 키워드 검색은 DB에서 하지 않고 클라이언트에서 필터링 (관리자 페이지와 동일)
+      // filters.keyword는 사용하지 않음 - 클라이언트 측 필터링만 사용
       
       // 반경 검색 파라미터 추가
       if (radiusSearch.enabled && radiusSearch.centerLat && radiusSearch.centerLng && radiusSearch.radiusKm) {
@@ -328,8 +329,7 @@ function MapPageContent() {
       
       // 디버깅: 검색 전 로그
       if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 매물 검색 시작:', {
-          keyword: filters.keyword || '없음',
+        console.log('🔍 매물 로드 시작 (관리자 페이지와 동일 - 모든 매물 로드 후 클라이언트 필터링):', {
           filters: JSON.stringify(filters, null, 2)
         })
       }
@@ -341,10 +341,9 @@ function MapPageContent() {
       
       const { data, error: fetchError } = result
 
-      // 디버깅: 키워드 검색 결과 확인
+      // 디버깅: 매물 로드 결과 확인
       if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 매물 검색 결과:', {
-          keyword: filters.keyword || '없음',
+        console.log('🔍 매물 로드 완료 (클라이언트 필터링 사용):', {
           resultCount: data?.length || 0,
           error: fetchError?.message || null,
           hasData: !!data,
@@ -425,6 +424,8 @@ function MapPageContent() {
             title: property.title,
             location,
             address: property.address || null,
+            district: property.district || undefined,
+            dong: property.dong || undefined,
             deposit,
             rent,
             area,
@@ -446,9 +447,8 @@ function MapPageContent() {
         setProperties(formattedProperties)
         
         if (process.env.NODE_ENV === 'development') {
-          console.log('✅ 매물 로드 완료:', {
-            total: formattedProperties.length,
-            withKeyword: filters.keyword || '없음'
+          console.log('✅ 매물 로드 완료 (클라이언트 필터링 사용):', {
+            total: formattedProperties.length
           })
         }
       } else {
@@ -598,8 +598,8 @@ function MapPageContent() {
 
       // 검색 시작 시 이전 Places 검색 결과만 초기화 (DB 매물은 유지)
       setPlaceSearchResults([])
-      setSearchKeyword(trimmedKeyword)
-      setLoading(true)
+      setSearchKeyword(trimmedKeyword) // 클라이언트 필터링을 위한 키워드 설정
+      // DB 재로드 불필요 - 이미 모든 매물이 로드되어 있고 클라이언트에서 필터링됨
       setError(null)
       setSidebarOpen(true) // 검색 시 사이드바 열기
       setSidebarTab('search') // 검색 탭으로 전환
@@ -667,50 +667,16 @@ function MapPageContent() {
         if (placeResults && placeResults.length > 0) {
           setMapCenter({ lat: placeResults[0].lat, lng: placeResults[0].lng })
           setMapLevel(4) // 상세 레벨로 확대
-          
-          // 검색 결과가 있으면 DB 검색은 선택적으로 수행 (검색 결과 우선 표시)
-          // DB 검색은 백그라운드에서 수행
-          const searchFilters: any = {
-            status: 'available',
-            limit: 100,
-            keyword: trimmedKeyword,
-          }
-          
-          // DB 검색은 비동기로 실행 (결과는 추가로 표시)
-          loadPropertiesWithFilters(searchFilters).catch(err => {
-            if (isMountedRef.current) {
-              console.error('DB 검색 오류:', err)
-            }
-          })
-          
-          // 로딩 상태 해제 (Places 결과가 있으면 즉시 표시)
-          setLoading(false)
-        } else {
-          // Places 검색 결과가 없으면 DB 검색만 수행
-          const searchFilters: any = {
-            status: 'available',
-            limit: 100,
-            keyword: trimmedKeyword,
-          }
-
-          if (process.env.NODE_ENV === 'development') {
-            console.log('🔍 Places 검색 결과 없음, DB 검색만 수행:', searchFilters)
-          }
-
-          await loadPropertiesWithFilters(searchFilters)
-          
-          // 컴포넌트 언마운트 체크
-          if (isMountedRef.current) {
-            setLoading(false)
-          }
         }
+        
+        // DB 재로드 불필요 - 이미 모든 매물이 로드되어 있고 클라이언트에서 필터링됨
+        // 관리자 페이지와 동일: 모든 매물 로드 후 클라이언트 측 필터링만 수행
 
         // 키워드 검색 시 즐겨찾기 모달 자동 열기 제거 (검색 결과 우선 표시)
       } catch (error) {
         if (isMountedRef.current) {
           console.error('검색 오류:', error)
           setError('검색 중 오류가 발생했습니다.')
-          setLoading(false)
         }
       } finally {
         // 검색 완료 플래그 해제

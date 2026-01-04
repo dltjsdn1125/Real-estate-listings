@@ -1,0 +1,115 @@
+### Page state
+- Page URL: http://localhost:3000/map?keyword=%EC%A1%B1%EB%B0%9C%EC%95%BC%EC%8B%9C%EC%9E%A5
+- Page Title: Daegu Commercial Platform
+- Page Snapshot:
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - button "filter_list" [ref=e5] [cursor=pointer]:
+          - generic [ref=e6]: filter_list
+        - button "Daegu Realty" [ref=e7] [cursor=pointer]:
+          - heading "Daegu Realty" [level=2] [ref=e8]
+      - button "more_vert" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: more_vert
+    - generic [ref=e13]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - heading "매물 탐색" [level=2] [ref=e18]
+            - button "close" [ref=e19] [cursor=pointer]:
+              - generic [ref=e20]: close
+          - generic [ref=e21]:
+            - button "search" [ref=e22] [cursor=pointer]:
+              - generic [ref=e23]: search
+            - button "home" [ref=e96] [cursor=pointer]:
+              - generic [ref=e97]: home
+            - button "star" [ref=e98] [cursor=pointer]:
+              - generic [ref=e99]: star
+            - button "my_location" [ref=e100] [cursor=pointer]:
+              - generic [ref=e101]: my_location
+            - button "settings" [ref=e24] [cursor=pointer]:
+              - generic [ref=e25]: settings
+        - generic [ref=e27]:
+          - generic [ref=e29]:
+            - textbox "장소, 건물명, 주소 검색" [ref=e30]: 족발야시장
+            - button "search" [ref=e1669] [cursor=pointer]:
+              - generic [ref=e1670]: search
+          - generic [ref=e33]:
+            - heading "필터" [level=3] [ref=e34]
+            - generic [ref=e35]:
+              - generic [ref=e36]: 지역
+              - button "전체 expand_more" [ref=e38] [cursor=pointer]:
+                - generic [ref=e39]: 전체
+                - generic [ref=e40]: expand_more
+            - generic [ref=e41]:
+              - generic [ref=e42]: 매물 유형
+              - button "전체 expand_more" [ref=e44] [cursor=pointer]:
+                - generic [ref=e45]: 전체
+                - generic [ref=e46]: expand_more
+            - generic [ref=e47]:
+              - generic [ref=e48]: 가격
+              - button "전체 expand_more" [ref=e50] [cursor=pointer]:
+                - generic [ref=e51]: 전체
+                - generic [ref=e52]: expand_more
+            - generic [ref=e53]:
+              - generic [ref=e54]: 면적
+              - button "전체 expand_more" [ref=e56] [cursor=pointer]:
+                - generic [ref=e57]: 전체
+                - generic [ref=e58]: expand_more
+            - generic [ref=e59]:
+              - button "초기화" [ref=e60] [cursor=pointer]
+              - button "적용" [ref=e61] [cursor=pointer]
+          - generic [ref=e62]:
+            - heading "검색 결과 없음 (매물 0개)" [level=3] [ref=e1671]
+            - generic [ref=e1672]:
+              - generic [ref=e1673]: search_off
+              - paragraph [ref=e1674]: 검색 결과가 없습니다.
+      - generic [ref=e68]:
+        - main [ref=e69]:
+          - generic [ref=e71]:
+            - generic [ref=e77]:
+              - generic [ref=e1637]:
+                - generic:
+                  - img [ref=e1639]
+                  - generic:
+                    - generic [ref=e1676] [cursor=pointer]: "9"
+                    - generic [ref=e1678] [cursor=pointer]: "6"
+                    - generic:
+                      - generic:
+                        - link "수성유원지 카페거리상가 1층 35평":
+                          - /url: javascript:void(0)
+                    - generic:
+                      - generic:
+                        - link "지산범물역 상가 1층 38평":
+                          - /url: javascript:void(0)
+                    - generic [ref=e1680] [cursor=pointer]: "3"
+                    - generic [ref=e1682] [cursor=pointer]: "2"
+                    - generic [ref=e1684] [cursor=pointer]: "2"
+                    - generic [ref=e1686] [cursor=pointer]: "5"
+                    - generic [ref=e1688] [cursor=pointer]: "3"
+                    - generic [ref=e1690] [cursor=pointer]: "3"
+                    - generic [ref=e1692] [cursor=pointer]: "5"
+                    - generic [ref=e1694] [cursor=pointer]: "3"
+              - generic [ref=e1660]:
+                - generic [ref=e1663]: 2km
+                - link "Kakao 맵으로 이동(새창열림)" [ref=e1665] [cursor=pointer]:
+                  - /url: http://map.kakao.com/
+                  - img "Kakao 맵으로 이동(새창열림)" [ref=e1666]
+            - generic [ref=e78]:
+              - button "push_pin" [ref=e1667] [cursor=pointer]:
+                - generic [ref=e1668]: push_pin
+              - button "my_location" [ref=e79] [cursor=pointer]:
+                - generic [ref=e80]: my_location
+              - button "add" [ref=e82] [cursor=pointer]:
+                - generic [ref=e83]: add
+              - button "remove" [ref=e84] [cursor=pointer]:
+                - generic [ref=e85]: remove
+        - generic [ref=e88]:
+          - textbox "장소명, 건물명, 주소를 입력하면 지도가 해당 위치로 이동합니다" [ref=e89]:
+            - /placeholder: 장소, 건물명, 주소 검색
+          - button "search" [ref=e90] [cursor=pointer]:
+            - generic [ref=e91]: search
+  - alert [ref=e95]
+```

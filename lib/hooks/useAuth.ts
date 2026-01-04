@@ -73,12 +73,16 @@ export function useAuth() {
             // 로컬 세션 정리 (무음으로 처리)
             try {
               await supabase.auth.signOut({ scope: 'local' })
+              // 개발 환경에서만 디버그 로그
+              if (process.env.NODE_ENV === 'development') {
+                console.debug('🔄 Invalid token detected - Session cleared')
+              }
             } catch (signOutError) {
               // 정리 실패는 무시 (이미 무효한 상태)
             }
           }
 
-          // AuthSessionMissingError는 세션이 없는 정상적인 상태이므로 에러로 로깅하지 않음
+          // AuthSessionMissingError와 Invalid Refresh Token은 정상적인 상태이므로 에러로 로깅하지 않음
           if (!isInvalidTokenError && process.env.NODE_ENV === 'development') {
             console.warn('Auth check error:', authError.message)
           }

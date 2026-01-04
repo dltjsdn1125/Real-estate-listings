@@ -89,7 +89,7 @@ function KakaoRoadView({
 
         const position = new kakao.maps.LatLng(latitude, longitude)
 
-        // 타임아웃 1.5초
+        // 타임아웃 5초로 증가
         timeoutId = setTimeout(() => {
           if (!cancelled && isMountedRef.current) {
             safeSetState(() => {
@@ -97,10 +97,10 @@ function KakaoRoadView({
               setLoading(false)
             })
           }
-        }, 1500)
+        }, 5000)
 
-        // 파노라마 검색
-        clientRef.current.getNearestPanoId(position, 200, (panoId: number) => {
+        // 파노라마 검색 - 반경을 500m로 증가
+        clientRef.current.getNearestPanoId(position, 500, (panoId: number) => {
           if (cancelled || !isMountedRef.current) {
             if (timeoutId) clearTimeout(timeoutId)
             return
@@ -117,13 +117,26 @@ function KakaoRoadView({
               try {
                 roadviewRef.current.setPanoId(panoId, position)
                 setError(null)
+                setLoading(false)
+                
+                // 로드뷰 로드 이벤트 리스너 추가
+                const handleRoadviewLoad = () => {
+                  safeSetState(() => {
+                    setLoading(false)
+                    setError(null)
+                  })
+                }
+                
+                kakao.maps.event.addListener(roadviewRef.current, 'init', handleRoadviewLoad)
               } catch (e) {
+                console.error('로드뷰 설정 오류:', e)
                 setError('로드뷰 설정 오류')
+                setLoading(false)
               }
             } else {
               setError('이 위치의 로드뷰가 없습니다.')
+              setLoading(false)
             }
-            setLoading(false)
           })
         })
       } catch (e) {

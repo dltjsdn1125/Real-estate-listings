@@ -13,6 +13,24 @@ export async function canViewBlurred(user: User | null): Promise<boolean> {
     return true
   }
 
+  // 시스템 관리자(platinum 등급 이상)는 항상 블러 없이 볼 수 있음
+  const tierLevels: Record<string, number> = {
+    bronze: 1,
+    silver: 2,
+    gold: 3,
+    premium: 4,
+    platinum: 5,
+  }
+  
+  const userTier = user?.tier || 'bronze'
+  const userTierLevel = tierLevels[userTier] || 0
+  const platinumLevel = tierLevels['platinum'] || 5
+  
+  // platinum 등급 이상(시스템 관리자)은 항상 블러 없이 볼 수 있음
+  if (userTierLevel >= platinumLevel) {
+    return true
+  }
+
   // 관리자 설정에서 최소 tier 확인
   try {
     const { data } = await supabase
@@ -25,16 +43,6 @@ export async function canViewBlurred(user: User | null): Promise<boolean> {
       const minTier = (data.setting_value as any).min_tier
       if (!minTier) return false
 
-      // tier 레벨 비교
-      const tierLevels: Record<string, number> = {
-        bronze: 1,
-        silver: 2,
-        gold: 3,
-        premium: 4,
-        platinum: 5,
-      }
-
-      const userTierLevel = tierLevels[user?.tier || 'bronze'] || 0
       const minTierLevel = tierLevels[minTier] || 0
 
       return userTierLevel >= minTierLevel

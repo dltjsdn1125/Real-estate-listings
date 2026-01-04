@@ -187,50 +187,12 @@ export default function PropertyCard({
   // 블러 처리 여부 결정
   const shouldBlur = isBlurred && !canViewBlurred
 
-  if (type === 'premium' || shouldBlur) {
-    return (
-      <div
-        className="relative group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-yellow-400/30 overflow-hidden cursor-pointer"
-        onClick={handleClick}
-      >
-        {type === 'premium' && (
-          <div className="absolute top-0 right-0 bg-yellow-400 text-[#111318] text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10">
-            PREMIUM
-          </div>
-        )}
-        <div>
-          <h4 className="text-[#111318] dark:text-white text-base font-bold leading-tight">
-            {title}
-          </h4>
-          <p className="text-[#616f89] dark:text-gray-400 text-sm mt-1">{location}</p>
-          {/* 블러 처리된 정보 영역 */}
-          <div className={`mt-2 select-none ${shouldBlur ? 'filter blur-sm opacity-60' : ''}`}>
-            <div className="flex items-baseline gap-1">
-              <span className="text-primary font-bold text-lg">{deposit}</span>
-              <span className="text-xs font-medium">보증금</span>
-              <span className="text-xs px-1">/</span>
-              <span className="text-primary font-bold text-lg">{rent}</span>
-            </div>
-            {area && (
-              <div className="mt-1 text-xs text-[#616f89] dark:text-gray-400">
-                {area}
-              </div>
-            )}
-          </div>
-          <div className="mt-4 flex items-center justify-center">
-            <button className="shadow-lg bg-[#111318] dark:bg-primary text-white text-sm font-bold py-2 px-4 rounded-lg hover:scale-105 transition-transform">
-              멤버십 플랜 보기
-            </button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div
       id={`property-card-${id}`}
-      className="group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-transparent hover:border-primary/30 transition-all cursor-pointer"
+      className={`group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border ${
+        type === 'premium' ? 'border-yellow-400/30' : 'border-transparent hover:border-primary/30'
+      } transition-all cursor-pointer`}
       onClick={handleClick}
     >
       <div>
@@ -238,6 +200,11 @@ export default function PropertyCard({
           <div className="flex-1 min-w-0">
             {/* 상호명 (제목) - 더 명확하게 표시 */}
             <div className="flex items-center gap-1.5 mb-0.5">
+              {type === 'premium' && (
+                <span className="bg-yellow-400 text-[#111318] text-[10px] font-bold px-2 py-0.5 rounded mr-1">
+                  PREMIUM
+                </span>
+              )}
               {propertyType === '상가' && (
                 <span className="text-[#616f89] dark:text-gray-400 text-xs font-medium shrink-0">
                   상호
@@ -262,7 +229,7 @@ export default function PropertyCard({
             <span className="line-clamp-1">{address}</span>
           </p>
         )}
-        <div className="mt-2 flex items-baseline gap-1">
+        <div className={`mt-2 flex items-baseline gap-1 ${shouldBlur ? 'filter blur-sm opacity-60 select-none pointer-events-none' : ''}`}>
           <span className="text-primary font-bold text-lg">{deposit}</span>
           <span className="text-[#616f89] dark:text-gray-400 text-xs font-medium">보증금</span>
           <span className="text-[#616f89] dark:text-gray-400 text-xs px-1">/</span>

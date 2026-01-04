@@ -64,7 +64,7 @@ export default function CentralSearchBar({ onSearchAddress, onKeywordSearch }: C
         <div className="flex w-full items-stretch rounded-lg h-9 sm:h-12 bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
           <input
             className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-2 sm:px-4 text-xs sm:text-base font-normal leading-normal"
-            placeholder="장소, 건물명, 주소 검색"
+            placeholder="제목, 주소, 구/동으로 검색..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyPress={handleKeyPress}

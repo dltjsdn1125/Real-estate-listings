@@ -1,0 +1,1583 @@
+### Page state
+- Page URL: http://localhost:3000/map
+- Page Title: Daegu Commercial Platform
+- Page Snapshot:
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - button "filter_list" [ref=e5] [cursor=pointer]:
+          - generic [ref=e6]: filter_list
+        - button "Daegu Realty" [ref=e7] [cursor=pointer]:
+          - heading "Daegu Realty" [level=2] [ref=e8]
+      - button "more_vert" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: more_vert
+    - generic [ref=e13]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - heading "매물 탐색" [level=2] [ref=e18]
+            - button "close" [ref=e19] [cursor=pointer]:
+              - generic [ref=e20]: close
+          - generic [ref=e21]:
+            - button "search" [ref=e22] [cursor=pointer]:
+              - generic [ref=e23]: search
+            - button "home" [ref=e24] [cursor=pointer]:
+              - generic [ref=e25]: home
+            - button "star" [ref=e26] [cursor=pointer]:
+              - generic [ref=e27]: star
+            - button "my_location" [ref=e28] [cursor=pointer]:
+              - generic [ref=e29]: my_location
+            - button "settings" [ref=e30] [cursor=pointer]:
+              - generic [ref=e31]: settings
+        - generic [ref=e33]:
+          - generic [ref=e35]:
+            - textbox "장소, 건물명, 주소 검색" [ref=e36]
+            - button "search" [ref=e37] [cursor=pointer]:
+              - generic [ref=e38]: search
+          - generic [ref=e39]:
+            - heading "필터" [level=3] [ref=e40]
+            - generic [ref=e41]:
+              - generic [ref=e42]: 지역
+              - button "전체 expand_more" [ref=e44] [cursor=pointer]:
+                - generic [ref=e45]: 전체
+                - generic [ref=e46]: expand_more
+            - generic [ref=e47]:
+              - generic [ref=e48]: 매물 유형
+              - button "전체 expand_more" [ref=e50] [cursor=pointer]:
+                - generic [ref=e51]: 전체
+                - generic [ref=e52]: expand_more
+            - generic [ref=e53]:
+              - generic [ref=e54]: 가격
+              - button "전체 expand_more" [ref=e56] [cursor=pointer]:
+                - generic [ref=e57]: 전체
+                - generic [ref=e58]: expand_more
+            - generic [ref=e59]:
+              - generic [ref=e60]: 면적
+              - button "전체 expand_more" [ref=e62] [cursor=pointer]:
+                - generic [ref=e63]: 전체
+                - generic [ref=e64]: expand_more
+            - generic [ref=e65]:
+              - button "초기화" [ref=e66] [cursor=pointer]
+              - button "적용" [ref=e67] [cursor=pointer]
+          - generic [ref=e68]:
+            - heading "매물 50개" [level=3] [ref=e109]
+            - generic [ref=e70]:
+              - generic [ref=e111] [cursor=pointer]:
+                - generic [ref=e112]:
+                  - generic [ref=e114]:
+                    - generic [ref=e115]: 상호
+                    - heading "이디야커피 대구시청점/대구광역시 중구 국채보상로131길 15" [level=4] [ref=e116]
+                  - button "favorite_border" [ref=e117]
+                - paragraph [ref=e118]: • 1F
+                - paragraph [ref=e119]:
+                  - generic [ref=e120]: place
+                  - generic [ref=e121]: 대구광역시 중구 국채보상로131길 15
+                - generic:
+                  - generic: "0"
+                  - generic: 보증금
+                  - generic: /
+                  - generic: "0"
+                  - generic: 월세
+                - generic [ref=e123]:
+                  - generic [ref=e124]: crop_square
+                  - generic [ref=e125]: 30평
+                - generic [ref=e126]:
+                  - button "streetview 로드뷰 보기" [ref=e127]:
+                    - generic [ref=e128]: streetview
+                    - text: 로드뷰 보기
+                  - button "location_on 위치 보기" [ref=e129]:
+                    - generic [ref=e130]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e131]:
+                    - /url: /properties/a72bdd14-db9a-4103-8df7-e500ce315dc9
+                    - generic [ref=e132]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e135] [cursor=pointer]:
+                - generic [ref=e136]:
+                  - generic [ref=e138]:
+                    - generic [ref=e139]: 상호
+                    - heading "대구이월드/대구광역시 달서구 두류공원로 200" [level=4] [ref=e140]
+                  - button "favorite_border" [ref=e141]
+                - paragraph [ref=e142]: • 1F
+                - paragraph [ref=e143]:
+                  - generic [ref=e144]: place
+                  - generic [ref=e145]: 대구광역시 달서구 두류공원로 200
+                - generic [ref=e146]:
+                  - generic [ref=e147]: 5,000만
+                  - generic [ref=e148]: 보증금
+                  - generic [ref=e149]: /
+                  - generic [ref=e150]: "0"
+                  - generic [ref=e151]: 월세
+                - generic [ref=e153]:
+                  - generic [ref=e154]: crop_square
+                  - generic [ref=e155]: 50평
+                - generic [ref=e156]:
+                  - button "streetview 로드뷰 보기" [ref=e157]:
+                    - generic [ref=e158]: streetview
+                    - text: 로드뷰 보기
+                  - button "location_on 위치 보기" [ref=e159]:
+                    - generic [ref=e160]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e161]:
+                    - /url: /properties/c645f198-b2b2-44a8-ba82-95a99b2fdfca
+                    - generic [ref=e162]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e165] [cursor=pointer]:
+                - generic [ref=e166]:
+                  - generic [ref=e168]:
+                    - generic [ref=e169]: 상호
+                    - heading "테스트 상세 매물 등록" [level=4] [ref=e170]
+                  - button "favorite_border" [ref=e171]
+                - paragraph [ref=e172]: 중구 • 1F
+                - paragraph [ref=e173]:
+                  - generic [ref=e174]: place
+                  - generic [ref=e175]: 대구광역시 중구 동성로 100
+                - generic [ref=e176]:
+                  - generic [ref=e177]: "0"
+                  - generic [ref=e178]: 보증금
+                  - generic [ref=e179]: /
+                  - generic [ref=e180]: "0"
+                  - generic [ref=e181]: 월세
+                - generic [ref=e183]:
+                  - generic [ref=e184]: crop_square
+                  - generic [ref=e185]: N/A
+                - generic [ref=e186]:
+                  - button "location_on 위치 보기" [ref=e188]:
+                    - generic [ref=e189]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e190]:
+                    - /url: /properties/7ed1a445-a49c-4047-a7a8-b75c06045178
+                    - generic [ref=e191]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e194] [cursor=pointer]:
+                - generic [ref=e195]:
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: 상호
+                    - heading "선비꼬마김밥 월배점/대구광역시 달서구 월서로 30" [level=4] [ref=e199]
+                  - button "favorite_border" [ref=e200]
+                - paragraph [ref=e201]: • 1F
+                - paragraph [ref=e202]:
+                  - generic [ref=e203]: place
+                  - generic [ref=e204]: 대구광역시 달서구 월서로 30
+                - generic [ref=e205]:
+                  - generic [ref=e206]: "0"
+                  - generic [ref=e207]: 보증금
+                  - generic [ref=e208]: /
+                  - generic [ref=e209]: "0"
+                  - generic [ref=e210]: 월세
+                - generic [ref=e212]:
+                  - generic [ref=e213]: crop_square
+                  - generic [ref=e214]: 35.25평
+                - generic [ref=e215]:
+                  - button "location_on 위치 보기" [ref=e217]:
+                    - generic [ref=e218]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e219]:
+                    - /url: /properties/faba86f4-b425-47c1-a723-a93b31ea741d
+                    - generic [ref=e220]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e223] [cursor=pointer]:
+                - generic [ref=e224]:
+                  - generic [ref=e226]:
+                    - generic [ref=e227]: 상호
+                    - heading "약령시장 한약상가 1층 25평" [level=4] [ref=e228]
+                  - button "favorite_border" [ref=e229]
+                - paragraph [ref=e230]: 중구, 남성로 • 1F
+                - paragraph [ref=e231]:
+                  - generic [ref=e232]: place
+                  - generic [ref=e233]: 대구광역시 중구 남성로 51
+                - generic [ref=e234]:
+                  - generic [ref=e235]: 4,500만
+                  - generic [ref=e236]: 보증금
+                  - generic [ref=e237]: /
+                  - generic [ref=e238]: 180만
+                  - generic [ref=e239]: 월세
+                - generic [ref=e241]:
+                  - generic [ref=e242]: crop_square
+                  - generic [ref=e243]: 25평
+                - generic [ref=e244]:
+                  - button "location_on 위치 보기" [ref=e246]:
+                    - generic [ref=e247]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e248]:
+                    - /url: /properties/6a4c81b2-1f37-4076-a474-14e70e02139d
+                    - generic [ref=e249]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e252] [cursor=pointer]:
+                - generic [ref=e253]:
+                  - generic [ref=e255]:
+                    - generic [ref=e256]: 상호
+                    - heading "서문시장 1지구 1층 28평" [level=4] [ref=e257]
+                  - button "favorite_border" [ref=e258]
+                - paragraph [ref=e259]: 중구, 대신동 • 1F
+                - paragraph [ref=e260]:
+                  - generic [ref=e261]: place
+                  - generic [ref=e262]: 대구광역시 중구 큰장로 26길 45
+                - generic [ref=e263]:
+                  - generic [ref=e264]: 5,000만
+                  - generic [ref=e265]: 보증금
+                  - generic [ref=e266]: /
+                  - generic [ref=e267]: 200만
+                  - generic [ref=e268]: 월세
+                - generic [ref=e270]:
+                  - generic [ref=e271]: crop_square
+                  - generic [ref=e272]: 28평
+                - generic [ref=e273]:
+                  - button "location_on 위치 보기" [ref=e275]:
+                    - generic [ref=e276]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e277]:
+                    - /url: /properties/4df8a219-58be-4daa-b638-a0ffb061d759
+                    - generic [ref=e278]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e281] [cursor=pointer]:
+                - generic [ref=e282]:
+                  - generic [ref=e284]:
+                    - generic [ref=e285]: 상호
+                    - heading "서문시장 2지구 1층 27평" [level=4] [ref=e286]
+                  - button "favorite_border" [ref=e287]
+                - paragraph [ref=e288]: 중구, 대신동 • 1F
+                - paragraph [ref=e289]:
+                  - generic [ref=e290]: place
+                  - generic [ref=e291]: 대구광역시 중구 달성로 35
+                - generic [ref=e292]:
+                  - generic [ref=e293]: 4,800만
+                  - generic [ref=e294]: 보증금
+                  - generic [ref=e295]: /
+                  - generic [ref=e296]: 190만
+                  - generic [ref=e297]: 월세
+                - generic [ref=e298]:
+                  - generic [ref=e299]:
+                    - generic [ref=e300]: crop_square
+                    - generic [ref=e301]: 27평
+                  - generic [ref=e302]:
+                    - generic [ref=e303]: directions_car
+                    - generic [ref=e304]: 주차 가능
+                - generic [ref=e305]:
+                  - button "location_on 위치 보기" [ref=e307]:
+                    - generic [ref=e308]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e309]:
+                    - /url: /properties/5ee0cd03-f6a9-4129-87dd-3f1a2f918f04
+                    - generic [ref=e310]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e313] [cursor=pointer]:
+                - generic [ref=e314]:
+                  - heading "범어네거리 코오롱빌딩 3층 55평" [level=4] [ref=e317]
+                  - button "favorite_border" [ref=e318]
+                - paragraph [ref=e319]: 수성구, 범어동 • 3F
+                - paragraph [ref=e320]:
+                  - generic [ref=e321]: place
+                  - generic [ref=e322]: 대구광역시 수성구 동대구로 325
+                - generic [ref=e323]:
+                  - generic [ref=e324]: 7,000만
+                  - generic [ref=e325]: 보증금
+                  - generic [ref=e326]: /
+                  - generic [ref=e327]: 250만
+                  - generic [ref=e328]: 월세
+                - generic [ref=e329]:
+                  - generic [ref=e330]:
+                    - generic [ref=e331]: crop_square
+                    - generic [ref=e332]: 55평
+                  - generic [ref=e333]:
+                    - generic [ref=e334]: directions_car
+                    - generic [ref=e335]: 주차 가능
+                - generic [ref=e336]:
+                  - button "location_on 위치 보기" [ref=e338]:
+                    - generic [ref=e339]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e340]:
+                    - /url: /properties/5ee86cdd-8db2-402e-9790-21ad29397e39
+                    - generic [ref=e341]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e344] [cursor=pointer]:
+                - generic [ref=e345]:
+                  - generic [ref=e347]:
+                    - generic [ref=e348]: 상호
+                    - heading "만촌역 메트로상가 1층 40평" [level=4] [ref=e349]
+                  - button "favorite_border" [ref=e350]
+                - paragraph [ref=e351]: 수성구, 만촌동 • 1F
+                - paragraph [ref=e352]:
+                  - generic [ref=e353]: place
+                  - generic [ref=e354]: 대구광역시 수성구 만촌로 39
+                - generic [ref=e355]:
+                  - generic [ref=e356]: 6,000만
+                  - generic [ref=e357]: 보증금
+                  - generic [ref=e358]: /
+                  - generic [ref=e359]: 200만
+                  - generic [ref=e360]: 월세
+                - generic [ref=e362]:
+                  - generic [ref=e363]: crop_square
+                  - generic [ref=e364]: 40평
+                - generic [ref=e365]:
+                  - button "location_on 위치 보기" [ref=e367]:
+                    - generic [ref=e368]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e369]:
+                    - /url: /properties/edd0e204-c4d4-4276-8f1c-50365e9be976
+                    - generic [ref=e370]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e373] [cursor=pointer]:
+                - generic [ref=e374]:
+                  - generic [ref=e376]:
+                    - generic [ref=e377]: 상호
+                    - heading "수성유원지 카페거리상가 1층 35평" [level=4] [ref=e378]
+                  - button "favorite_border" [ref=e379]
+                - paragraph [ref=e380]: 수성구, 두산동 • 1F
+                - paragraph [ref=e381]:
+                  - generic [ref=e382]: place
+                  - generic [ref=e383]: 대구광역시 수성구 용학로 200
+                - generic [ref=e384]:
+                  - generic [ref=e385]: 5,500만
+                  - generic [ref=e386]: 보증금
+                  - generic [ref=e387]: /
+                  - generic [ref=e388]: 180만
+                  - generic [ref=e389]: 월세
+                - generic [ref=e390]:
+                  - generic [ref=e391]:
+                    - generic [ref=e392]: crop_square
+                    - generic [ref=e393]: 35평
+                  - generic [ref=e394]:
+                    - generic [ref=e395]: directions_car
+                    - generic [ref=e396]: 주차 가능
+                - generic [ref=e397]:
+                  - button "location_on 위치 보기" [ref=e399]:
+                    - generic [ref=e400]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e401]:
+                    - /url: /properties/ca631a59-4eec-4f1d-95c3-7ff1206c6594
+                    - generic [ref=e402]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e405] [cursor=pointer]:
+                - generic [ref=e406]:
+                  - generic [ref=e408]:
+                    - generic [ref=e409]: 상호
+                    - heading "들안길 먹거리타운 1층 42평" [level=4] [ref=e410]
+                  - button "favorite_border" [ref=e411]
+                - paragraph [ref=e412]: 수성구, 범어동 • 1F
+                - paragraph [ref=e413]:
+                  - generic [ref=e414]: place
+                  - generic [ref=e415]: 대구광역시 수성구 들안로 87
+                - generic [ref=e416]:
+                  - generic [ref=e417]: 6,500만
+                  - generic [ref=e418]: 보증금
+                  - generic [ref=e419]: /
+                  - generic [ref=e420]: 220만
+                  - generic [ref=e421]: 월세
+                - generic [ref=e422]:
+                  - generic [ref=e423]:
+                    - generic [ref=e424]: crop_square
+                    - generic [ref=e425]: 42평
+                  - generic [ref=e426]:
+                    - generic [ref=e427]: directions_car
+                    - generic [ref=e428]: 주차 가능
+                - generic [ref=e429]:
+                  - button "location_on 위치 보기" [ref=e431]:
+                    - generic [ref=e432]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e433]:
+                    - /url: /properties/c0d47b88-ff38-4f47-87cb-e1ea59ac715a
+                    - generic [ref=e434]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e437] [cursor=pointer]:
+                - generic [ref=e438]:
+                  - generic [ref=e440]:
+                    - generic [ref=e441]: PREMIUM
+                    - generic [ref=e442]: 상호
+                    - heading "황금네거리 대백프라자 2층 48평" [level=4] [ref=e443]
+                  - button "favorite_border" [ref=e444]
+                - paragraph [ref=e445]: 수성구, 황금동 • 2F
+                - paragraph [ref=e446]:
+                  - generic [ref=e447]: place
+                  - generic [ref=e448]: 대구광역시 수성구 달구벌대로 2420
+                - generic [ref=e449]:
+                  - generic [ref=e450]: 8,000만
+                  - generic [ref=e451]: 보증금
+                  - generic [ref=e452]: /
+                  - generic [ref=e453]: 300만
+                  - generic [ref=e454]: 월세
+                - generic [ref=e455]:
+                  - generic [ref=e456]:
+                    - generic [ref=e457]: crop_square
+                    - generic [ref=e458]: 48평
+                  - generic [ref=e459]:
+                    - generic [ref=e460]: directions_car
+                    - generic [ref=e461]: 주차 가능
+                - generic [ref=e462]:
+                  - button "location_on 위치 보기" [ref=e464]:
+                    - generic [ref=e465]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e466]:
+                    - /url: /properties/5a785d49-4b4d-4271-9c0f-342813d3a837
+                    - generic [ref=e467]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e470] [cursor=pointer]:
+                - generic [ref=e471]:
+                  - generic [ref=e473]:
+                    - generic [ref=e474]: 상호
+                    - heading "범어역 엑스코상가 1층 45평" [level=4] [ref=e475]
+                  - button "favorite_border" [ref=e476]
+                - paragraph [ref=e477]: 수성구, 범어동 • 1F
+                - paragraph [ref=e478]:
+                  - generic [ref=e479]: place
+                  - generic [ref=e480]: 대구광역시 수성구 범어로 155
+                - generic [ref=e481]:
+                  - generic [ref=e482]: 7,000만
+                  - generic [ref=e483]: 보증금
+                  - generic [ref=e484]: /
+                  - generic [ref=e485]: 250만
+                  - generic [ref=e486]: 월세
+                - generic [ref=e487]:
+                  - generic [ref=e488]:
+                    - generic [ref=e489]: crop_square
+                    - generic [ref=e490]: 45평
+                  - generic [ref=e491]:
+                    - generic [ref=e492]: directions_car
+                    - generic [ref=e493]: 주차 가능
+                - generic [ref=e494]:
+                  - button "location_on 위치 보기" [ref=e496]:
+                    - generic [ref=e497]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e498]:
+                    - /url: /properties/515990ba-b9c3-4ec9-8dab-8a08bade79be
+                    - generic [ref=e499]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e502] [cursor=pointer]:
+                - generic [ref=e503]:
+                  - generic [ref=e505]:
+                    - generic [ref=e506]: 상호
+                    - heading "지산범물역 상가 1층 38평" [level=4] [ref=e507]
+                  - button "favorite_border" [ref=e508]
+                - paragraph [ref=e509]: 수성구, 지산동 • 1F
+                - paragraph [ref=e510]:
+                  - generic [ref=e511]: place
+                  - generic [ref=e512]: 대구광역시 수성구 지범로 57
+                - generic [ref=e513]:
+                  - generic [ref=e514]: 5,800만
+                  - generic [ref=e515]: 보증금
+                  - generic [ref=e516]: /
+                  - generic [ref=e517]: 190만
+                  - generic [ref=e518]: 월세
+                - generic [ref=e519]:
+                  - generic [ref=e520]:
+                    - generic [ref=e521]: crop_square
+                    - generic [ref=e522]: 38평
+                  - generic [ref=e523]:
+                    - generic [ref=e524]: directions_car
+                    - generic [ref=e525]: 주차 가능
+                - generic [ref=e526]:
+                  - button "location_on 위치 보기" [ref=e528]:
+                    - generic [ref=e529]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e530]:
+                    - /url: /properties/1b12f2c6-5f76-411b-99f2-3f7dddfa3db2
+                    - generic [ref=e531]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e534] [cursor=pointer]:
+                - generic [ref=e535]:
+                  - generic [ref=e537]:
+                    - generic [ref=e538]: 상호
+                    - heading "수성구청 인근 상가 2층 46평" [level=4] [ref=e539]
+                  - button "favorite_border" [ref=e540]
+                - paragraph [ref=e541]: 수성구, 범어동 • 2F
+                - paragraph [ref=e542]:
+                  - generic [ref=e543]: place
+                  - generic [ref=e544]: 대구광역시 수성구 수성로 283
+                - generic [ref=e545]:
+                  - generic [ref=e546]: 7,200만
+                  - generic [ref=e547]: 보증금
+                  - generic [ref=e548]: /
+                  - generic [ref=e549]: 260만
+                  - generic [ref=e550]: 월세
+                - generic [ref=e551]:
+                  - generic [ref=e552]:
+                    - generic [ref=e553]: crop_square
+                    - generic [ref=e554]: 46평
+                  - generic [ref=e555]:
+                    - generic [ref=e556]: directions_car
+                    - generic [ref=e557]: 주차 가능
+                - generic [ref=e558]:
+                  - button "location_on 위치 보기" [ref=e560]:
+                    - generic [ref=e561]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e562]:
+                    - /url: /properties/38870d10-5276-4d99-91dc-171dd774f635
+                    - generic [ref=e563]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e566] [cursor=pointer]:
+                - generic [ref=e567]:
+                  - generic [ref=e569]:
+                    - generic [ref=e570]: 상호
+                    - heading "성서공단 테크노폴리스몰 1층 40평" [level=4] [ref=e571]
+                  - button "favorite_border" [ref=e572]
+                - paragraph [ref=e573]: 달서구, 호림동 • 1F
+                - paragraph [ref=e574]:
+                  - generic [ref=e575]: place
+                  - generic [ref=e576]: 대구광역시 달서구 성서공단로 11길 62
+                - generic [ref=e577]:
+                  - generic [ref=e578]: 5,000만
+                  - generic [ref=e579]: 보증금
+                  - generic [ref=e580]: /
+                  - generic [ref=e581]: 150만
+                  - generic [ref=e582]: 월세
+                - generic [ref=e583]:
+                  - generic [ref=e584]:
+                    - generic [ref=e585]: crop_square
+                    - generic [ref=e586]: 40평
+                  - generic [ref=e587]:
+                    - generic [ref=e588]: directions_car
+                    - generic [ref=e589]: 주차 가능
+                - generic [ref=e590]:
+                  - button "location_on 위치 보기" [ref=e592]:
+                    - generic [ref=e593]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e594]:
+                    - /url: /properties/987b0a87-c25c-4173-a9b9-326f793e32ac
+                    - generic [ref=e595]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e598] [cursor=pointer]:
+                - generic [ref=e599]:
+                  - generic [ref=e601]:
+                    - generic [ref=e602]: PREMIUM
+                    - generic [ref=e603]: 상호
+                    - heading "월성동 로데오거리 상가 1층 35평" [level=4] [ref=e604]
+                  - button "favorite_border" [ref=e605]
+                - paragraph [ref=e606]: 달서구, 월성동 • 1F
+                - paragraph [ref=e607]:
+                  - generic [ref=e608]: place
+                  - generic [ref=e609]: 대구광역시 달서구 월배로 251
+                - generic [ref=e610]:
+                  - generic [ref=e611]: 4,800만
+                  - generic [ref=e612]: 보증금
+                  - generic [ref=e613]: /
+                  - generic [ref=e614]: 140만
+                  - generic [ref=e615]: 월세
+                - generic [ref=e617]:
+                  - generic [ref=e618]: crop_square
+                  - generic [ref=e619]: 35평
+                - generic [ref=e620]:
+                  - button "location_on 위치 보기" [ref=e622]:
+                    - generic [ref=e623]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e624]:
+                    - /url: /properties/af710708-2890-4211-8eda-7b48f1d5fea4
+                    - generic [ref=e625]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e628] [cursor=pointer]:
+                - generic [ref=e629]:
+                  - generic [ref=e631]:
+                    - generic [ref=e632]: 상호
+                    - heading "계명대 정문 상가 1층 38평" [level=4] [ref=e633]
+                  - button "favorite_border" [ref=e634]
+                - paragraph [ref=e635]: 달서구, 신당동 • 1F
+                - paragraph [ref=e636]:
+                  - generic [ref=e637]: place
+                  - generic [ref=e638]: 대구광역시 달서구 달구벌대로 1095
+                - generic [ref=e639]:
+                  - generic [ref=e640]: 5,200만
+                  - generic [ref=e641]: 보증금
+                  - generic [ref=e642]: /
+                  - generic [ref=e643]: 160만
+                  - generic [ref=e644]: 월세
+                - generic [ref=e645]:
+                  - generic [ref=e646]:
+                    - generic [ref=e647]: crop_square
+                    - generic [ref=e648]: 38평
+                  - generic [ref=e649]:
+                    - generic [ref=e650]: directions_car
+                    - generic [ref=e651]: 주차 가능
+                - generic [ref=e652]:
+                  - button "location_on 위치 보기" [ref=e654]:
+                    - generic [ref=e655]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e656]:
+                    - /url: /properties/5e343a5a-0d2c-4412-9bb9-5807dac366fb
+                    - generic [ref=e657]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e660] [cursor=pointer]:
+                - generic [ref=e661]:
+                  - generic [ref=e663]:
+                    - generic [ref=e664]: PREMIUM
+                    - generic [ref=e665]: 상호
+                    - heading "본리동 영남네거리 상가 1층 36평" [level=4] [ref=e666]
+                  - button "favorite_border" [ref=e667]
+                - paragraph [ref=e668]: 달서구, 본리동 • 1F
+                - paragraph [ref=e669]:
+                  - generic [ref=e670]: place
+                  - generic [ref=e671]: 대구광역시 달서구 월배로 87
+                - generic [ref=e672]:
+                  - generic [ref=e673]: 4,900만
+                  - generic [ref=e674]: 보증금
+                  - generic [ref=e675]: /
+                  - generic [ref=e676]: 150만
+                  - generic [ref=e677]: 월세
+                - generic [ref=e678]:
+                  - generic [ref=e679]:
+                    - generic [ref=e680]: crop_square
+                    - generic [ref=e681]: 36평
+                  - generic [ref=e682]:
+                    - generic [ref=e683]: directions_car
+                    - generic [ref=e684]: 주차 가능
+                - generic [ref=e685]:
+                  - button "location_on 위치 보기" [ref=e687]:
+                    - generic [ref=e688]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e689]:
+                    - /url: /properties/87329653-d383-47fc-946c-9c342ee32de3
+                    - generic [ref=e690]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e693] [cursor=pointer]:
+                - generic [ref=e694]:
+                  - generic [ref=e696]:
+                    - generic [ref=e697]: 상호
+                    - heading "죽전역 역세권 상가 1층 39평" [level=4] [ref=e698]
+                  - button "favorite_border" [ref=e699]
+                - paragraph [ref=e700]: 달서구, 죽전동 • 1F
+                - paragraph [ref=e701]:
+                  - generic [ref=e702]: place
+                  - generic [ref=e703]: 대구광역시 달서구 달구벌대로 1465
+                - generic [ref=e704]:
+                  - generic [ref=e705]: 5,300만
+                  - generic [ref=e706]: 보증금
+                  - generic [ref=e707]: /
+                  - generic [ref=e708]: 160만
+                  - generic [ref=e709]: 월세
+                - generic [ref=e710]:
+                  - generic [ref=e711]:
+                    - generic [ref=e712]: crop_square
+                    - generic [ref=e713]: 39평
+                  - generic [ref=e714]:
+                    - generic [ref=e715]: directions_car
+                    - generic [ref=e716]: 주차 가능
+                - generic [ref=e717]:
+                  - button "location_on 위치 보기" [ref=e719]:
+                    - generic [ref=e720]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e721]:
+                    - /url: /properties/a3c78bbd-8d86-4214-8d46-797bba90f52d
+                    - generic [ref=e722]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e725] [cursor=pointer]:
+                - generic [ref=e726]:
+                  - generic [ref=e728]:
+                    - generic [ref=e729]: 상호
+                    - heading "감삼역 상가 1층 37평" [level=4] [ref=e730]
+                  - button "favorite_border" [ref=e731]
+                - paragraph [ref=e732]: 달서구, 감삼동 • 1F
+                - paragraph [ref=e733]:
+                  - generic [ref=e734]: place
+                  - generic [ref=e735]: 대구광역시 달서구 달구벌대로 1405
+                - generic [ref=e736]:
+                  - generic [ref=e737]: 5,100만
+                  - generic [ref=e738]: 보증금
+                  - generic [ref=e739]: /
+                  - generic [ref=e740]: 155만
+                  - generic [ref=e741]: 월세
+                - generic [ref=e743]:
+                  - generic [ref=e744]: crop_square
+                  - generic [ref=e745]: 37평
+                - generic [ref=e746]:
+                  - button "location_on 위치 보기" [ref=e748]:
+                    - generic [ref=e749]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e750]:
+                    - /url: /properties/15897468-0126-4a3b-b94e-75ed06d3e548
+                    - generic [ref=e751]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e754] [cursor=pointer]:
+                - generic [ref=e755]:
+                  - generic [ref=e757]:
+                    - generic [ref=e758]: PREMIUM
+                    - generic [ref=e759]: 상호
+                    - heading "칠성시장 상가 1층 32평" [level=4] [ref=e760]
+                  - button "favorite_border" [ref=e761]
+                - paragraph [ref=e762]: 북구, 칠성동1가 • 1F
+                - paragraph [ref=e763]:
+                  - generic [ref=e764]: place
+                  - generic [ref=e765]: 대구광역시 북구 칠성로 123
+                - generic [ref=e766]:
+                  - generic [ref=e767]: 4,500만
+                  - generic [ref=e768]: 보증금
+                  - generic [ref=e769]: /
+                  - generic [ref=e770]: 120만
+                  - generic [ref=e771]: 월세
+                - generic [ref=e773]:
+                  - generic [ref=e774]: crop_square
+                  - generic [ref=e775]: 32평
+                - generic [ref=e776]:
+                  - button "location_on 위치 보기" [ref=e778]:
+                    - generic [ref=e779]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e780]:
+                    - /url: /properties/a8213cc2-a898-4855-bb85-082428aa88e9
+                    - generic [ref=e781]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e784] [cursor=pointer]:
+                - generic [ref=e785]:
+                  - generic [ref=e787]:
+                    - generic [ref=e788]: 상호
+                    - heading "경북대학교 북문 상가 1층 28평" [level=4] [ref=e789]
+                  - button "favorite_border" [ref=e790]
+                - paragraph [ref=e791]: 북구, 복현동 • 1F
+                - paragraph [ref=e792]:
+                  - generic [ref=e793]: place
+                  - generic [ref=e794]: 대구광역시 북구 대학로 80
+                - generic [ref=e795]:
+                  - generic [ref=e796]: 4,200만
+                  - generic [ref=e797]: 보증금
+                  - generic [ref=e798]: /
+                  - generic [ref=e799]: 110만
+                  - generic [ref=e800]: 월세
+                - generic [ref=e801]:
+                  - generic [ref=e802]:
+                    - generic [ref=e803]: crop_square
+                    - generic [ref=e804]: 28평
+                  - generic [ref=e805]:
+                    - generic [ref=e806]: directions_car
+                    - generic [ref=e807]: 주차 가능
+                - generic [ref=e808]:
+                  - button "location_on 위치 보기" [ref=e810]:
+                    - generic [ref=e811]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e812]:
+                    - /url: /properties/68cc448a-669a-431b-8b7c-47c8ce65b70b
+                    - generic [ref=e813]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e816] [cursor=pointer]:
+                - generic [ref=e817]:
+                  - generic [ref=e819]:
+                    - generic [ref=e820]: 상호
+                    - heading "팔달시장 상가 1층 26평" [level=4] [ref=e821]
+                  - button "favorite_border" [ref=e822]
+                - paragraph [ref=e823]: 북구, 노원동3가 • 1F
+                - paragraph [ref=e824]:
+                  - generic [ref=e825]: place
+                  - generic [ref=e826]: 대구광역시 북구 칠곡중앙대로 289
+                - generic [ref=e827]:
+                  - generic [ref=e828]: 4,000만
+                  - generic [ref=e829]: 보증금
+                  - generic [ref=e830]: /
+                  - generic [ref=e831]: 100만
+                  - generic [ref=e832]: 월세
+                - generic [ref=e833]:
+                  - generic [ref=e834]:
+                    - generic [ref=e835]: crop_square
+                    - generic [ref=e836]: 26평
+                  - generic [ref=e837]:
+                    - generic [ref=e838]: directions_car
+                    - generic [ref=e839]: 주차 가능
+                - generic [ref=e840]:
+                  - button "location_on 위치 보기" [ref=e842]:
+                    - generic [ref=e843]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e844]:
+                    - /url: /properties/11bb4015-015e-4424-9357-7c3e139290fe
+                    - generic [ref=e845]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e848] [cursor=pointer]:
+                - generic [ref=e849]:
+                  - generic [ref=e851]:
+                    - generic [ref=e852]: 상호
+                    - heading "대구공항 인근 상가 1층 34평" [level=4] [ref=e853]
+                  - button "favorite_border" [ref=e854]
+                - paragraph [ref=e855]: 북구, 동천동 • 1F
+                - paragraph [ref=e856]:
+                  - generic [ref=e857]: place
+                  - generic [ref=e858]: 대구광역시 북구 동천로 55
+                - generic [ref=e859]:
+                  - generic [ref=e860]: 4,600만
+                  - generic [ref=e861]: 보증금
+                  - generic [ref=e862]: /
+                  - generic [ref=e863]: 130만
+                  - generic [ref=e864]: 월세
+                - generic [ref=e866]:
+                  - generic [ref=e867]: crop_square
+                  - generic [ref=e868]: 34평
+                - generic [ref=e869]:
+                  - button "location_on 위치 보기" [ref=e871]:
+                    - generic [ref=e872]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e873]:
+                    - /url: /properties/6bbaf644-5f9a-4686-acc0-4fc3dedd8495
+                    - generic [ref=e874]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e877] [cursor=pointer]:
+                - generic [ref=e878]:
+                  - generic [ref=e880]:
+                    - generic [ref=e881]: 상호
+                    - heading "침산네거리 상가 1층 30평" [level=4] [ref=e882]
+                  - button "favorite_border" [ref=e883]
+                - paragraph [ref=e884]: 북구, 침산동 • 1F
+                - paragraph [ref=e885]:
+                  - generic [ref=e886]: place
+                  - generic [ref=e887]: 대구광역시 북구 칠성로 95
+                - generic [ref=e888]:
+                  - generic [ref=e889]: 4,400만
+                  - generic [ref=e890]: 보증금
+                  - generic [ref=e891]: /
+                  - generic [ref=e892]: 120만
+                  - generic [ref=e893]: 월세
+                - generic [ref=e895]:
+                  - generic [ref=e896]: crop_square
+                  - generic [ref=e897]: 30평
+                - generic [ref=e898]:
+                  - button "location_on 위치 보기" [ref=e900]:
+                    - generic [ref=e901]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e902]:
+                    - /url: /properties/f33629f4-b47f-4480-a253-2ce75d69148b
+                    - generic [ref=e903]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e906] [cursor=pointer]:
+                - generic [ref=e907]:
+                  - generic [ref=e909]:
+                    - generic [ref=e910]: 상호
+                    - heading "태전역 상가 1층 29평" [level=4] [ref=e911]
+                  - button "favorite_border" [ref=e912]
+                - paragraph [ref=e913]: 북구, 태전동 • 1F
+                - paragraph [ref=e914]:
+                  - generic [ref=e915]: place
+                  - generic [ref=e916]: 대구광역시 북구 태전로 25
+                - generic [ref=e917]:
+                  - generic [ref=e918]: 4,300만
+                  - generic [ref=e919]: 보증금
+                  - generic [ref=e920]: /
+                  - generic [ref=e921]: 115만
+                  - generic [ref=e922]: 월세
+                - generic [ref=e923]:
+                  - generic [ref=e924]:
+                    - generic [ref=e925]: crop_square
+                    - generic [ref=e926]: 29평
+                  - generic [ref=e927]:
+                    - generic [ref=e928]: directions_car
+                    - generic [ref=e929]: 주차 가능
+                - generic [ref=e930]:
+                  - button "location_on 위치 보기" [ref=e932]:
+                    - generic [ref=e933]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e934]:
+                    - /url: /properties/a22d1eb6-fd14-4cd7-acb9-fb6c8e21cbb0
+                    - generic [ref=e935]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e938] [cursor=pointer]:
+                - generic [ref=e939]:
+                  - generic [ref=e941]:
+                    - generic [ref=e942]: 상호
+                    - heading "동대구역 복합환승센터 상가 2층 50평" [level=4] [ref=e943]
+                  - button "favorite_border" [ref=e944]
+                - paragraph [ref=e945]: 동구, 신천동 • 2F
+                - paragraph [ref=e946]:
+                  - generic [ref=e947]: place
+                  - generic [ref=e948]: 대구광역시 동구 동대구로 550
+                - generic [ref=e949]:
+                  - generic [ref=e950]: 6,000만
+                  - generic [ref=e951]: 보증금
+                  - generic [ref=e952]: /
+                  - generic [ref=e953]: 180만
+                  - generic [ref=e954]: 월세
+                - generic [ref=e956]:
+                  - generic [ref=e957]: crop_square
+                  - generic [ref=e958]: 50평
+                - generic [ref=e959]:
+                  - button "location_on 위치 보기" [ref=e961]:
+                    - generic [ref=e962]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e963]:
+                    - /url: /properties/89cbb0e2-3495-4ea5-8638-122c6f6b69d1
+                    - generic [ref=e964]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e967] [cursor=pointer]:
+                - generic [ref=e968]:
+                  - generic [ref=e970]:
+                    - generic [ref=e971]: 상호
+                    - heading "신세계백화점 대구점 1층 55평" [level=4] [ref=e972]
+                  - button "favorite_border" [ref=e973]
+                - paragraph [ref=e974]: 동구, 신천동 • 1F
+                - paragraph [ref=e975]:
+                  - generic [ref=e976]: place
+                  - generic [ref=e977]: 대구광역시 동구 동부로 149
+                - generic [ref=e978]:
+                  - generic [ref=e979]: 8,500만
+                  - generic [ref=e980]: 보증금
+                  - generic [ref=e981]: /
+                  - generic [ref=e982]: 320만
+                  - generic [ref=e983]: 월세
+                - generic [ref=e984]:
+                  - generic [ref=e985]:
+                    - generic [ref=e986]: crop_square
+                    - generic [ref=e987]: 55평
+                  - generic [ref=e988]:
+                    - generic [ref=e989]: directions_car
+                    - generic [ref=e990]: 주차 가능
+                - generic [ref=e991]:
+                  - button "location_on 위치 보기" [ref=e993]:
+                    - generic [ref=e994]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e995]:
+                    - /url: /properties/c0d11f6b-8508-4bb5-92e8-39dc50e4f3d3
+                    - generic [ref=e996]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e999] [cursor=pointer]:
+                - generic [ref=e1000]:
+                  - generic [ref=e1002]:
+                    - generic [ref=e1003]: 상호
+                    - heading "대구혁신도시 상가 1층 40평" [level=4] [ref=e1004]
+                  - button "favorite_border" [ref=e1005]
+                - paragraph [ref=e1006]: 동구, 신서동 • 1F
+                - paragraph [ref=e1007]:
+                  - generic [ref=e1008]: place
+                  - generic [ref=e1009]: 대구광역시 동구 이노밸리로 20
+                - generic [ref=e1010]:
+                  - generic [ref=e1011]: 5,500만
+                  - generic [ref=e1012]: 보증금
+                  - generic [ref=e1013]: /
+                  - generic [ref=e1014]: 160만
+                  - generic [ref=e1015]: 월세
+                - generic [ref=e1017]:
+                  - generic [ref=e1018]: crop_square
+                  - generic [ref=e1019]: 40평
+                - generic [ref=e1020]:
+                  - button "location_on 위치 보기" [ref=e1022]:
+                    - generic [ref=e1023]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1024]:
+                    - /url: /properties/84dd4f2c-8734-4817-8198-26f0ffd3abc9
+                    - generic [ref=e1025]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1028] [cursor=pointer]:
+                - generic [ref=e1029]:
+                  - generic [ref=e1031]:
+                    - generic [ref=e1032]: PREMIUM
+                    - heading "동성로 엔젤리너스 빌딩 1층 45평" [level=4] [ref=e1033]
+                  - button "favorite_border" [ref=e1034]
+                - paragraph [ref=e1035]: 중구, 동성동1가 • 1F
+                - paragraph [ref=e1036]:
+                  - generic [ref=e1037]: place
+                  - generic [ref=e1038]: 대구광역시 중구 동성로 50
+                - generic [ref=e1039]:
+                  - generic [ref=e1040]: 9,000만
+                  - generic [ref=e1041]: 보증금
+                  - generic [ref=e1042]: /
+                  - generic [ref=e1043]: 350만
+                  - generic [ref=e1044]: 월세
+                - generic [ref=e1045]:
+                  - generic [ref=e1046]:
+                    - generic [ref=e1047]: crop_square
+                    - generic [ref=e1048]: 45평
+                  - generic [ref=e1049]:
+                    - generic [ref=e1050]: directions_car
+                    - generic [ref=e1051]: 주차 가능
+                - generic [ref=e1052]:
+                  - button "location_on 위치 보기" [ref=e1054]:
+                    - generic [ref=e1055]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1056]:
+                    - /url: /properties/40e9d9bf-29c9-4652-bb11-8d8a7e795c9a
+                    - generic [ref=e1057]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1060] [cursor=pointer]:
+                - generic [ref=e1061]:
+                  - generic [ref=e1063]:
+                    - generic [ref=e1064]: 상호
+                    - heading "아양교역 상가 1층 38평" [level=4] [ref=e1065]
+                  - button "favorite_border" [ref=e1066]
+                - paragraph [ref=e1067]: 동구, 효목동 • 1F
+                - paragraph [ref=e1068]:
+                  - generic [ref=e1069]: place
+                  - generic [ref=e1070]: 대구광역시 동구 아양로 205
+                - generic [ref=e1071]:
+                  - generic [ref=e1072]: 5,000만
+                  - generic [ref=e1073]: 보증금
+                  - generic [ref=e1074]: /
+                  - generic [ref=e1075]: 150만
+                  - generic [ref=e1076]: 월세
+                - generic [ref=e1077]:
+                  - generic [ref=e1078]:
+                    - generic [ref=e1079]: crop_square
+                    - generic [ref=e1080]: 38평
+                  - generic [ref=e1081]:
+                    - generic [ref=e1082]: directions_car
+                    - generic [ref=e1083]: 주차 가능
+                - generic [ref=e1084]:
+                  - button "location_on 위치 보기" [ref=e1086]:
+                    - generic [ref=e1087]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1088]:
+                    - /url: /properties/36babead-3fd3-4124-83b7-d33266fe9772
+                    - generic [ref=e1089]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1092] [cursor=pointer]:
+                - generic [ref=e1093]:
+                  - generic [ref=e1095]:
+                    - generic [ref=e1096]: 상호
+                    - heading "율하역 상가 1층 36평" [level=4] [ref=e1097]
+                  - button "favorite_border" [ref=e1098]
+                - paragraph [ref=e1099]: 동구, 율하동 • 1F
+                - paragraph [ref=e1100]:
+                  - generic [ref=e1101]: place
+                  - generic [ref=e1102]: 대구광역시 동구 율하동로 23
+                - generic [ref=e1103]:
+                  - generic [ref=e1104]: 4,700만
+                  - generic [ref=e1105]: 보증금
+                  - generic [ref=e1106]: /
+                  - generic [ref=e1107]: 140만
+                  - generic [ref=e1108]: 월세
+                - generic [ref=e1109]:
+                  - generic [ref=e1110]:
+                    - generic [ref=e1111]: crop_square
+                    - generic [ref=e1112]: 36평
+                  - generic [ref=e1113]:
+                    - generic [ref=e1114]: directions_car
+                    - generic [ref=e1115]: 주차 가능
+                - generic [ref=e1116]:
+                  - button "location_on 위치 보기" [ref=e1118]:
+                    - generic [ref=e1119]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1120]:
+                    - /url: /properties/9ec566a7-d832-4e7b-9fd0-03186026b725
+                    - generic [ref=e1121]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1124] [cursor=pointer]:
+                - generic [ref=e1125]:
+                  - generic [ref=e1127]:
+                    - generic [ref=e1128]: PREMIUM
+                    - generic [ref=e1129]: 상호
+                    - heading "서대구역 역세권 상가 1층 40평" [level=4] [ref=e1130]
+                  - button "favorite_border" [ref=e1131]
+                - paragraph [ref=e1132]: 서구, 평리동 • 1F
+                - paragraph [ref=e1133]:
+                  - generic [ref=e1134]: place
+                  - generic [ref=e1135]: 대구광역시 서구 국채보상로 707
+                - generic [ref=e1136]:
+                  - generic [ref=e1137]: 5,200만
+                  - generic [ref=e1138]: 보증금
+                  - generic [ref=e1139]: /
+                  - generic [ref=e1140]: 150만
+                  - generic [ref=e1141]: 월세
+                - generic [ref=e1143]:
+                  - generic [ref=e1144]: crop_square
+                  - generic [ref=e1145]: 40평
+                - generic [ref=e1146]:
+                  - button "location_on 위치 보기" [ref=e1148]:
+                    - generic [ref=e1149]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1150]:
+                    - /url: /properties/dd23843f-5e59-464b-8552-2e9653c8a726
+                    - generic [ref=e1151]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1154] [cursor=pointer]:
+                - generic [ref=e1155]:
+                  - generic [ref=e1157]:
+                    - generic [ref=e1158]: 상호
+                    - heading "비산네거리 상가 1층 38평" [level=4] [ref=e1159]
+                  - button "favorite_border" [ref=e1160]
+                - paragraph [ref=e1161]: 서구, 비산동 • 1F
+                - paragraph [ref=e1162]:
+                  - generic [ref=e1163]: place
+                  - generic [ref=e1164]: 대구광역시 서구 달서로 115
+                - generic [ref=e1165]:
+                  - generic [ref=e1166]: 4,900만
+                  - generic [ref=e1167]: 보증금
+                  - generic [ref=e1168]: /
+                  - generic [ref=e1169]: 140만
+                  - generic [ref=e1170]: 월세
+                - generic [ref=e1171]:
+                  - generic [ref=e1172]:
+                    - generic [ref=e1173]: crop_square
+                    - generic [ref=e1174]: 38평
+                  - generic [ref=e1175]:
+                    - generic [ref=e1176]: directions_car
+                    - generic [ref=e1177]: 주차 가능
+                - generic [ref=e1178]:
+                  - button "location_on 위치 보기" [ref=e1180]:
+                    - generic [ref=e1181]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1182]:
+                    - /url: /properties/14a1fc04-942f-47a8-b267-d253b09db82e
+                    - generic [ref=e1183]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1186] [cursor=pointer]:
+                - generic [ref=e1187]:
+                  - generic [ref=e1189]:
+                    - generic [ref=e1190]: 상호
+                    - heading "서구청 인근 상가 1층 39평" [level=4] [ref=e1191]
+                  - button "favorite_border" [ref=e1192]
+                - paragraph [ref=e1193]: 서구, 비산동 • 1F
+                - paragraph [ref=e1194]:
+                  - generic [ref=e1195]: place
+                  - generic [ref=e1196]: 대구광역시 서구 국채보상로 257
+                - generic [ref=e1197]:
+                  - generic [ref=e1198]: 5,100만
+                  - generic [ref=e1199]: 보증금
+                  - generic [ref=e1200]: /
+                  - generic [ref=e1201]: 145만
+                  - generic [ref=e1202]: 월세
+                - generic [ref=e1204]:
+                  - generic [ref=e1205]: crop_square
+                  - generic [ref=e1206]: 39평
+                - generic [ref=e1207]:
+                  - button "location_on 위치 보기" [ref=e1209]:
+                    - generic [ref=e1210]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1211]:
+                    - /url: /properties/34be9ee6-fb51-45ac-baf6-b22d3993ce54
+                    - generic [ref=e1212]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1215] [cursor=pointer]:
+                - generic [ref=e1216]:
+                  - generic [ref=e1218]:
+                    - generic [ref=e1219]: 상호
+                    - heading "내당역 상가 1층 37평" [level=4] [ref=e1220]
+                  - button "favorite_border" [ref=e1221]
+                - paragraph [ref=e1222]: 서구, 내당동 • 1F
+                - paragraph [ref=e1223]:
+                  - generic [ref=e1224]: place
+                  - generic [ref=e1225]: 대구광역시 서구 국채보상로 543
+                - generic [ref=e1226]:
+                  - generic [ref=e1227]: 5,000만
+                  - generic [ref=e1228]: 보증금
+                  - generic [ref=e1229]: /
+                  - generic [ref=e1230]: 145만
+                  - generic [ref=e1231]: 월세
+                - generic [ref=e1232]:
+                  - generic [ref=e1233]:
+                    - generic [ref=e1234]: crop_square
+                    - generic [ref=e1235]: 37평
+                  - generic [ref=e1236]:
+                    - generic [ref=e1237]: directions_car
+                    - generic [ref=e1238]: 주차 가능
+                - generic [ref=e1239]:
+                  - button "location_on 위치 보기" [ref=e1241]:
+                    - generic [ref=e1242]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1243]:
+                    - /url: /properties/5250b4dd-c975-4d49-8ef1-d70903eaf341
+                    - generic [ref=e1244]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1247] [cursor=pointer]:
+                - generic [ref=e1248]:
+                  - generic [ref=e1250]:
+                    - generic [ref=e1251]: 상호
+                    - heading "영남대의료원 앞 상가 1층 34평" [level=4] [ref=e1252]
+                  - button "favorite_border" [ref=e1253]
+                - paragraph [ref=e1254]: 남구, 대명동 • 1F
+                - paragraph [ref=e1255]:
+                  - generic [ref=e1256]: place
+                  - generic [ref=e1257]: 대구광역시 남구 현충로 170
+                - generic [ref=e1258]:
+                  - generic [ref=e1259]: 4,700만
+                  - generic [ref=e1260]: 보증금
+                  - generic [ref=e1261]: /
+                  - generic [ref=e1262]: 128만
+                  - generic [ref=e1263]: 월세
+                - generic [ref=e1264]:
+                  - generic [ref=e1265]:
+                    - generic [ref=e1266]: crop_square
+                    - generic [ref=e1267]: 34평
+                  - generic [ref=e1268]:
+                    - generic [ref=e1269]: directions_car
+                    - generic [ref=e1270]: 주차 가능
+                - generic [ref=e1271]:
+                  - button "location_on 위치 보기" [ref=e1273]:
+                    - generic [ref=e1274]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1275]:
+                    - /url: /properties/71310dd7-b050-45ea-abdf-96c95a4cb8bf
+                    - generic [ref=e1276]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1279] [cursor=pointer]:
+                - generic [ref=e1280]:
+                  - generic [ref=e1282]:
+                    - generic [ref=e1283]: 상호
+                    - heading "봉덕시장 상가 1층 32평" [level=4] [ref=e1284]
+                  - button "favorite_border" [ref=e1285]
+                - paragraph [ref=e1286]: 남구, 봉덕동 • 1F
+                - paragraph [ref=e1287]:
+                  - generic [ref=e1288]: place
+                  - generic [ref=e1289]: 대구광역시 남구 봉덕로 87
+                - generic [ref=e1290]:
+                  - generic [ref=e1291]: 4,500만
+                  - generic [ref=e1292]: 보증금
+                  - generic [ref=e1293]: /
+                  - generic [ref=e1294]: 120만
+                  - generic [ref=e1295]: 월세
+                - generic [ref=e1296]:
+                  - generic [ref=e1297]:
+                    - generic [ref=e1298]: crop_square
+                    - generic [ref=e1299]: 32평
+                  - generic [ref=e1300]:
+                    - generic [ref=e1301]: directions_car
+                    - generic [ref=e1302]: 주차 가능
+                - generic [ref=e1303]:
+                  - button "location_on 위치 보기" [ref=e1305]:
+                    - generic [ref=e1306]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1307]:
+                    - /url: /properties/5c03d66e-9d72-4b40-a9db-6708391324a0
+                    - generic [ref=e1308]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1311] [cursor=pointer]:
+                - generic [ref=e1312]:
+                  - generic [ref=e1314]:
+                    - generic [ref=e1315]: 상호
+                    - heading "명덕역 상가 1층 31평" [level=4] [ref=e1316]
+                  - button "favorite_border" [ref=e1317]
+                - paragraph [ref=e1318]: 남구, 이천동 • 1F
+                - paragraph [ref=e1319]:
+                  - generic [ref=e1320]: place
+                  - generic [ref=e1321]: 대구광역시 남구 이천로 55
+                - generic [ref=e1322]:
+                  - generic [ref=e1323]: 4,400만
+                  - generic [ref=e1324]: 보증금
+                  - generic [ref=e1325]: /
+                  - generic [ref=e1326]: 118만
+                  - generic [ref=e1327]: 월세
+                - generic [ref=e1328]:
+                  - generic [ref=e1329]:
+                    - generic [ref=e1330]: crop_square
+                    - generic [ref=e1331]: 31평
+                  - generic [ref=e1332]:
+                    - generic [ref=e1333]: directions_car
+                    - generic [ref=e1334]: 주차 가능
+                - generic [ref=e1335]:
+                  - button "location_on 위치 보기" [ref=e1337]:
+                    - generic [ref=e1338]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1339]:
+                    - /url: /properties/254f48ff-98cd-49a9-b6dc-7a3fac58c8b3
+                    - generic [ref=e1340]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1343] [cursor=pointer]:
+                - generic [ref=e1344]:
+                  - generic [ref=e1346]:
+                    - generic [ref=e1347]: 상호
+                    - heading "다사읍 이마트 앞 상가 1층 28평" [level=4] [ref=e1348]
+                  - button "favorite_border" [ref=e1349]
+                - paragraph [ref=e1350]: 달성군, 다사읍 • 1F
+                - paragraph [ref=e1351]:
+                  - generic [ref=e1352]: place
+                  - generic [ref=e1353]: 대구광역시 달성군 다사읍 달구벌대로 789
+                - generic [ref=e1354]:
+                  - generic [ref=e1355]: 3,800만
+                  - generic [ref=e1356]: 보증금
+                  - generic [ref=e1357]: /
+                  - generic [ref=e1358]: 90만
+                  - generic [ref=e1359]: 월세
+                - generic [ref=e1361]:
+                  - generic [ref=e1362]: crop_square
+                  - generic [ref=e1363]: 28평
+                - generic [ref=e1364]:
+                  - button "location_on 위치 보기" [ref=e1366]:
+                    - generic [ref=e1367]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1368]:
+                    - /url: /properties/5f9c638d-c4c2-413b-9575-b0ada3b201a6
+                    - generic [ref=e1369]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1372] [cursor=pointer]:
+                - generic [ref=e1373]:
+                  - generic [ref=e1375]:
+                    - generic [ref=e1376]: 상호
+                    - heading "옥포읍 중심상가 1층 24평" [level=4] [ref=e1377]
+                  - button "favorite_border" [ref=e1378]
+                - paragraph [ref=e1379]: 달성군, 옥포읍 • 1F
+                - paragraph [ref=e1380]:
+                  - generic [ref=e1381]: place
+                  - generic [ref=e1382]: 대구광역시 달성군 옥포읍 옥포로 15
+                - generic [ref=e1383]:
+                  - generic [ref=e1384]: 3,500만
+                  - generic [ref=e1385]: 보증금
+                  - generic [ref=e1386]: /
+                  - generic [ref=e1387]: 80만
+                  - generic [ref=e1388]: 월세
+                - generic [ref=e1389]:
+                  - generic [ref=e1390]:
+                    - generic [ref=e1391]: crop_square
+                    - generic [ref=e1392]: 24평
+                  - generic [ref=e1393]:
+                    - generic [ref=e1394]: directions_car
+                    - generic [ref=e1395]: 주차 가능
+                - generic [ref=e1396]:
+                  - button "location_on 위치 보기" [ref=e1398]:
+                    - generic [ref=e1399]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1400]:
+                    - /url: /properties/e0cb6f7c-8c66-46e6-b979-cdde23f11bdd
+                    - generic [ref=e1401]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1404] [cursor=pointer]:
+                - generic [ref=e1405]:
+                  - generic [ref=e1407]:
+                    - generic [ref=e1408]: 상호
+                    - heading "화원읍 자이아파트 상가 1층 26평" [level=4] [ref=e1409]
+                  - button "favorite_border" [ref=e1410]
+                - paragraph [ref=e1411]: 달성군, 화원읍 • 1F
+                - paragraph [ref=e1412]:
+                  - generic [ref=e1413]: place
+                  - generic [ref=e1414]: 대구광역시 달성군 화원읍 비슬로 3060
+                - generic [ref=e1415]:
+                  - generic [ref=e1416]: 3,600만
+                  - generic [ref=e1417]: 보증금
+                  - generic [ref=e1418]: /
+                  - generic [ref=e1419]: 85만
+                  - generic [ref=e1420]: 월세
+                - generic [ref=e1422]:
+                  - generic [ref=e1423]: crop_square
+                  - generic [ref=e1424]: 26평
+                - generic [ref=e1425]:
+                  - button "location_on 위치 보기" [ref=e1427]:
+                    - generic [ref=e1428]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1429]:
+                    - /url: /properties/b2c0eae6-e7af-4329-bd36-d5e0f3f31850
+                    - generic [ref=e1430]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1433] [cursor=pointer]:
+                - generic [ref=e1434]:
+                  - generic [ref=e1436]:
+                    - generic [ref=e1437]: 상호
+                    - heading "현풍 테크노폴리스 상가 1층 23평" [level=4] [ref=e1438]
+                  - button "favorite_border" [ref=e1439]
+                - paragraph [ref=e1440]: 달성군, 현풍읍 • 1F
+                - paragraph [ref=e1441]:
+                  - generic [ref=e1442]: place
+                  - generic [ref=e1443]: 대구광역시 달성군 현풍읍 테크노대로 6
+                - generic [ref=e1444]:
+                  - generic [ref=e1445]: 3,400만
+                  - generic [ref=e1446]: 보증금
+                  - generic [ref=e1447]: /
+                  - generic [ref=e1448]: 75만
+                  - generic [ref=e1449]: 월세
+                - generic [ref=e1451]:
+                  - generic [ref=e1452]: crop_square
+                  - generic [ref=e1453]: 23평
+                - generic [ref=e1454]:
+                  - button "location_on 위치 보기" [ref=e1456]:
+                    - generic [ref=e1457]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1458]:
+                    - /url: /properties/74f99592-beab-401b-a654-7e42421129a0
+                    - generic [ref=e1459]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1462] [cursor=pointer]:
+                - generic [ref=e1463]:
+                  - generic [ref=e1465]:
+                    - generic [ref=e1466]: 상호
+                    - heading "유가읍 상가 1층 22평" [level=4] [ref=e1467]
+                  - button "favorite_border" [ref=e1468]
+                - paragraph [ref=e1469]: 달성군, 유가읍 • 1F
+                - paragraph [ref=e1470]:
+                  - generic [ref=e1471]: place
+                  - generic [ref=e1472]: 대구광역시 달성군 유가읍 테크노대로 287
+                - generic [ref=e1473]:
+                  - generic [ref=e1474]: 3,300만
+                  - generic [ref=e1475]: 보증금
+                  - generic [ref=e1476]: /
+                  - generic [ref=e1477]: 70만
+                  - generic [ref=e1478]: 월세
+                - generic [ref=e1480]:
+                  - generic [ref=e1481]: crop_square
+                  - generic [ref=e1482]: 22평
+                - generic [ref=e1483]:
+                  - button "location_on 위치 보기" [ref=e1485]:
+                    - generic [ref=e1486]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1487]:
+                    - /url: /properties/234f707d-d568-4157-b137-d44c3bbde20e
+                    - generic [ref=e1488]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1491] [cursor=pointer]:
+                - generic [ref=e1492]:
+                  - generic [ref=e1494]:
+                    - generic [ref=e1495]: 상호
+                    - heading "이곡동 홈플러스 상가 1층 42평" [level=4] [ref=e1496]
+                  - button "favorite_border" [ref=e1497]
+                - paragraph [ref=e1498]: 달서구, 이곡동 • 1F
+                - paragraph [ref=e1499]:
+                  - generic [ref=e1500]: place
+                  - generic [ref=e1501]: 대구광역시 달서구 이곡동
+                - generic [ref=e1502]:
+                  - generic [ref=e1503]: 5,500만
+                  - generic [ref=e1504]: 보증금
+                  - generic [ref=e1505]: /
+                  - generic [ref=e1506]: 170만
+                  - generic [ref=e1507]: 월세
+                - generic [ref=e1508]:
+                  - generic [ref=e1509]:
+                    - generic [ref=e1510]: crop_square
+                    - generic [ref=e1511]: 42평
+                  - generic [ref=e1512]:
+                    - generic [ref=e1513]: directions_car
+                    - generic [ref=e1514]: 주차 가능
+                - generic [ref=e1515]:
+                  - button "location_on 위치 보기" [ref=e1517]:
+                    - generic [ref=e1518]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1519]:
+                    - /url: /properties/aaa9c079-2895-402d-97a2-f1c4302c7b9d
+                    - generic [ref=e1520]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1523] [cursor=pointer]:
+                - generic [ref=e1524]:
+                  - generic [ref=e1526]:
+                    - generic [ref=e1527]: PREMIUM
+                    - generic [ref=e1528]: 상호
+                    - heading "동촌유원지 상가 1층 35평" [level=4] [ref=e1529]
+                  - button "favorite_border" [ref=e1530]
+                - paragraph [ref=e1531]: 동구, 검사동 • 1F
+                - paragraph [ref=e1532]:
+                  - generic [ref=e1533]: place
+                  - generic [ref=e1534]: 대구광역시 동구 팔공로 297
+                - generic [ref=e1535]:
+                  - generic [ref=e1536]: 4,800만
+                  - generic [ref=e1537]: 보증금
+                  - generic [ref=e1538]: /
+                  - generic [ref=e1539]: 140만
+                  - generic [ref=e1540]: 월세
+                - generic [ref=e1542]:
+                  - generic [ref=e1543]: crop_square
+                  - generic [ref=e1544]: 35평
+                - generic [ref=e1545]:
+                  - button "location_on 위치 보기" [ref=e1547]:
+                    - generic [ref=e1548]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1549]:
+                    - /url: /properties/8fe6ec24-105a-4fbc-8f32-bb6bada60fcd
+                    - generic [ref=e1550]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1553] [cursor=pointer]:
+                - generic [ref=e1554]:
+                  - generic [ref=e1556]:
+                    - generic [ref=e1557]: 상호
+                    - heading "동성로 영풍문고 빌딩 2층 38평" [level=4] [ref=e1558]
+                  - button "favorite_border" [ref=e1559]
+                - paragraph [ref=e1560]: 중구, 동성동1가 • 2F
+                - paragraph [ref=e1561]:
+                  - generic [ref=e1562]: place
+                  - generic [ref=e1563]: 대구광역시 중구 동성로 81
+                - generic [ref=e1564]:
+                  - generic [ref=e1565]: 7,500만
+                  - generic [ref=e1566]: 보증금
+                  - generic [ref=e1567]: /
+                  - generic [ref=e1568]: 280만
+                  - generic [ref=e1569]: 월세
+                - generic [ref=e1570]:
+                  - generic [ref=e1571]:
+                    - generic [ref=e1572]: crop_square
+                    - generic [ref=e1573]: 38평
+                  - generic [ref=e1574]:
+                    - generic [ref=e1575]: directions_car
+                    - generic [ref=e1576]: 주차 가능
+                - generic [ref=e1577]:
+                  - button "location_on 위치 보기" [ref=e1579]:
+                    - generic [ref=e1580]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1581]:
+                    - /url: /properties/bed6a892-209c-462e-b9ca-ef97cb01aeea
+                    - generic [ref=e1582]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1585] [cursor=pointer]:
+                - generic [ref=e1586]:
+                  - generic [ref=e1588]:
+                    - generic [ref=e1589]: PREMIUM
+                    - generic [ref=e1590]: 상호
+                    - heading "반월당 롯데영플라자 1층 50평" [level=4] [ref=e1591]
+                  - button "favorite_border" [ref=e1592]
+                - paragraph [ref=e1593]: 중구, 공평동 • 1F
+                - paragraph [ref=e1594]:
+                  - generic [ref=e1595]: place
+                  - generic [ref=e1596]: 대구광역시 중구 중앙대로 412
+                - generic [ref=e1597]:
+                  - generic [ref=e1598]: 1.0억
+                  - generic [ref=e1599]: 보증금
+                  - generic [ref=e1600]: /
+                  - generic [ref=e1601]: 400만
+                  - generic [ref=e1602]: 월세
+                - generic [ref=e1604]:
+                  - generic [ref=e1605]: crop_square
+                  - generic [ref=e1606]: 50평
+                - generic [ref=e1607]:
+                  - button "location_on 위치 보기" [ref=e1609]:
+                    - generic [ref=e1610]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1611]:
+                    - /url: /properties/72ac5001-0836-4952-9b75-061876d02ec7
+                    - generic [ref=e1612]: visibility
+                    - text: 자세히 보기
+              - generic [ref=e1615] [cursor=pointer]:
+                - generic [ref=e1616]:
+                  - generic [ref=e1618]:
+                    - generic [ref=e1619]: PREMIUM
+                    - generic [ref=e1620]: 상호
+                    - heading "교동시장 상가 A동 1층 30평" [level=4] [ref=e1621]
+                  - button "favorite_border" [ref=e1622]
+                - paragraph [ref=e1623]: 중구, 교동 • 1F
+                - paragraph [ref=e1624]:
+                  - generic [ref=e1625]: place
+                  - generic [ref=e1626]: 대구광역시 중구 동성로 36
+                - generic [ref=e1627]:
+                  - generic [ref=e1628]: 5,500만
+                  - generic [ref=e1629]: 보증금
+                  - generic [ref=e1630]: /
+                  - generic [ref=e1631]: 220만
+                  - generic [ref=e1632]: 월세
+                - generic [ref=e1634]:
+                  - generic [ref=e1635]: crop_square
+                  - generic [ref=e1636]: 30평
+                - generic [ref=e1637]:
+                  - button "location_on 위치 보기" [ref=e1639]:
+                    - generic [ref=e1640]: location_on
+                    - text: 위치 보기
+                  - link "visibility 자세히 보기" [ref=e1641]:
+                    - /url: /properties/68719b65-1f13-4266-8500-b16c1f00cf2c
+                    - generic [ref=e1642]: visibility
+                    - text: 자세히 보기
+      - generic [ref=e74]:
+        - main [ref=e75]:
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - generic:
+                  - img [ref=e81]
+                  - generic:
+                    - generic [ref=e1645] [cursor=pointer]: "9"
+                    - generic [ref=e1647] [cursor=pointer]: "6"
+                    - generic:
+                      - generic:
+                        - link "수성유원지 카페거리상가 1층 35평":
+                          - /url: javascript:void(0)
+                    - generic:
+                      - generic:
+                        - link "지산범물역 상가 1층 38평":
+                          - /url: javascript:void(0)
+                    - generic [ref=e1649] [cursor=pointer]: "3"
+                    - generic [ref=e1651] [cursor=pointer]: "2"
+                    - generic [ref=e1653] [cursor=pointer]: "2"
+                    - generic [ref=e1655] [cursor=pointer]: "5"
+                    - generic [ref=e1657] [cursor=pointer]: "3"
+                    - generic [ref=e1659] [cursor=pointer]: "3"
+                    - generic [ref=e1661] [cursor=pointer]: "5"
+                    - generic [ref=e1663] [cursor=pointer]: "3"
+              - generic [ref=e82]:
+                - generic [ref=e85]: 2km
+                - link "Kakao 맵으로 이동(새창열림)" [ref=e87] [cursor=pointer]:
+                  - /url: http://map.kakao.com/
+                  - img "Kakao 맵으로 이동(새창열림)" [ref=e88]
+            - generic [ref=e89]:
+              - button "push_pin" [ref=e90] [cursor=pointer]:
+                - generic [ref=e91]: push_pin
+              - button "my_location" [ref=e92] [cursor=pointer]:
+                - generic [ref=e93]: my_location
+              - button "add" [ref=e95] [cursor=pointer]:
+                - generic [ref=e96]: add
+              - button "remove" [ref=e97] [cursor=pointer]:
+                - generic [ref=e98]: remove
+        - generic [ref=e101]:
+          - textbox "장소명, 건물명, 주소를 입력하면 지도가 해당 위치로 이동합니다" [ref=e102]:
+            - /placeholder: 장소, 건물명, 주소 검색
+          - button "search" [ref=e103] [cursor=pointer]:
+            - generic [ref=e104]: search
+  - alert [ref=e108]
+```

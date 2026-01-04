@@ -51,23 +51,8 @@ export async function getProperties(filters?: {
       .not('longitude', 'is', null)
   }
 
-  // 키워드 검색이 있으면 OR 쿼리로 추가
-  if (filters?.keyword && filters.keyword.trim()) {
-    const keyword = filters.keyword.trim()
-    // 특수문자 이스케이프 필요 (%, _ 등)
-    const escapedKeyword = keyword.replace(/%/g, '\\%').replace(/_/g, '\\_')
-    const orQuery = `title.ilike.%${escapedKeyword}%,description.ilike.%${escapedKeyword}%,address.ilike.%${escapedKeyword}%,detail_address.ilike.%${escapedKeyword}%,district.ilike.%${escapedKeyword}%,dong.ilike.%${escapedKeyword}%`
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 Supabase OR 쿼리 (필터 적용 후):', {
-        originalKeyword: keyword,
-        escapedKeyword: escapedKeyword,
-        orQuery: orQuery
-      })
-    }
-    
-    baseQuery = baseQuery.or(orQuery)
-  }
+  // 키워드 검색은 DB에서 하지 않고 클라이언트에서 필터링 (관리자 페이지와 동일한 구조)
+  // filters.keyword는 무시됨 - 모든 매물을 가져온 후 클라이언트에서 필터링
 
   if (filters?.limit) {
     baseQuery = baseQuery.limit(filters.limit)

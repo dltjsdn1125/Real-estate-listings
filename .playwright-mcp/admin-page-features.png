@@ -1,0 +1,38 @@
+### Page state
+- Page URL: http://localhost:3000/
+- Page Title: Daegu Commercial Platform
+- Page Snapshot:
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic:
+      - img "Bright Modern Office Interior"
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - button "로그아웃" [ref=e6] [cursor=pointer]
+        - link:
+          - /url: /
+      - button "menu" [ref=e9] [cursor=pointer]:
+        - generic [ref=e10]: menu
+    - main [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e15]: real_estate_agent
+          - heading "Daegu Commercial Platform" [level=1] [ref=e16]
+          - paragraph [ref=e17]: 대구 지역 상가 중개업무 효율화를 위한 지도 기반 매물 관리 플랫폼
+          - link "map 지도로 매물 탐색하기" [ref=e19] [cursor=pointer]:
+            - /url: /map
+            - generic [ref=e20]: map
+            - text: 지도로 매물 탐색하기
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - heading "지도 기반 탐색" [level=3] [ref=e23]
+            - paragraph [ref=e24]: 대구 지역의 상가 매물을 지도에서 직관적으로 탐색할 수 있습니다.
+          - generic [ref=e25]:
+            - heading "등급별 정보" [level=3] [ref=e26]
+            - paragraph [ref=e27]: 회원 등급에 따라 상세 정보 접근 권한이 차등 제공됩니다.
+          - generic [ref=e28]:
+            - heading "효율적 관리" [level=3] [ref=e29]
+            - paragraph [ref=e30]: 중개사와 관리자를 위한 체계적인 매물 및 사용자 관리 시스템.
+  - alert [ref=e31]
+```

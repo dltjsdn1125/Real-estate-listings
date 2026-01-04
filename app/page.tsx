@@ -62,7 +62,7 @@ export default function Home() {
               {isAuthenticated ? (
                 <Link
                   href="/map"
-                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-base font-bold rounded-xl border border-primary hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 text-base font-bold rounded-xl border border-gray-900 dark:border-gray-50 hover:bg-gray-800 dark:hover:bg-gray-100 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl"
                 >
                   <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">map</span>
                   지도로 매물 탐색하기
@@ -70,7 +70,7 @@ export default function Home() {
               ) : (
                 <button
                   onClick={handleMapClick}
-                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-base font-bold rounded-xl border border-primary hover:bg-blue-700 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="group inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 text-base font-bold rounded-xl border border-gray-900 dark:border-gray-50 hover:bg-gray-800 dark:hover:bg-gray-100 hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={authLoading}
                 >
                   <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">map</span>

@@ -354,6 +354,40 @@ export default function MapSearchHeader({
                 </button>
               )}
 
+              {/* Admin/Agent: 관리자정보입력 */}
+              {isAuthenticated && (user?.role === 'admin' || user?.role === 'agent') && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    setMobileMenuOpen(false)
+                    console.log('관리자 정보 입력 버튼 클릭 (모바일) - 바로 이동')
+                    window.location.href = '/admin/contact-info'
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 w-full text-[#111318] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                  <span className="text-sm font-medium">관리자정보입력</span>
+                </button>
+              )}
+
+              {/* Admin/Agent: 매물 목록 */}
+              {isAuthenticated && (user?.role === 'admin' || user?.role === 'agent') && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    setMobileMenuOpen(false)
+                    console.log('매물 목록 버튼 클릭 (모바일) - 바로 이동')
+                    window.location.href = '/admin/properties/list'
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 w-full text-[#111318] dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <span className="material-symbols-outlined text-[20px]">list</span>
+                  <span className="text-sm font-medium">매물 목록</span>
+                </button>
+              )}
+
               <div className="my-1 border-t border-gray-200 dark:border-gray-700" />
 
               {isAuthenticated ? (

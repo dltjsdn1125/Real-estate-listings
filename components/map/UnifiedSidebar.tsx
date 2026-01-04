@@ -217,10 +217,40 @@ export default function UnifiedSidebar({
   ]
 
   // 필터링된 매물 목록
-  // 주의: 키워드 검색은 서버에서 수행되므로, 여기서는 추가 필터만 적용
+  // 키워드 검색 필터링 (관리자 페이지와 동일하게 클라이언트 측 필터링 적용)
   const filteredProperties = useMemo(() => {
-    // properties는 이미 서버에서 키워드 검색이 적용된 결과
-    return properties.filter((property) => {
+    let filtered = properties
+
+    // 키워드 검색 필터링 (관리자 페이지와 동일한 로직 - searchQuery state 사용)
+    if (searchQuery && searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase()
+      filtered = filtered.filter((property) => {
+        const title = property.title?.toLowerCase() || ''
+        const address = property.address?.toLowerCase() || ''
+        const district = property.district?.toLowerCase() || ''
+        const dong = property.dong?.toLowerCase() || ''
+        
+        // 관리자 페이지와 동일한 검색 로직: title, address, district, dong에서 검색
+        return (
+          title.includes(query) ||
+          address.includes(query) ||
+          district.includes(query) ||
+          dong.includes(query)
+        )
+      })
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 클라이언트 측 키워드 필터링:', {
+          keyword: query,
+          totalProperties: properties.length,
+          filteredCount: filtered.length,
+          sampleTitles: filtered.slice(0, 3).map(p => p.title)
+        })
+      }
+    }
+
+    // 추가 필터 적용
+    return filtered.filter((property) => {
       if (filters.district !== 'all') {
         if (!property.location.includes(filters.district)) return false
       }
@@ -229,7 +259,7 @@ export default function UnifiedSidebar({
       }
       return true
     })
-  }, [properties, filters])
+  }, [properties, filters, searchQuery])
 
   // 내가 등록한 매물 로드
   const loadMyProperties = async () => {
@@ -536,7 +566,7 @@ export default function UnifiedSidebar({
                 <div className="flex w-full items-stretch rounded-lg h-9 sm:h-12 bg-[#f0f2f4] dark:bg-gray-800 group focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                   <input
                     className="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg bg-transparent text-[#111318] dark:text-white focus:outline-none placeholder:text-[#616f89] dark:placeholder:text-gray-500 px-2 sm:px-4 text-xs sm:text-base font-normal leading-normal"
-                    placeholder="장소, 건물명, 주소 검색"
+                    placeholder="제목, 주소, 구/동으로 검색..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     disabled={isSearching}
@@ -811,13 +841,23 @@ export default function UnifiedSidebar({
 
               {/* 매물 목록 */}
               <div className="mt-3 sm:mt-6">
-                <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight pb-2 sm:pb-4">
-                  {placeSearchResults.length > 0 
-                    ? `검색 결과 ${placeSearchResults.length}개` 
-                    : searchKeyword && searchKeyword.trim()
-                    ? `검색 결과 없음 (매물 ${filteredProperties.length}개)`
-                    : `매물 ${filteredProperties.length}개`}
-                </h3>
+                <div className="flex items-center justify-between pb-2 sm:pb-4">
+                  <h3 className="text-[#111318] dark:text-white tracking-tight text-sm sm:text-lg font-bold leading-tight">
+                    {placeSearchResults.length > 0 && filteredProperties.length > 0
+                      ? `검색 결과 ${placeSearchResults.length}개 + 매물 ${filteredProperties.length}개`
+                      : placeSearchResults.length > 0
+                      ? `검색 결과 ${placeSearchResults.length}개`
+                      : searchQuery && searchQuery.trim()
+                      ? filteredProperties.length > 0
+                        ? `매물 ${filteredProperties.length}개`
+                        : `검색 결과 없음`
+                      : `매물 ${filteredProperties.length}개`}
+                  </h3>
+                  {/* 통계 정보 (관리자 페이지와 동일한 형식 - 항상 표시) */}
+                  <p className="text-xs text-gray-500 dark:text-gray-500 font-medium uppercase tracking-wide">
+                    총 {filteredProperties.length}개 / 전체 {properties.length}개
+                  </p>
+                </div>
                 <div className="flex flex-col gap-2 sm:gap-4">
                   {/* Places 검색 결과 우선 표시 */}
                   {placeSearchResults && placeSearchResults.length > 0 && placeSearchResults.map((place) => (
@@ -829,7 +869,7 @@ export default function UnifiedSidebar({
                     />
                   ))}
                   
-                  {/* DB 매물 표시 */}
+                  {/* DB 매물 표시 (관리자 페이지와 동일하게 키워드 필터링된 결과) */}
                   {filteredProperties.map((property) => (
                     <PropertyCard
                       key={property.id}
