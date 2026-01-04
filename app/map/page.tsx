@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, Suspense } from 'react'
+import { useState, useEffect, useMemo, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MapSearchHeader from '@/components/map/MapSearchHeader'
 import CentralSearchBar from '@/components/map/CentralSearchBar'
@@ -38,8 +38,9 @@ interface PropertyForMap {
   imageAlt: string
 }
 
-export default function MapPage() {
+function MapPageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user, isAuthenticated, isApproved, loading: authLoading } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [properties, setProperties] = useState<PropertyForMap[]>([])
@@ -103,6 +104,11 @@ export default function MapPage() {
     return { type: 'daegu' }
   })
 
+  // 검색 실행 중 플래그 (중복 실행 방지)
+  const isSearchingRef = useRef(false)
+  // 마운트 상태 추적
+  const isMountedRef = useRef(true)
+
   // Pin it 버튼 표시 여부 계산
   const canShowPinIt = isAuthenticated && user && (
     (user.tier && ['bronze', 'silver', 'gold', 'platinum', 'premium'].includes(user.tier)) ||
@@ -162,19 +168,107 @@ export default function MapPage() {
     }
   }, [isAuthenticated, isApproved, authLoading, router, user])
 
-  // 쿼리 파라미터에서 검색 키워드 읽기
+  // 컴포넌트 언마운트 시 플래그 설정
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search)
-      const keyword = params.get('keyword')
-      if (keyword && keyword.trim() && !searchKeyword) {
-        // 검색 키워드가 있으면 자동으로 검색 실행
-        setSearchKeyword(keyword.trim())
-        handleKeywordSearch(keyword.trim())
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  // 쿼리 파라미터에서 검색 키워드 읽기 (useSearchParams 사용)
+  useEffect(() => {
+    const keyword = searchParams.get('keyword')
+    if (keyword && keyword.trim() && keyword.trim() !== searchKeyword) {
+      // 이미 검색 중이면 스킵
+      if (isSearchingRef.current) {
+        return
       }
+      // 검색 키워드가 있으면 자동으로 검색 실행
+      const trimmedKeyword = keyword.trim()
+      setSearchKeyword(trimmedKeyword)
+      handleKeywordSearch(trimmedKeyword).catch(err => {
+        if (isMountedRef.current) {
+          console.error('검색 실행 오류:', err)
+        }
+      })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // 초기 마운트 시 한 번만 실행
+  }, [searchParams]) // searchParams가 변경될 때마다 실행
+
+  // BFCache(뒤로가기/앞으로가기 캐시) 복원 시 상태 다시 로드
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      // persisted가 true면 BFCache에서 복원된 페이지
+        if (event.persisted) {
+        console.log('BFCache에서 페이지 복원됨, 상태 재로드')
+        // 이미 검색 중이면 스킵
+        if (isSearchingRef.current) {
+          return
+        }
+        // URL에서 검색 키워드 읽기 (searchParams 사용)
+        const keyword = searchParams.get('keyword')
+        if (keyword && keyword.trim()) {
+          // 검색 키워드가 있으면 다시 검색
+          const trimmedKeyword = keyword.trim()
+          if (trimmedKeyword !== searchKeyword) {
+            setSearchKeyword(trimmedKeyword)
+          }
+          // 검색 실행 (함수 직접 호출)
+          handleKeywordSearch(trimmedKeyword).catch(err => {
+            if (isMountedRef.current) {
+              console.error('검색 재실행 오류:', err)
+            }
+          })
+        } else {
+          // 키워드 없으면 매물만 다시 로드
+          loadProperties().catch(err => {
+            if (isMountedRef.current) {
+              console.error('매물 로드 오류:', err)
+            }
+          })
+        }
+        // 사이드바 열기 (검색 결과 표시를 위해)
+        setSidebarOpen(true)
+      }
+    }
+
+    // focus 이벤트도 처리 (뒤로가기 후 포커스 복원 시)
+    const handleFocus = () => {
+      // 이미 검색 중이면 스킵
+      if (isSearchingRef.current) {
+        return
+      }
+      // URL 파라미터와 상태 동기화 (searchParams 사용)
+      const keyword = searchParams.get('keyword')
+      if (keyword && keyword.trim() && keyword.trim() !== searchKeyword) {
+        const trimmedKeyword = keyword.trim()
+        setSearchKeyword(trimmedKeyword)
+        handleKeywordSearch(trimmedKeyword).catch(err => {
+          if (isMountedRef.current) {
+            console.error('검색 재실행 오류:', err)
+          }
+        })
+      } else if (!keyword && searchKeyword) {
+        // URL에 키워드가 없는데 상태에 있으면 초기화
+        setSearchKeyword('')
+        setPlaceSearchResults([])
+        loadProperties().catch(err => {
+          if (isMountedRef.current) {
+            console.error('매물 로드 오류:', err)
+          }
+        })
+      }
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    window.addEventListener('focus', handleFocus)
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow)
+      window.removeEventListener('focus', handleFocus)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, searchKeyword]) // searchParams와 searchKeyword를 의존성에 추가
 
   useEffect(() => {
     // 매물 로드 (승인된 사용자 또는 비로그인 사용자)
@@ -451,6 +545,13 @@ export default function MapPage() {
     setRadiusSearch({ enabled: false })
     setSearchKeyword('') // 검색 키워드도 초기화
     setPlaceSearchResults([]) // 카카오 Places 검색 결과도 초기화
+    
+    // URL에서 검색 키워드 제거
+    const currentParams = new URLSearchParams(window.location.search)
+    currentParams.delete('keyword')
+    const newUrl = `${window.location.pathname}${currentParams.toString() ? `?${currentParams.toString()}` : ''}`
+    router.replace(newUrl, { scroll: false })
+    
     loadPropertiesWithFilters()
   }
 
@@ -463,8 +564,25 @@ export default function MapPage() {
     if (keyword && keyword.trim()) {
       const trimmedKeyword = keyword.trim()
 
+      // 이미 검색 중이면 스킵
+      if (isSearchingRef.current) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 검색 이미 실행 중, 스킵:', trimmedKeyword)
+        }
+        return
+      }
+
+      // 검색 시작 플래그 설정
+      isSearchingRef.current = true
+
       if (process.env.NODE_ENV === 'development') {
         console.log('🔍 handleKeywordSearch 호출:', trimmedKeyword)
+      }
+
+      // 컴포넌트가 마운트되어 있지 않으면 중단
+      if (!isMountedRef.current) {
+        isSearchingRef.current = false
+        return
       }
 
       // 검색 시작 시 이전 Places 검색 결과만 초기화 (DB 매물은 유지)
@@ -474,6 +592,16 @@ export default function MapPage() {
       setError(null)
       setSidebarOpen(true) // 검색 시 사이드바 열기
       setSidebarTab('search') // 검색 탭으로 전환
+
+      // URL에 검색 키워드 저장 (페이지 이동 후 돌아와도 검색 결과 유지)
+      const currentParams = new URLSearchParams(window.location.search)
+      if (trimmedKeyword) {
+        currentParams.set('keyword', trimmedKeyword)
+      } else {
+        currentParams.delete('keyword')
+      }
+      const newUrl = `${window.location.pathname}${currentParams.toString() ? `?${currentParams.toString()}` : ''}`
+      router.replace(newUrl, { scroll: false })
 
       try {
         // 1. 카카오 Places API로 실제 상호/주소 검색 (우선)
@@ -488,8 +616,20 @@ export default function MapPage() {
         }
         // 전국 검색은 키워드 그대로 사용
 
+        // 컴포넌트 언마운트 체크
+        if (!isMountedRef.current) {
+          isSearchingRef.current = false
+          return
+        }
+
         console.log('🔍 Places 검색 시작:', { original: trimmedKeyword, searchKeyword, region: regionSetting.type })
         const placeResults = await searchPlacesByKeyword(searchKeyword, { size: 30 })
+
+        // 컴포넌트 언마운트 체크 (비동기 작업 후)
+        if (!isMountedRef.current) {
+          isSearchingRef.current = false
+          return
+        }
 
         console.log('🔍 Places 검색 완료:', {
           keyword: trimmedKeyword,
@@ -505,9 +645,11 @@ export default function MapPage() {
         setPlaceSearchResults(placeResults)
         
         // 디버깅: 검색 결과 상태 확인
-        console.log('🔍 placeSearchResults state 업데이트:', placeResults.length, '개')
-        if (placeResults.length > 0) {
-          console.log('🔍 검색 결과 상세:', placeResults.slice(0, 3))
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 placeSearchResults state 업데이트:', placeResults.length, '개')
+          if (placeResults.length > 0) {
+            console.log('🔍 검색 결과 상세:', placeResults.slice(0, 3))
+          }
         }
 
         // 검색 결과가 있으면 첫 번째 결과 위치로 지도 이동
@@ -525,7 +667,9 @@ export default function MapPage() {
           
           // DB 검색은 비동기로 실행 (결과는 추가로 표시)
           loadPropertiesWithFilters(searchFilters).catch(err => {
-            console.error('DB 검색 오류:', err)
+            if (isMountedRef.current) {
+              console.error('DB 검색 오류:', err)
+            }
           })
           
           // 로딩 상태 해제 (Places 결과가 있으면 즉시 표시)
@@ -543,14 +687,23 @@ export default function MapPage() {
           }
 
           await loadPropertiesWithFilters(searchFilters)
-          setLoading(false)
+          
+          // 컴포넌트 언마운트 체크
+          if (isMountedRef.current) {
+            setLoading(false)
+          }
         }
 
         // 키워드 검색 시 즐겨찾기 모달 자동 열기 제거 (검색 결과 우선 표시)
       } catch (error) {
-        console.error('검색 오류:', error)
-        setError('검색 중 오류가 발생했습니다.')
-        setLoading(false)
+        if (isMountedRef.current) {
+          console.error('검색 오류:', error)
+          setError('검색 중 오류가 발생했습니다.')
+          setLoading(false)
+        }
+      } finally {
+        // 검색 완료 플래그 해제
+        isSearchingRef.current = false
       }
     } else {
       // 빈 키워드면 검색 결과 초기화
@@ -851,3 +1004,16 @@ export default function MapPage() {
   )
 }
 
+export default function MapPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display overflow-hidden h-screen flex flex-col items-center justify-center">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      }
+    >
+      <MapPageContent />
+    </Suspense>
+  )
+}

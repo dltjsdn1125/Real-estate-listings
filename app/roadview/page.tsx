@@ -32,15 +32,19 @@ function RoadviewContent() {
   })
   const [address, setAddress] = useState<string>(addressParam)
   
-  // 돌아가기 핸들러
+  // 돌아가기 핸들러 - 브라우저 히스토리 사용
   const handleBack = () => {
-    if (fromParam && fromParam !== '/map') {
-      router.push(fromParam)
-    } else if (keywordParam) {
-      // 검색 키워드가 있으면 검색 결과 페이지로 이동
+    // 검색 키워드가 있으면 키워드를 포함한 URL로 이동
+    if (keywordParam) {
       router.push(`/map?keyword=${encodeURIComponent(keywordParam)}`)
     } else {
-      router.push('/map')
+      // 브라우저 히스토리가 있으면 뒤로가기
+      if (window.history.length > 1) {
+        router.back()
+      } else {
+        // 히스토리가 없으면 맵 페이지로 이동
+        router.push(fromParam || '/map')
+      }
     }
   }
 

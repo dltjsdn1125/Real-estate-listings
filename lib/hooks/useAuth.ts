@@ -10,15 +10,8 @@ export function useAuth() {
   const [authUser, setAuthUser] = useState<any>(null)
   const initialCheckDone = useRef(false)
 
-  useEffect(() => {
-    // 이미 초기 체크가 완료되었으면 스킵
-    if (initialCheckDone.current) return
-
-    // 초기 체크 시작 표시
-    initialCheckDone.current = true
-
-    // 초기 세션 확인
-    const checkAuth = async () => {
+  // 인증 상태 확인 함수 (재사용 가능)
+  const checkAuth = async () => {
       try {
         // getUser()는 서버에서 토큰을 검증하므로 더 안정적
         const {
@@ -37,12 +30,31 @@ export function useAuth() {
         }
 
         // 인증 오류가 있으면 사용자 없음으로 처리
-        // AuthSessionMissingError는 세션이 없을 때 발생하는 정상적인 오류이므로 조용히 처리
         if (authError) {
-          // AuthSessionMissingError는 세션이 없는 정상적인 상태이므로 에러로 로깅하지 않음
-          if (authError.name !== 'AuthSessionMissingError') {
-            console.error('Auth check error:', authError)
+          // 무효한 refresh token 오류 처리
+          const isInvalidTokenError = 
+            authError.message?.includes('Invalid Refresh Token') ||
+            authError.message?.includes('Refresh Token Not Found') ||
+            authError.message?.includes('JWT') ||
+            authError.name === 'AuthSessionMissingError'
+
+          // 무효한 토큰이 발견되면 세션 정리
+          if (isInvalidTokenError && authError.name !== 'AuthSessionMissingError') {
+            // 로컬 세션 정리 (무음으로 처리)
+            try {
+              await supabase.auth.signOut({ scope: 'local' })
+            } catch (signOutError) {
+              // 정리 실패는 무시 (이미 무효한 상태)
+            }
           }
+
+          // AuthSessionMissingError는 세션이 없는 정상적인 상태이므로 에러로 로깅하지 않음
+          if (!isInvalidTokenError && process.env.NODE_ENV === 'development') {
+            console.warn('Auth check error:', authError.message)
+          }
+          
+          setAuthUser(null)
+          setUser(null)
           setLoading(false)
           return
         }
@@ -70,15 +82,45 @@ export function useAuth() {
           }
         }
       } catch (error: any) {
+        // 무효한 토큰 오류 처리
+        const isInvalidTokenError = 
+          error?.message?.includes('Invalid Refresh Token') ||
+          error?.message?.includes('Refresh Token Not Found') ||
+          error?.message?.includes('JWT') ||
+          error?.name === 'AuthSessionMissingError'
+
+        // 무효한 토큰이 발견되면 세션 정리
+        if (isInvalidTokenError && error?.name !== 'AuthSessionMissingError') {
+          try {
+            await supabase.auth.signOut({ scope: 'local' })
+          } catch (signOutError) {
+            // 정리 실패는 무시
+          }
+          setAuthUser(null)
+          setUser(null)
+        }
+
         // AuthSessionMissingError는 세션이 없는 정상적인 상태이므로 에러로 로깅하지 않음
-        if (error?.name !== 'AuthSessionMissingError') {
-          console.error('Auth check error:', error)
+        // 무효한 토큰 오류도 조용히 처리 (이미 정리했으므로)
+        if (!isInvalidTokenError && process.env.NODE_ENV === 'development') {
+          console.warn('Auth check error:', error?.message || error)
         }
       } finally {
         setLoading(false)
       }
     }
 
+  useEffect(() => {
+    // 이미 초기 체크가 완료되었으면 스킵 (단, BFCache 복원 시에는 재확인)
+    if (initialCheckDone.current) {
+      // BFCache 복원 시 재확인을 위한 핸들러는 별도로 등록
+      return
+    }
+
+    // 초기 체크 시작 표시
+    initialCheckDone.current = true
+
+    // 초기 세션 확인
     checkAuth()
 
     // 인증 상태 변경 구독
@@ -95,6 +137,20 @@ export function useAuth() {
           hasSession: !!session,
           userId: session?.user?.id
         })
+      }
+
+      // 토큰 갱신 실패 처리
+      if (event === 'TOKEN_REFRESH_FAILED') {
+        // 무효한 토큰이므로 세션 정리
+        setAuthUser(null)
+        setUser(null)
+        // 로컬 세션 정리 (무음으로 처리)
+        try {
+          await supabase.auth.signOut({ scope: 'local' })
+        } catch (error) {
+          // 정리 실패는 무시
+        }
+        return
       }
 
       if (event === 'SIGNED_OUT') {
@@ -126,8 +182,40 @@ export function useAuth() {
       }
     })
 
+    // BFCache 복원 시 인증 상태 재확인
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        console.log('🔄 useAuth - BFCache 복원, 인증 상태 재확인')
+        // 로딩 상태로 설정하고 재확인
+        setLoading(true)
+        checkAuth().finally(() => {
+          setLoading(false)
+        })
+      }
+    }
+
+    // focus 이벤트에서도 재확인 (뒤로가기 후 포커스 복원 시)
+    const handleFocus = () => {
+      // 짧은 딜레이 후 재확인 (다른 페이지에서 돌아올 때)
+      // 상태는 항상 최신이므로 조건 확인을 위해 약간의 딜레이 사용
+      setTimeout(() => {
+        if (initialCheckDone.current) {
+          console.log('🔄 useAuth - 포커스 복원, 인증 상태 재확인')
+          setLoading(true)
+          checkAuth().finally(() => {
+            setLoading(false)
+          })
+        }
+      }, 100)
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    window.addEventListener('focus', handleFocus)
+
     return () => {
       subscription.unsubscribe()
+      window.removeEventListener('pageshow', handlePageShow)
+      window.removeEventListener('focus', handleFocus)
     }
   }, [])
 

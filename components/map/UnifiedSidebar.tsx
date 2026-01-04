@@ -182,8 +182,16 @@ export default function UnifiedSidebar({
   const [registerModalOpen, setRegisterModalOpen] = useState(false)
   const [favoriteModalOpen, setFavoriteModalOpen] = useState(false)
   const [selectedKeyword, setSelectedKeyword] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState(searchKeyword || '')
   const [isSearching, setIsSearching] = useState(false)
+
+  // searchKeyword prop이 변경되면 searchQuery 상태도 업데이트
+  useEffect(() => {
+    if (searchKeyword !== searchQuery) {
+      setSearchQuery(searchKeyword)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchKeyword])
   const [showDistrictFilter, setShowDistrictFilter] = useState(false)
   const [showTypeFilter, setShowTypeFilter] = useState(false)
   const [showPriceFilter, setShowPriceFilter] = useState(false)
