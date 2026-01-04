@@ -46,6 +46,7 @@ interface MapViewProps {
   pinItMode?: boolean
   onPinItClick?: () => void
   showPinItButton?: boolean
+  selectedLocation?: { lat: number; lng: number; address?: string } | null
 }
 
 export default function MapView({
@@ -59,6 +60,7 @@ export default function MapView({
   pinItMode = false,
   onPinItClick,
   showPinItButton = false,
+  selectedLocation = null,
 }: MapViewProps) {
   const router = useRouter()
   const { user, isAuthenticated } = useAuth()
@@ -168,6 +170,7 @@ export default function MapView({
           pinItMode={pinItMode}
           onPinItClick={onPinItClick}
           showPinItButton={showPinItButton}
+          selectedLocation={selectedLocation}
         />
       </div>
 

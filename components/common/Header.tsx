@@ -9,9 +9,10 @@ interface HeaderProps {
   showLogin?: boolean
   glassmorphism?: boolean
   imageUploadButton?: React.ReactNode
+  backButton?: React.ReactNode
 }
 
-export default function Header({ showSearch = false, showLogin = true, glassmorphism = false, imageUploadButton }: HeaderProps) {
+export default function Header({ showSearch = false, showLogin = true, glassmorphism = false, imageUploadButton, backButton }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user, isAuthenticated, loading, signOut } = useAuth()
 
@@ -36,7 +37,31 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
           ? 'backdrop-blur-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10'
           : 'border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-[#111318]'
       }`}>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-2 md:gap-8 flex-1">
+          {/* 모바일에서 뒤로가기 버튼 (roadview 페이지용) */}
+          {backButton && (
+            <div className="md:hidden">
+              {backButton}
+            </div>
+          )}
+          {/* 모바일에서 로그아웃 버튼을 최 좌측에 배치 (뒤로가기 버튼이 없을 때만) */}
+          {!backButton && isAuthenticated && user && (
+            <button
+              onClick={handleLogout}
+              className={`md:hidden flex h-10 px-3 items-center justify-center rounded-lg text-sm font-bold transition-colors ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+            >
+              로그아웃
+            </button>
+          )}
+          {/* 로그아웃 버튼 (뒤로가기 버튼과 같은 행, 뒤로가기 버튼 다음에 배치) */}
+          {backButton && isAuthenticated && user && (
+            <button
+              onClick={handleLogout}
+              className={`md:hidden flex h-10 px-3 items-center justify-center rounded-lg text-sm font-bold transition-colors ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+            >
+              로그아웃
+            </button>
+          )}
           <Link href="/" className={`flex items-center gap-2 ${glassmorphism ? 'text-white' : 'text-[#111318] dark:text-white'}`}>
             <h2 className={`text-lg font-bold leading-tight tracking-[-0.015em] hidden sm:block ${glassmorphism ? 'text-white' : 'text-[#111318] dark:text-white'}`}>
               Daegu Commercial
@@ -100,6 +125,12 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
                 {imageUploadButton}
               </div>
             )}
+            {/* 데스크톱에서 뒤로가기 버튼 (backButton이 있을 때만) */}
+            {backButton && (
+              <div className="hidden md:block">
+                {backButton}
+              </div>
+            )}
             {isAuthenticated && user ? (
               <>
                 {/* User Info */}
@@ -114,10 +145,10 @@ export default function Header({ showSearch = false, showLogin = true, glassmorp
                     {user.tier}
                   </span>
                 </div>
-                {/* Logout Button */}
+                {/* Logout Button - Desktop Only (모바일은 최 좌측에 표시) */}
                 <button
                   onClick={handleLogout}
-                  className={`flex h-10 px-4 items-center justify-center rounded-lg text-sm font-bold transition-colors ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                  className={`hidden md:flex h-10 px-4 items-center justify-center rounded-lg text-sm font-bold transition-colors ${glassmorphism ? 'backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30' : 'bg-[#f0f2f4] dark:bg-gray-800 text-[#111318] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                 >
                   로그아웃
                 </button>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, memo } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, memo } from 'react'
 
 declare global {
   interface Window {
@@ -24,6 +24,7 @@ function KakaoRoadView({
   className = '',
 }: KakaoRoadViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const roadviewContainerRef = useRef<HTMLDivElement>(null)
   const roadviewRef = useRef<any>(null)
   const clientRef = useRef<any>(null)
   const isMountedRef = useRef<boolean>(true)
@@ -41,7 +42,7 @@ function KakaoRoadView({
   useEffect(() => {
     isMountedRef.current = true
     
-    if (!containerRef.current) {
+    if (!roadviewContainerRef.current) {
       isMountedRef.current = false
       return
     }
@@ -50,7 +51,7 @@ function KakaoRoadView({
     let timeoutId: NodeJS.Timeout | null = null
 
     const initRoadview = () => {
-      if (cancelled || !isMountedRef.current || !containerRef.current) return
+      if (cancelled || !isMountedRef.current || !roadviewContainerRef.current) return
 
       const kakao = window.kakao
       if (!kakao?.maps) {
@@ -72,9 +73,9 @@ function KakaoRoadView({
       }
 
       try {
-        // 로드뷰 생성 (한 번만)
-        if (!roadviewRef.current && containerRef.current) {
-          roadviewRef.current = new kakao.maps.Roadview(containerRef.current)
+        // 로드뷰 생성 (한 번만) - roadviewContainerRef를 사용
+        if (!roadviewRef.current && roadviewContainerRef.current) {
+          roadviewRef.current = new kakao.maps.Roadview(roadviewContainerRef.current)
         }
 
         // 클라이언트 생성 (한 번만)
@@ -190,18 +191,18 @@ function KakaoRoadView({
       // ref를 먼저 null로 설정하여 이후 DOM 조작을 방지
       const roadview = roadviewRef.current
       const client = clientRef.current
-      const container = containerRef.current
+      const roadviewContainer = roadviewContainerRef.current
       
       roadviewRef.current = null
       clientRef.current = null
 
-      // container의 innerHTML을 즉시 비워서 Kakao Maps가 생성한 DOM 노드를 제거
+      // roadviewContainer의 innerHTML을 즉시 비워서 Kakao Maps가 생성한 DOM 노드를 제거
       // 이렇게 하면 React가 나중에 removeChild를 시도할 때 이미 제거된 노드가 되어 오류 방지
-      if (container) {
+      if (roadviewContainer) {
         try {
-          // container의 모든 자식 노드를 안전하게 제거
+          // roadviewContainer의 모든 자식 노드를 안전하게 제거
           // innerHTML을 사용하면 Kakao Maps가 생성한 모든 노드가 한 번에 제거됨
-          container.innerHTML = ''
+          roadviewContainer.innerHTML = ''
         } catch (e) {
           // innerHTML 설정 오류 무시 (이미 제거되었을 수 있음)
         }
@@ -236,14 +237,36 @@ function KakaoRoadView({
     }
   }, [latitude, longitude])
 
+  // useLayoutEffect로 cleanup을 더 일찍 수행하여 React의 DOM 정리보다 먼저 실행
+  useLayoutEffect(() => {
+    return () => {
+      const roadviewContainer = roadviewContainerRef.current
+      if (roadviewContainer) {
+        try {
+          // React의 DOM 정리 전에 roadviewContainer를 비워서 removeChild 오류 방지
+          roadviewContainer.innerHTML = ''
+        } catch (e) {
+          // 오류 무시
+        }
+      }
+    }
+  }, [latitude, longitude])
+
   return (
     <div
       ref={containerRef}
       className={`relative ${className}`}
       style={{ width, height, minHeight: height }}
     >
+      {/* Kakao Maps가 DOM을 직접 조작하는 전용 컨테이너 */}
+      {/* React는 이 div 내부를 추적하지 않도록 분리 */}
+      <div
+        ref={roadviewContainerRef}
+        className="absolute inset-0"
+        suppressHydrationWarning
+      />
       {error ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg z-20">
           <div className="text-center p-4">
             <span className="material-symbols-outlined text-3xl text-gray-400 mb-2">streetview</span>
             <p className="text-xs text-gray-500">{error}</p>

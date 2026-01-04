@@ -80,9 +80,21 @@ function RoadviewContent() {
 
   return (
     <div className="min-h-screen bg-background-light dark:bg-background-dark">
-        <Header showSearch={true} />
+        <Header 
+          showSearch={true} 
+          backButton={
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-[#111318] dark:text-white border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+              <span className="hidden lg:inline">돌아가기</span>
+            </button>
+          }
+        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="mb-4">
+          {/* 데스크톱에서만 표시되는 뒤로가기 버튼 */}
+          <div className="hidden md:block mb-4">
             <button
               onClick={handleBack}
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-sm font-medium text-[#111318] dark:text-white border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors mb-4 shadow-sm"
@@ -96,6 +108,11 @@ function RoadviewContent() {
               </h1>
             )}
           </div>
+          {address && (
+            <h1 className="md:hidden text-xl font-bold text-[#111318] dark:text-white mb-4 px-4">
+              {decodeURIComponent(address)}
+            </h1>
+          )}
           <div className="bg-white dark:bg-[#151c2b] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
             <KakaoRoadView
               key={`${lat}-${lng}`}

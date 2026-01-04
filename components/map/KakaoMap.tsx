@@ -43,8 +43,10 @@ export default function KakaoMap({
   pinItMode = false,
   onPinItClick,
   showPinItButton = false,
+  selectedLocation = null, // 선택된 위치
 }: KakaoMapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<any>(null) // map 인스턴스를 ref로도 저장하여 항상 최신 값 참조
   const [map, setMap] = useState<any>(null)
   const [mapLoaded, setMapLoaded] = useState(false)
   const [markers, setMarkers] = useState<any[]>([])
@@ -54,6 +56,8 @@ export default function KakaoMap({
   const [userMarker, setUserMarker] = useState<any>(null)
   const [watchId, setWatchId] = useState<number | null>(null)
   const [pinItMarker, setPinItMarker] = useState<any>(null) // Pin it 모드 마커
+  const [selectedLocationMarker, setSelectedLocationMarker] = useState<any>(null) // 선택된 위치 마커
+  const pendingCenterRef = useRef<{ lat: number; lng: number } | undefined>(undefined) // 지도가 준비되기 전에 설정된 center 저장
 
   // pinItMode를 ref로 저장하여 이벤트 핸들러에서 최신 값 참조
   const pinItModeRef = useRef(pinItMode)
@@ -203,20 +207,63 @@ export default function KakaoMap({
     }
   }, [map, userLocation])
 
+  // BFCache 복원 감지 및 지도 재초기화
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        // BFCache에서 복원된 경우 - 지도를 완전히 리셋하고 재초기화
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔄 KakaoMap - BFCache 복원 감지, 지도 재초기화')
+        }
+        
+        // 모든 상태 및 ref 리셋
+        mapInstanceRef.current = null
+        setMap(null)
+        setMarkers([])
+        setClusterer(null)
+        setSelectedLocationMarker(null)
+        setPinItMarker(null)
+        
+        // Kakao Maps API가 이미 로드되어 있으면 바로 재초기화
+        // Script의 onLoad는 이미 로드된 스크립트에 대해 다시 실행되지 않으므로
+        // 직접 mapLoaded를 true로 설정하여 재초기화 트리거
+        if (window.kakao && window.kakao.maps) {
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🔄 KakaoMap - API 이미 로드됨, 즉시 재초기화')
+          }
+          // 약간의 지연을 두고 mapLoaded를 true로 설정하여 재초기화 트리거
+          // mapRef가 준비될 시간을 주기 위해 지연
+          setTimeout(() => {
+            setMapLoaded(true)
+          }, 300)
+        } else {
+          // API가 아직 로드되지 않았으면 false로 설정하여 Script의 onLoad가 처리하도록
+          setMapLoaded(false)
+        }
+      }
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow)
+    }
+  }, [])
+
   // 지도 초기화
   useEffect(() => {
     // 지도가 이미 생성되었거나 필요한 조건이 충족되지 않으면 리턴
-    if (map || !mapLoaded || !window.kakao || !window.kakao.maps) {
+    // mapInstanceRef도 확인하여 이미 지도가 있으면 스킵
+    if (map || mapInstanceRef.current || !mapLoaded || !window.kakao || !window.kakao.maps) {
       return
     }
 
     // mapRef가 준비될 때까지 대기
     const checkAndInit = () => {
-      if (!mapRef.current || map) return
+      if (!mapRef.current || map || mapInstanceRef.current) return
 
       try {
-        // 중심 좌표 결정 (우선순위: props center > GPS 위치 > 대구 중심)
-        const defaultCenter = center || userLocation || { lat: 35.8714, lng: 128.6014 }
+        // 중심 좌표 결정 (우선순위: pendingCenterRef > props center > GPS 위치 > 대구 중심)
+        const defaultCenter = pendingCenterRef.current || center || userLocation || { lat: 35.8714, lng: 128.6014 }
 
         // 고해상도 지도 옵션
         const mapOption = {
@@ -226,7 +273,16 @@ export default function KakaoMap({
 
         // 지도 생성
         const kakaoMap = new window.kakao.maps.Map(mapRef.current, mapOption)
+        mapInstanceRef.current = kakaoMap // ref에도 저장 (항상 최신 상태 유지)
         setMap(kakaoMap)
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('✅ KakaoMap - mapInstanceRef 설정 완료:', !!mapInstanceRef.current)
+        }
+        
+        // pendingCenterRef가 있으면 사용 후 초기화하지 않음 (나중에 center useEffect에서 처리)
+        // 초기화 시에는 이미 defaultCenter로 사용되었으므로 그대로 두고,
+        // map이 설정된 후 useEffect에서 pendingCenterRef를 확인하여 추가 이동 처리
 
         // 마커 클러스터러 생성 (존재하는 경우에만)
         if (window.kakao.maps.MarkerClusterer) {
@@ -357,19 +413,81 @@ export default function KakaoMap({
     }
   }, [watchId])
 
+  // center가 변경되면 pendingCenterRef에 저장 (map이 준비되기 전에도 저장)
+  useEffect(() => {
+    if (center) {
+      pendingCenterRef.current = center
+    }
+  }, [center])
+
+  // map이 설정된 직후 pendingCenterRef 확인하여 이동
+  useEffect(() => {
+    const currentMap = mapInstanceRef.current || map
+    
+    if (!currentMap || !window.kakao || !pendingCenterRef.current) {
+      return
+    }
+    
+    // map이 준비되었고 pendingCenterRef가 있으면 이동
+    const centerToMove = pendingCenterRef.current
+    if (centerToMove) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📍 KakaoMap - map 준비 후 pendingCenter로 이동:', centerToMove, 'level:', level)
+      }
+      try {
+        const moveLatLon = new window.kakao.maps.LatLng(centerToMove.lat, centerToMove.lng)
+        currentMap.panTo(moveLatLon) // 부드럽게 이동
+        
+        // level도 함께 적용
+        if (level !== undefined) {
+          currentMap.setLevel(level)
+        }
+        
+        // 이동 완료 후 초기화하지 않음 (center prop과 동기화 유지)
+      } catch (error) {
+        console.error('❌ KakaoMap - map 준비 후 이동 오류:', error)
+      }
+    }
+  }, [map, level]) // map이 설정될 때만 실행
+
   // center 또는 level이 변경되면 지도 이동 (외부에서 제어)
   useEffect(() => {
-    if (!map || !window.kakao) return
+    // mapInstanceRef를 우선 사용하여 항상 최신 map 인스턴스 참조
+    // map state가 null이어도 mapInstanceRef에 있으면 사용
+    const currentMap = mapInstanceRef.current || map
+    
+    if (!currentMap || !window.kakao || !window.kakao.maps) {
+      // map이 아직 준비되지 않았지만 center가 있으면 저장해두고 나중에 이동
+      if (center) {
+        pendingCenterRef.current = center
+        if (process.env.NODE_ENV === 'development') {
+          console.log('⚠️ KakaoMap - 지도가 아직 준비되지 않았습니다. center 저장:', center, 'mapInstanceRef:', !!mapInstanceRef.current, 'map state:', !!map)
+        }
+      }
+      return
+    }
     
     // center가 정의되어 있을 때만 지도 이동
     if (center) {
-      const moveLatLon = new window.kakao.maps.LatLng(center.lat, center.lng)
-      map.panTo(moveLatLon) // 부드럽게 이동
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📍 KakaoMap - center prop 변경으로 지도 이동:', center, 'level:', level, 'mapInstanceRef 사용:', !!mapInstanceRef.current, 'map state:', !!map)
+      }
+      try {
+        const moveLatLon = new window.kakao.maps.LatLng(center.lat, center.lng)
+        currentMap.panTo(moveLatLon) // 부드럽게 이동
+        pendingCenterRef.current = center // 동기화 유지
+      } catch (error) {
+        console.error('❌ KakaoMap - 지도 이동 오류:', error)
+      }
     }
     
     // level이 정의되어 있을 때만 확대 레벨 변경
-    if (level !== undefined && level !== map.getLevel()) {
-      map.setLevel(level) // 확대 레벨 변경
+    if (level !== undefined && currentMap.getLevel && level !== currentMap.getLevel()) {
+      try {
+        currentMap.setLevel(level) // 확대 레벨 변경
+      } catch (error) {
+        console.error('❌ KakaoMap - 레벨 변경 오류:', error)
+      }
     }
   }, [map, center, level])
 
@@ -445,6 +563,54 @@ export default function KakaoMap({
       setPinItMarker(null)
     }
   }, [pinItMode, pinItMarker])
+
+  // 선택된 위치 마커 표시
+  useEffect(() => {
+    const currentMap = mapInstanceRef.current || map
+    
+    if (!currentMap || !window.kakao || !window.kakao.maps) {
+      return
+    }
+
+    // 기존 선택 위치 마커 제거
+    if (selectedLocationMarker) {
+      selectedLocationMarker.setMap(null)
+      setSelectedLocationMarker(null)
+    }
+
+    // 새로운 선택 위치 마커 추가
+    if (selectedLocation) {
+      try {
+        // 빨간색 마커 이미지 생성
+        const markerImageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png'
+        const markerImageSize = new window.kakao.maps.Size(64, 69)
+        const markerImageOptions = {
+          offset: new window.kakao.maps.Point(32, 69), // 마커 중심점
+        }
+        const markerImage = new window.kakao.maps.MarkerImage(
+          markerImageSrc,
+          markerImageSize,
+          markerImageOptions
+        )
+
+        // 선택된 위치에 마커 생성
+        const marker = new window.kakao.maps.Marker({
+          position: new window.kakao.maps.LatLng(selectedLocation.lat, selectedLocation.lng),
+          image: markerImage,
+          zIndex: 1000, // 다른 마커보다 위에 표시
+        })
+
+        marker.setMap(currentMap)
+        setSelectedLocationMarker(marker)
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📍 선택된 위치 마커 표시:', selectedLocation)
+        }
+      } catch (error) {
+        console.error('❌ 선택된 위치 마커 생성 오류:', error)
+      }
+    }
+  }, [map, selectedLocation, selectedLocationMarker])
 
   // GPS 위치로 지도 이동 (사용자 제스처로 GPS 요청)
   const moveToUserLocation = useCallback(() => {

@@ -25,17 +25,40 @@ export default function PlaceSearchResultCard({
 
   const handleLocationClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    onLocationClick?.(place.address || place.roadAddress || place.name, {
-      lat: place.lat,
-      lng: place.lng
-    })
+    e.preventDefault()
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📍 PlaceSearchResultCard - 위치 보기 버튼 클릭:', place.name, { lat: place.lat, lng: place.lng })
+    }
+    if (onLocationClick) {
+      onLocationClick(place.address || place.roadAddress || place.name, {
+        lat: place.lat,
+        lng: place.lng
+      })
+    } else {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ onLocationClick 핸들러가 전달되지 않았습니다.')
+      }
+    }
   }
 
   return (
     <div className="group flex flex-col gap-3 bg-white dark:bg-[#151c2b] rounded-xl p-3 shadow-sm border border-primary/30 hover:border-primary/50 transition-all">
       <div 
         className="flex justify-between items-start gap-2 cursor-pointer"
-        onClick={handleLocationClick}
+        onClick={(e) => {
+          // Link, 버튼, 또는 그 내부 요소 클릭이 아닐 때만 위치 이동
+          const target = e.target as HTMLElement
+          const clickedLink = target.closest('a')
+          const clickedButton = target.closest('button')
+          
+          // Link나 버튼을 클릭한 경우 아무것도 하지 않음
+          if (clickedLink || clickedButton) {
+            return
+          }
+          
+          // 그 외의 경우에만 위치 이동
+          handleLocationClick(e)
+        }}
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
@@ -63,7 +86,14 @@ export default function PlaceSearchResultCard({
         {/* 로드뷰 보기 */}
         <Link
           href={getRoadviewUrl()}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            // router를 사용하여 이동 (Next.js Link 대신 명시적 이동)
+            if (typeof window !== 'undefined') {
+              window.location.href = getRoadviewUrl()
+            }
+          }}
           prefetch={true}
           className="h-7 rounded-lg bg-white dark:bg-gray-800 text-[#111318] dark:text-white text-xs font-medium flex items-center justify-center gap-1 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >

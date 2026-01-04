@@ -49,6 +49,7 @@ function MapPageContent() {
   const [canViewBlurredState, setCanViewBlurredState] = useState(false)
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | undefined>(undefined)
   const [mapLevel, setMapLevel] = useState<number>(8)
+  const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address?: string } | null>(null)
   const [radiusSearch, setRadiusSearch] = useState<{
     enabled: boolean
     centerLat?: number
@@ -515,9 +516,13 @@ function MapPageContent() {
   }
 
   const handleSearchAddress = (address: string, coords: { lat: number; lng: number }) => {
-    // 검색된 주소로 지도 이동만 수행 (매물 검색 아님)
+    // 검색된 주소로 지도 이동 및 마커 표시
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📍 위치 보기 클릭:', address, coords)
+    }
     setMapCenter({ lat: coords.lat, lng: coords.lng })
     setMapLevel(3) // 상세 레벨로 확대
+    setSelectedLocation({ lat: coords.lat, lng: coords.lng, address }) // 선택된 위치 저장
     // 반경 검색은 자동 활성화하지 않음 (사용자가 원할 때만 사용)
     // 지도 이동만 수행
   }
@@ -907,6 +912,7 @@ function MapPageContent() {
             onPinItClick={handlePinIt}
             showPinItButton={!!canShowPinIt}
             properties={mapProperties}
+            selectedLocation={selectedLocation}
           />
 
           {/* 중앙 검색바 */}
