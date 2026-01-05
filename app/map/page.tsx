@@ -982,6 +982,10 @@ function MapPageContent() {
   )
 }
 
+// 동적 렌더링 강제 (캐시 방지)
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default function MapPage() {
   return (
     <Suspense

@@ -1,8 +1,13 @@
 // Service Worker for PWA
 const CACHE_NAME = 'daegu-commercial-platform-v1'
+const STATIC_CACHE_NAME = 'daegu-commercial-platform-static-v1'
+
+// 캐시하지 않을 페이지 목록 (항상 최신 버전을 가져와야 하는 페이지)
+const NO_CACHE_PATHS = ['/map', '/admin', '/properties']
+
+// 정적 파일만 캐시 (페이지는 제외)
 const urlsToCache = [
   '/',
-  '/map',
   '/manifest.json',
   '/offline.html',
 ]
@@ -10,9 +15,9 @@ const urlsToCache = [
 // Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(STATIC_CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache')
+        console.log('Opened static cache')
         return cache.addAll(urlsToCache)
       })
       .catch((error) => {
@@ -28,7 +33,8 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          // 현재 버전과 정적 캐시가 아니면 모두 삭제
+          if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE_NAME) {
             console.log('Deleting old cache:', cacheName)
             return caches.delete(cacheName)
           }
@@ -38,6 +44,16 @@ self.addEventListener('activate', (event) => {
   )
   return self.clients.claim()
 })
+
+// 페이지가 캐시되지 않아야 하는지 확인
+function shouldNotCache(url) {
+  try {
+    const urlPath = new URL(url).pathname
+    return NO_CACHE_PATHS.some(path => urlPath.startsWith(path))
+  } catch {
+    return false
+  }
+}
 
 // Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
@@ -56,49 +72,59 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // 캐시하지 않아야 하는 페이지는 Network First (항상 최신 버전)
+  if (shouldNotCache(event.request.url)) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // 네트워크 응답만 반환 (캐시하지 않음)
+          return response
+        })
+        .catch(() => {
+          // 네트워크 실패 시에만 오프라인 페이지
+          if (event.request.mode === 'navigate') {
+            return caches.match('/offline.html').then((offlineResponse) => {
+              return offlineResponse || new Response('Offline', { status: 503 })
+            })
+          }
+          return new Response('Network error', { status: 503 })
+        })
+    )
+    return
+  }
+
+  // 일반 페이지는 Network First 전략 (최신 콘텐츠 우선, 실패 시 캐시)
   event.respondWith(
-    caches.match(event.request)
+    fetch(event.request)
       .then((response) => {
-        // Cache hit - return response
-        if (response) {
+        // Check if valid response
+        if (!response || response.status !== 200 || response.type !== 'basic') {
           return response
         }
 
-        // Clone the request because it's a stream
-        const fetchRequest = event.request.clone()
+        // Clone the response because it's a stream
+        const responseToCache = response.clone()
 
-        return fetch(fetchRequest)
-          .then((response) => {
-            // Check if valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response
-            }
-
-            // Clone the response because it's a stream
-            const responseToCache = response.clone()
-
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache).catch(() => {
-                // Ignore cache errors
-              })
+        // 정적 리소스만 캐시
+        if (event.request.url.includes('/manifest.json') || 
+            event.request.url.includes('/offline.html')) {
+          caches.open(STATIC_CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache).catch(() => {
+              // Ignore cache errors
             })
+          })
+        }
 
-            return response
-          })
-          .catch(() => {
-            // Network failed, return offline page if navigation request
-            if (event.request.mode === 'navigate') {
-              return caches.match('/offline.html').then((offlineResponse) => {
-                return offlineResponse || new Response('Offline', { status: 503 })
-              })
-            }
-            // For non-navigation requests, return a basic error response
-            return new Response('Network error', { status: 503 })
-          })
+        return response
       })
       .catch(() => {
-        // If cache match fails, try network
-        return fetch(event.request).catch(() => {
+        // Network failed, try cache
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse
+          }
+          
+          // Cache miss, return offline page if navigation request
           if (event.request.mode === 'navigate') {
             return caches.match('/offline.html').then((offlineResponse) => {
               return offlineResponse || new Response('Offline', { status: 503 })
