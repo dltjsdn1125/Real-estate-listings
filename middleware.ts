@@ -77,6 +77,31 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
+  // /map, /admin, /properties 경로에 캐시 방지 헤더 추가
+  if (pathname.startsWith('/map') || pathname.startsWith('/admin') || pathname.startsWith('/properties')) {
+    const headers = new Headers(response.headers)
+    headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0')
+    headers.set('CDN-Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    headers.set('Vercel-CDN-Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    headers.set('X-Vercel-Cache-Control', 'no-cache')
+    headers.set('Pragma', 'no-cache')
+    headers.set('Expires', '0')
+    
+    response = NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    })
+    
+    // 응답 헤더에 캐시 방지 헤더 추가
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0')
+    response.headers.set('CDN-Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    response.headers.set('Vercel-CDN-Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    response.headers.set('X-Vercel-Cache-Control', 'no-cache')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+  }
+
   // 디버깅 로그 - 모든 쿠키 확인
   if (pathname.startsWith('/admin')) {
     const allCookies = request.cookies.getAll()
@@ -159,12 +184,14 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
-// 미들웨어 활성화 - admin과 auth 페이지만 보호
-// /map은 비로그인 사용자도 접근 가능하므로 matcher에서 제외
+// 미들웨어 활성화 - admin, auth, map, properties 경로 모두 처리
+// /map은 비로그인 사용자도 접근 가능하지만 캐시 방지 헤더 추가를 위해 포함
 export const config = {
   matcher: [
     '/admin/:path*',
     '/auth/:path*',
+    '/map/:path*',
+    '/properties/:path*',
   ],
 }
 
