@@ -1,5 +1,7 @@
 // Service Worker for PWA
-const CACHE_NAME = 'daegu-commercial-platform-v1'
+// 버전을 타임스탬프로 동적 생성하여 배포마다 새 버전으로 인식
+const SW_VERSION = 'v' + new Date().getTime()
+const CACHE_NAME = `daegu-commercial-platform-${SW_VERSION}`
 const STATIC_CACHE_NAME = 'daegu-commercial-platform-static-v1'
 
 // 캐시하지 않을 페이지 목록 (항상 최신 버전을 가져와야 하는 페이지)
@@ -33,16 +35,18 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          // 현재 버전과 정적 캐시가 아니면 모두 삭제
-          if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE_NAME) {
+          // 정적 캐시만 유지하고 나머지는 모두 삭제 (항상 최신 버전 사용)
+          if (!cacheName.includes('static')) {
             console.log('Deleting old cache:', cacheName)
             return caches.delete(cacheName)
           }
         })
       )
+    }).then(() => {
+      // 모든 클라이언트에게 즉시 제어권 부여
+      return self.clients.claim()
     })
   )
-  return self.clients.claim()
 })
 
 // 페이지가 캐시되지 않아야 하는지 확인
@@ -72,13 +76,30 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // 캐시하지 않아야 하는 페이지는 Network First (항상 최신 버전)
+  // 캐시하지 않아야 하는 페이지는 Network Only (항상 최신 버전, 절대 캐시하지 않음)
   if (shouldNotCache(event.request.url)) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, {
+        cache: 'no-store', // 브라우저 캐시도 무시
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      })
         .then((response) => {
           // 네트워크 응답만 반환 (캐시하지 않음)
-          return response
+          // 응답 헤더에 캐시 방지 헤더 추가
+          const newHeaders = new Headers(response.headers)
+          newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+          newHeaders.set('Pragma', 'no-cache')
+          newHeaders.set('Expires', '0')
+          
+          return new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: newHeaders
+          })
         })
         .catch(() => {
           // 네트워크 실패 시에만 오프라인 페이지
