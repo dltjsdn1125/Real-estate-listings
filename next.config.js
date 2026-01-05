@@ -58,12 +58,34 @@ const nextConfig = {
         ],
       },
       {
-        // /map, /admin, /properties 경로는 캐시 방지
+        // /map 경로는 캐시 방지 (정확히 매칭)
+        source: '/map',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+        ],
+      },
+      {
+        // /map 하위 경로도 캐시 방지
         source: '/map/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-cache, no-store, must-revalidate',
+            value: 'no-cache, no-store, must-revalidate, max-age=0',
           },
           {
             key: 'Pragma',

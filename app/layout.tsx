@@ -64,6 +64,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://dapi.kakao.com" crossOrigin="anonymous" />
         {/* 모바일 화면 방향 고정 (세로) */}
         <meta name="screen-orientation" content="portrait" />
+        {/* 캐시 방지 메타 태그 */}
+        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta httpEquiv="Pragma" content="no-cache" />
+        <meta httpEquiv="Expires" content="0" />
       </head>
       <body className="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white font-display antialiased">
         {children}
@@ -81,11 +85,17 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               if ('serviceWorker' in navigator && typeof window !== 'undefined') {
-                const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                if (isDev) {
-                  navigator.serviceWorker.getRegistrations().then((registrations) => {
-                    registrations.forEach((registration) => {
-                      registration.unregister().catch(() => {});
+                // 개발 및 프로덕션 환경 모두에서 Service Worker 완전히 비활성화
+                navigator.serviceWorker.getRegistrations().then((registrations) => {
+                  registrations.forEach((registration) => {
+                    registration.unregister().catch(() => {});
+                  });
+                });
+                // 모든 캐시 삭제
+                if ('caches' in window) {
+                  caches.keys().then((cacheNames) => {
+                    cacheNames.forEach((cacheName) => {
+                      caches.delete(cacheName).catch(() => {});
                     });
                   });
                 }
